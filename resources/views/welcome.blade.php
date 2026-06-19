@@ -106,7 +106,7 @@
         </div>
 
         <!-- Cards Navigation Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto w-full pt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto w-full pt-4">
             
             <!-- PORTAL TAMU -->
             <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
@@ -170,6 +170,28 @@
                     Portal Administrator <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>
+
+            <!-- PORTAL SEKRETARIAT JENDERAL -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center border border-cyan-400/20">
+                        <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white font-outfit">Portal Sekjen</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed font-light">
+                        Pusat pemantauan & analisis eksekutif. Monitoring ketersediaan kamar, statistik okupansi real-time, keluhan tamu, serta pembuatan laporan resmi DIPA.
+                    </p>
+                    <ul class="text-[10px] text-wisma-textMuted space-y-1.5 pt-2">
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400"></i> Monitoring Okupansi Real-Time</li>
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400"></i> Tracker Keluhan & Evaluasi</li>
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400"></i> Pembuatan Laporan Resmi DIPA</li>
+                    </ul>
+                </div>
+                <a href="/sekjen" class="w-full py-3 bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 group-hover:bg-cyan-500 group-hover:text-white">
+                    Portal Sekjen <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+
 
         </div>
 

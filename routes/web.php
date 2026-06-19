@@ -17,3 +17,12 @@ Route::get('/receptionist', function () {
 Route::get('/admin', function () {
     return view('admin');
 });
+
+Route::get('/sekjen', function () {
+    return view('sekjen');
+});
+
+Route::get('/sekretariat-jenderal', function () {
+    return view('sekjen');
+});
+
