@@ -1401,6 +1401,16 @@
 
                     if (savedBookings) {
                         this.bookings = JSON.parse(savedBookings);
+                        // Patch older bookings data for schema compatibility
+                        this.bookings.forEach(b => {
+                            if (b.hasFeedback) {
+                                if (b.rating === undefined || b.rating === null) b.rating = 5.0;
+                                if (b.rating_cleanliness === undefined || b.rating_cleanliness === null) b.rating_cleanliness = Math.round(b.rating) || 5;
+                                if (b.rating_facilities === undefined || b.rating_facilities === null) b.rating_facilities = Math.round(b.rating) || 5;
+                                if (b.rating_service === undefined || b.rating_service === null) b.rating_service = Math.round(b.rating) || 5;
+                                if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
+                            }
+                        });
                     } else {
                         this.bookings = [
                             {
@@ -1415,8 +1425,45 @@
                                 status: 'Selesai',
                                 nama: 'Budi Santoso',
                                 nip: '198904122015031002',
-                                hasFeedback: false,
-                                rating: 0
+                                hasFeedback: true,
+                                rating: 4.7,
+                                rating_cleanliness: 5,
+                                rating_facilities: 4,
+                                rating_service: 5,
+                                comment: 'Pelayanan wisma sangat memuaskan, kamar bersih dan fasilitas suite bintang lima.'
+                            },
+                            {
+                                id: 'WDPR-2026-0083',
+                                unit_name: 'Ruang Rapat Nusantara III',
+                                unit_photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=100&h=100&q=80',
+                                unit_location: 'Gedung Utama • Lantai 2',
+                                check_in: '2026-06-15',
+                                check_out: '2026-06-16',
+                                nights: 1,
+                                total_price: 1200000,
+                                status: 'Selesai',
+                                nama: 'Dr. H. Heru Pramono',
+                                nip: '197805162005011003',
+                                hasFeedback: true,
+                                rating: 4.3,
+                                rating_cleanliness: 4,
+                                rating_facilities: 4,
+                                rating_service: 5,
+                                comment: 'Sangat cocok untuk rapat koordinasi, fasilitas projector dan sound system sangat baik.'
+                            },
+                            {
+                                id: 'WDPR-2026-0084',
+                                unit_name: 'Executive Suite - Wing A',
+                                unit_photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=100&h=100&q=80',
+                                unit_location: 'Wing A • Lantai 5',
+                                check_in: '2026-06-20',
+                                check_out: '2026-06-25',
+                                nights: 5,
+                                total_price: 6250000,
+                                status: 'Check In',
+                                nama: 'Ahmad Fauzi',
+                                nip: '199112022018031001',
+                                hasFeedback: false
                             }
                         ];
                         localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
@@ -1643,7 +1690,11 @@
                     const idx = this.bookings.findIndex(b => b.id === this.feedbackBooking.id);
                     if (idx !== -1) {
                         this.bookings[idx].hasFeedback = true;
-                        this.bookings[idx].rating = avg;
+                        this.bookings[idx].rating = Number(avg.toFixed(1));
+                        this.bookings[idx].rating_cleanliness = this.feedbackRating.cleanliness;
+                        this.bookings[idx].rating_facilities = this.feedbackRating.facilities;
+                        this.bookings[idx].rating_service = this.feedbackRating.service;
+                        this.bookings[idx].comment = this.feedbackComment;
                     }
 
                     this.ratingModalOpen = false;

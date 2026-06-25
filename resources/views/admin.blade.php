@@ -53,6 +53,40 @@
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            aside, header, nav, .no-print, button, .modal, .toast, [title="Keluar"], .print-hide {
+                display: none !important;
+            }
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+                width: 100% !important;
+                display: block !important;
+                background: white !important;
+            }
+            .printable-report {
+                display: block !important;
+                background: white !important;
+                padding: 20px !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
+            .page-break-inside-avoid {
+                page-break-inside: avoid !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen flex overflow-hidden">
@@ -698,9 +732,22 @@
 
                 <!-- 4. REPORTS VIEW -->
                 <div x-show="currentTab === 'admin_reports'" class="space-y-6" x-cloak>
-                    <div>
-                        <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Laporan Keuangan & Okupansi Wisma</h1>
-                        <p class="text-xs text-slate-500">Statistik performa tingkat hunian dan audit penerimaan dana DIPA.</p>
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+                        <div>
+                            <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Laporan Keuangan & Okupansi Wisma</h1>
+                            <p class="text-xs text-slate-500">Statistik performa tingkat hunian dan audit penerimaan dana DIPA.</p>
+                        </div>
+                        <button @click="printReport()" class="px-5 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan
+                        </button>
+                    </div>
+
+                    <!-- Print-only Title Header -->
+                    <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
+                        <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN OKUPANSI & REKAPITULASI PENGGUNAAN WISMA</h2>
+                        <p class="text-xs text-slate-600">Sistem Informasi & Manajemen Wisma DPR RI Kopo</p>
+                        <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                     </div>
 
                     <!-- Laporan Cards -->
@@ -733,6 +780,199 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Rekapitulasi Pernah Menginap (Kamar) -->
+                    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 printable-report">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">Rekapitulasi Tamu Pernah Menginap (Kamar)</h3>
+                                <p class="text-[11px] text-slate-500">Daftar riwayat tamu yang sudah pernah menginap atau sedang aktif menginap.</p>
+                            </div>
+                            <span class="px-2.5 py-1 bg-[#0B1A30] text-wisma-gold text-[10px] font-bold rounded-xl shadow-sm no-print" x-text="bookings.filter(b => {
+                                const isKamar = !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'));
+                                const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
+                                const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
+                                const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
+                                return isKamar && matchesActive && matchesSearch && matchesStatus;
+                            }).length + ' Tamu'"></span>
+                        </div>
+
+                        <!-- Filters for Kamar -->
+                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between no-print pt-2 pb-2">
+                            <div class="relative w-full md:w-80">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" 
+                                       x-model="reportGuestSearchKamar" 
+                                       placeholder="Cari nama tamu atau NIP..." 
+                                       class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="flex gap-2 w-full md:w-auto justify-end">
+                                <select x-model="reportGuestStatusKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto">
+                                    <option value="semua">Semua Status</option>
+                                    <option value="Check In">Menginap (Check In)</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                        <th class="py-3 px-4">No. Booking</th>
+                                        <th class="py-3 px-4">Nama Tamu & NIP</th>
+                                        <th class="py-3 px-4">Unit Kamar</th>
+                                        <th class="py-3 px-4">Tanggal Menginap</th>
+                                        <th class="py-3 px-4">Durasi</th>
+                                        <th class="py-3 px-4 text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="b in bookings.filter(b => {
+                                        const isKamar = !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'));
+                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
+                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
+                                        const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                    })" :key="b.id">
+                                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                            <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-bold text-slate-800" x-text="b.nama"></p>
+                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip"></p>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-bold text-slate-800" x-text="b.unit_name"></p>
+                                                <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.unit_location"></p>
+                                            </td>
+                                            <td class="py-3 px-4" x-text="formatIndoDate(b.check_in) + ' s/d ' + formatIndoDate(b.check_out)"></td>
+                                            <td class="py-3 px-4" x-text="b.nights + ' Malam'"></td>
+                                            <td class="py-3 px-4 text-right">
+                                                <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold"
+                                                      :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'"
+                                                      x-text="b.status === 'Check In' ? 'Menginap' : 'Selesai'"></span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="bookings.filter(b => {
+                                        const isKamar = !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'));
+                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
+                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
+                                        const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                    }).length === 0">
+                                        <td colspan="6" class="text-center py-6 text-slate-400">Tidak ada riwayat menginap kamar.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Rekapitulasi Riwayat Ruang Rapat -->
+                    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 printable-report page-break-inside-avoid">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">Rekapitulasi Pemesanan Ruang Rapat</h3>
+                                <p class="text-[11px] text-slate-500">Daftar riwayat pemesanan unit ruang rapat atau aula pertemuan.</p>
+                            </div>
+                            <span class="px-2.5 py-1 bg-[#0B1A30] text-wisma-gold text-[10px] font-bold rounded-xl shadow-sm no-print" x-text="bookings.filter(b => {
+                                const isRapat = b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium');
+                                const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
+                                const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
+                                const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
+                                return isRapat && matchesActive && matchesSearch && matchesStatus;
+                            }).length + ' Ruangan'"></span>
+                        </div>
+
+                        <!-- Filters for Rapat -->
+                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between no-print pt-2 pb-2">
+                            <div class="relative w-full md:w-80">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" 
+                                       x-model="reportGuestSearchRapat" 
+                                       placeholder="Cari nama pemesan atau NIP..." 
+                                       class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="flex gap-2 w-full md:w-auto justify-end">
+                                <select x-model="reportGuestStatusRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto">
+                                    <option value="semua">Semua Status</option>
+                                    <option value="Check In">Aktif (Check In)</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                        <th class="py-3 px-4">No. Booking</th>
+                                        <th class="py-3 px-4">Nama Pemesan & NIP</th>
+                                        <th class="py-3 px-4">Ruang Rapat</th>
+                                        <th class="py-3 px-4">Tanggal Penggunaan</th>
+                                        <th class="py-3 px-4">Durasi</th>
+                                        <th class="py-3 px-4 text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="b in bookings.filter(b => {
+                                        const isRapat = b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium');
+                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
+                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
+                                        const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
+                                        return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                    })" :key="b.id">
+                                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                            <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-bold text-slate-800" x-text="b.nama"></p>
+                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip"></p>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-bold text-slate-800" x-text="b.unit_name"></p>
+                                                <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.unit_location"></p>
+                                            </td>
+                                            <td class="py-3 px-4" x-text="formatIndoDate(b.check_in) + ' s/d ' + formatIndoDate(b.check_out)"></td>
+                                            <td class="py-3 px-4" x-text="b.nights + ' Hari'"></td>
+                                            <td class="py-3 px-4 text-right">
+                                                <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold"
+                                                      :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'"
+                                                      x-text="b.status === 'Check In' ? 'Aktif' : 'Selesai'"></span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="bookings.filter(b => {
+                                        const isRapat = b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium');
+                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
+                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
+                                        const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
+                                        return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                    }).length === 0">
+                                        <td colspan="6" class="text-center py-6 text-slate-400">Tidak ada riwayat pemesanan ruang rapat.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Signature Area for Printing -->
+                        <div class="hidden print:grid grid-cols-2 gap-8 pt-12 text-xs text-left">
+                            <div></div>
+                            <div class="text-center space-y-12">
+                                <div>
+                                    <p>Mengetahui,</p>
+                                    <p class="font-bold">Administrator Wisma DPR RI</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold underline" x-text="profile.nama"></p>
+                                    <p class="text-[10px] text-slate-500">NIP. 198510122010031004</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </main>
@@ -759,6 +999,11 @@
                 adminGuestSearch: '',
                 adminGuestFilter: 'semua',
                 adminGuestViewTab: 'tamu',
+
+                reportGuestSearchKamar: '',
+                reportGuestStatusKamar: 'semua',
+                reportGuestSearchRapat: '',
+                reportGuestStatusRapat: 'semua',
                 
                 crudModalOpen: false,
                 crudAction: 'create',
@@ -856,6 +1101,72 @@
                     }
                     if (savedBookings) {
                         this.bookings = JSON.parse(savedBookings);
+                        // Patch older bookings data for schema compatibility
+                        this.bookings.forEach(b => {
+                            if (b.hasFeedback) {
+                                if (b.rating === undefined || b.rating === null) b.rating = 5.0;
+                                if (b.rating_cleanliness === undefined || b.rating_cleanliness === null) b.rating_cleanliness = Math.round(b.rating) || 5;
+                                if (b.rating_facilities === undefined || b.rating_facilities === null) b.rating_facilities = Math.round(b.rating) || 5;
+                                if (b.rating_service === undefined || b.rating_service === null) b.rating_service = Math.round(b.rating) || 5;
+                                if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
+                            }
+                        });
+                    } else {
+                        this.bookings = [
+                            {
+                                id: 'WDPR-2026-0082',
+                                unit_name: 'VIP Suite Nusantara',
+                                unit_photo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=100&h=100&q=80',
+                                unit_location: 'Wing A • Lantai 12',
+                                check_in: '2026-05-10',
+                                check_out: '2026-05-12',
+                                nights: 2,
+                                total_price: 5550000,
+                                status: 'Selesai',
+                                nama: 'Budi Santoso',
+                                nip: '198904122015031002',
+                                hasFeedback: true,
+                                rating: 4.7,
+                                rating_cleanliness: 5,
+                                rating_facilities: 4,
+                                rating_service: 5,
+                                comment: 'Pelayanan wisma sangat memuaskan, kamar bersih dan fasilitas suite bintang lima.'
+                            },
+                            {
+                                id: 'WDPR-2026-0083',
+                                unit_name: 'Ruang Rapat Nusantara III',
+                                unit_photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=100&h=100&q=80',
+                                unit_location: 'Gedung Utama • Lantai 2',
+                                check_in: '2026-06-15',
+                                check_out: '2026-06-16',
+                                nights: 1,
+                                total_price: 1200000,
+                                status: 'Selesai',
+                                nama: 'Dr. H. Heru Pramono',
+                                nip: '197805162005011003',
+                                hasFeedback: true,
+                                rating: 4.3,
+                                rating_cleanliness: 4,
+                                rating_facilities: 4,
+                                rating_service: 5,
+                                comment: 'Sangat cocok untuk rapat koordinasi, fasilitas projector dan sound system sangat baik.'
+                            },
+                            {
+                                id: 'WDPR-2026-0084',
+                                unit_name: 'Executive Suite - Wing A',
+                                unit_photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=100&h=100&q=80',
+                                unit_location: 'Wing A • Lantai 5',
+                                check_in: '2026-06-20',
+                                check_out: '2026-06-25',
+                                nights: 5,
+                                total_price: 6250000,
+                                status: 'Check In',
+                                nama: 'Ahmad Fauzi',
+                                nip: '199112022018031001',
+                                hasFeedback: false
+                            }
+                        ];
+                        localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
                     }
                     if (savedGuests) {
                         this.guests = JSON.parse(savedGuests);
@@ -872,6 +1183,10 @@
                             window.lucide.createIcons();
                         }
                     }, 50);
+                },
+
+                printReport() {
+                    window.print();
                 },
 
                 openAddModal(type) {

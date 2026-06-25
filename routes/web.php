@@ -14,15 +14,11 @@ Route::get('/receptionist', function () {
     return view('receptionist');
 });
 
+Route::get('/customer-service', function () {
+    return view('customer_service');
+});
+
 Route::get('/admin', function () {
     return view('admin');
-});
-
-Route::get('/sekjen', function () {
-    return view('sekjen');
-});
-
-Route::get('/sekretariat-jenderal', function () {
-    return view('sekjen');
 });
 
