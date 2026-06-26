@@ -113,7 +113,7 @@
                     <div class="w-12 h-12 bg-amber-500/10 text-wisma-gold rounded-2xl flex items-center justify-center border border-wisma-gold/20">
                         <i data-lucide="user" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 font-outfit">Portal Tamu</h3>
+                    <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Tamu</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
                         Pintu masuk untuk tamu DPR RI. Lakukan pemesanan kamar/ruang rapat, download boarding pass digital, beri rating, dan kirim tiket keluhan pelayanan.
                     </p>
@@ -134,7 +134,7 @@
                     <div class="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center border border-emerald-500/20">
                         <i data-lucide="concierge-bell" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 font-outfit">Portal Resepsionis</h3>
+                    <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Resepsionis</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
                         Portal operasional Front Office. Kelola kedatangan & check-in tamu kenegaraan, update status check-out instan, serta monitoring ketersediaan kamar secara real-time.
                     </p>
@@ -155,7 +155,7 @@
                     <div class="w-12 h-12 bg-rose-500/10 text-rose-600 rounded-2xl flex items-center justify-center border border-rose-500/20">
                         <i data-lucide="life-buoy" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 font-outfit">Portal Customer Service</h3>
+                    <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Customer Service</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
                         Portal pelayanan keluhan & hubungan tamu. Catat laporan kerusakan, keluhan fasilitas kamar, laundry, makanan, internet, serta penugasan tim teknis secara real-time.
                     </p>
@@ -170,13 +170,13 @@
                 </a>
             </div>
 
-            <!-- PORTAL ADMINISTRATOR -->
+            <!-- PORTAL KOORDINATOR WISMA -->
             <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
                 <div class="space-y-4">
                     <div class="w-12 h-12 bg-indigo-500/10 text-indigo-600 rounded-2xl flex items-center justify-center border border-indigo-500/20">
                         <i data-lucide="shield" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 font-outfit">Portal Administrator</h3>
+                    <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Koordinator Wisma</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
                         Pusat kendali inventaris & manajemen. Lakukan input data CRUD kamar/ruang rapat, audit daftar tamu terdaftar, riwayat log transaksi, serta monitoring occupancy.
                     </p>
@@ -187,7 +187,7 @@
                     </ul>
                 </div>
                 <a href="/admin" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 group-hover:bg-indigo-500 group-hover:text-white">
-                    Portal Administrator <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    Portal Koordinator Wisma <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>
 
