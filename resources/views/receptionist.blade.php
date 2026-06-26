@@ -95,7 +95,7 @@
         <!-- Cover Section Left -->
         <div class="w-[55%] h-full bg-slate-900 relative overflow-hidden hidden md:block">
             <img class="absolute inset-0 w-full h-full object-cover opacity-60" 
-                 src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80">
+                 src="/images/wisma_dpr.jpg">
             <div class="absolute inset-0 bg-gradient-to-t from-wisma-dark via-wisma-dark/45 to-transparent"></div>
             
             <div class="absolute inset-x-12 bottom-16 space-y-8 z-10">
@@ -296,7 +296,7 @@
                             <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] uppercase font-bold tracking-widest rounded-full border border-emerald-400/30">Dashboard Pelayanan Tamu</span>
                             <h1 class="text-3xl font-outfit font-extrabold mt-4 mb-2 tracking-tight" x-text="'Selamat Bertugas, ' + profile.nama"></h1>
                             <p class="text-xs text-slate-300 leading-relaxed font-light">
-                                Sistem Monitoring Front Desk. Pantau antrean check-in hari ini, proses pemesanan yang masuk, serta kelola hunian kamar untuk menjamin kepuasan pelayanan.
+                                Sistem Monitoring Front Desk. Pantau antrean check-in hari ini, proses pemesanan yang masuk, serta kelola hunian bungalow untuk menjamin kepuasan pelayanan.
                             </p>
                             <div class="mt-6 flex gap-3">
                                 <button @click="switchTab('receptionist_check')" class="px-5 py-2.5 bg-wisma-gold hover:bg-wisma-goldHover text-wisma-dark font-semibold text-xs rounded-xl shadow-lg shadow-wisma-gold/20 transition-all flex items-center gap-1">
@@ -385,7 +385,7 @@
                                         <td class="py-4 px-6">
                                             <p class="font-semibold text-slate-800" x-text="formatIndoDate(b.check_in) + ' s/d'"></p>
                                             <p class="font-semibold text-slate-800" x-text="formatIndoDate(b.check_out)"></p>
-                                            <span class="text-[10px] text-slate-400 block mt-1" x-text="b.nights + ' Malam'"></span>
+                                            <span class="text-[10px] text-slate-400 block mt-1" x-text="b.nights + (b.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></span>
                                         </td>
                                         <td class="py-4 px-6">
                                             <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide"
@@ -694,12 +694,37 @@
                     const savedBookings = localStorage.getItem('wisma_bookings');
                     const savedGuests = localStorage.getItem('wisma_guests');
                     
+                    // Force refresh schema if old structure exists
+                    let needForceRefresh = false;
                     if (savedFacilities) {
-                        this.facilities = JSON.parse(savedFacilities);
+                        try {
+                            const facilitiesList = JSON.parse(savedFacilities);
+                            if (facilitiesList.length === 0 || !facilitiesList.some(f => f.name === 'Ruang Panja (Rapat)') || facilitiesList.some(f => f.price === 750000 || f.price === 850000 || f.lantai.includes('Lantai') || f.name.includes('Kamar') || f.photo.includes('unsplash.com') || (f.photo.includes('bungalow.jpg') && !f.photo.includes('_buah') && !f.photo.includes('_bunga')))) {
+                                needForceRefresh = true;
+                            }
+                        } catch (e) {
+                            needForceRefresh = true;
+                        }
+                    } else {
+                        needForceRefresh = true;
                     }
-                    if (savedBookings) {
-                        this.bookings = JSON.parse(savedBookings);
-                        // Patch older bookings data for schema compatibility
+
+                    if (needForceRefresh) {
+                        localStorage.removeItem('wisma_facilities');
+                        localStorage.removeItem('wisma_bookings');
+                        localStorage.removeItem('wisma_guests');
+                    }
+
+                    const freshFacilities = localStorage.getItem('wisma_facilities');
+                    const freshBookings = localStorage.getItem('wisma_bookings');
+                    const freshGuests = localStorage.getItem('wisma_guests');
+                    
+                    if (freshFacilities) {
+                        this.facilities = JSON.parse(freshFacilities);
+                    }
+
+                    if (freshBookings) {
+                        this.bookings = JSON.parse(freshBookings);
                         this.bookings.forEach(b => {
                             if (b.hasFeedback) {
                                 if (b.rating === undefined || b.rating === null) b.rating = 5.0;
@@ -713,13 +738,13 @@
                         this.bookings = [
                             {
                                 id: 'WDPR-2026-0082',
-                                unit_name: 'VIP Suite Nusantara',
-                                unit_photo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 12',
+                                unit_name: 'Bungalow Kedondong',
+                                unit_photo: '/images/bungalow_buah.jpg',
+                                unit_location: 'Wisma • Area Bawah',
                                 check_in: '2026-05-10',
                                 check_out: '2026-05-12',
                                 nights: 2,
-                                total_price: 5550000,
+                                total_price: 774000,
                                 status: 'Selesai',
                                 nama: 'Budi Santoso',
                                 nip: '198904122015031002',
@@ -728,36 +753,17 @@
                                 rating_cleanliness: 5,
                                 rating_facilities: 4,
                                 rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, kamar bersih dan fasilitas suite bintang lima.'
+                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
                             },
                             {
                                 id: 'WDPR-2026-0083',
-                                unit_name: 'Ruang Rapat Nusantara III',
-                                unit_photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Gedung Utama • Lantai 2',
-                                check_in: '2026-06-15',
-                                check_out: '2026-06-16',
-                                nights: 1,
-                                total_price: 1200000,
-                                status: 'Selesai',
-                                nama: 'Dr. H. Heru Pramono',
-                                nip: '197805162005011003',
-                                hasFeedback: true,
-                                rating: 4.3,
-                                rating_cleanliness: 4,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Sangat cocok untuk rapat koordinasi, fasilitas projector dan sound system sangat baik.'
-                            },
-                            {
-                                id: 'WDPR-2026-0084',
-                                unit_name: 'Executive Suite - Wing A',
-                                unit_photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 5',
+                                unit_name: 'Bungalow Widelia',
+                                unit_photo: '/images/bungalow_bunga.jpg',
+                                unit_location: 'Wisma • Area Atas',
                                 check_in: '2026-06-20',
                                 check_out: '2026-06-25',
                                 nights: 5,
-                                total_price: 6250000,
+                                total_price: 2745000,
                                 status: 'Check In',
                                 nama: 'Ahmad Fauzi',
                                 nip: '199112022018031001',
@@ -766,8 +772,8 @@
                         ];
                         localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
                     }
-                    if (savedGuests) {
-                        this.guests = JSON.parse(savedGuests);
+                    if (freshGuests) {
+                        this.guests = JSON.parse(freshGuests);
                     }
                 },
 
@@ -804,7 +810,7 @@
                     }
 
                     this.persistState();
-                    this.addToast('Check In Sukses', `Tamu ${booking.nama} resmi check-in ke kamar.`, 'success');
+                    this.addToast('Check In Sukses', `Tamu ${booking.nama} resmi check-in ke bungalow.`, 'success');
                     
                     setTimeout(() => {
                         if (window.lucide) window.lucide.createIcons();

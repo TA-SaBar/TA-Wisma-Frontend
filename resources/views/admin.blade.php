@@ -153,33 +153,19 @@
 
                     <!-- Gedung -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Gedung / Wing</label>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Gedung</label>
                         <select x-model="crudForm.gedung" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <option value="Gedung Utama">Gedung Utama</option>
-                            <option value="Wing A">Wing A</option>
-                            <option value="Wing B">Wing B</option>
-                            <option value="Wing VVIP">Wing VVIP</option>
+                            <option value="Wisma">Wisma</option>
                         </select>
                     </div>
 
-                    <!-- Lantai -->
+                    <!-- Area -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Lantai</label>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Area</label>
                         <select x-model="crudForm.lantai" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <option value="Ground Floor">Ground Floor</option>
-                            <option value="Lantai 1">Lantai 1</option>
-                            <option value="Lantai 2">Lantai 2</option>
-                            <option value="Lantai 3">Lantai 3</option>
-                            <option value="Lantai 5">Lantai 5</option>
-                            <option value="Lantai 12">Lantai 12</option>
-                            <option value="Lantai 15">Lantai 15</option>
+                            <option value="Area Bawah">Area Bawah</option>
+                            <option value="Area Atas">Area Atas</option>
                         </select>
-                    </div>
-
-                    <!-- Kapasitas -->
-                    <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Kapasitas (Orang)</label>
-                        <input type="number" x-model="crudForm.capacity" required class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                     </div>
 
                     <!-- Harga -->
@@ -192,9 +178,8 @@
                     <div class="space-y-1">
                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Satuan Tarif</label>
                         <select x-model="crudForm.unit" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <option value="night">Per Malam (Kamar)</option>
-                            <option value="4 jam">Per 4 Jam (Ruang Rapat)</option>
-                            <option value="day">Per Hari</option>
+                            <option value="night">Per Malam (Bungalow)</option>
+                            <option value="day">Per Hari (Ruang Rapat)</option>
                         </select>
                     </div>
 
@@ -206,8 +191,8 @@
 
                     <!-- Bed Configuration -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block" x-text="crudType === 'Kamar' ? 'Tipe Tempat Tidur' : 'Konfigurasi Rapat'"></label>
-                        <input type="text" x-model="crudForm.bed" placeholder="Contoh: King Size atau Conference Table" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block" x-text="(crudType === 'Buah' || crudType === 'Bunga') ? 'Tipe Tempat Tidur' : 'Konfigurasi Rapat'"></label>
+                        <input type="text" x-model="crudForm.bed" placeholder="Contoh: Queen Size atau Twin Bed" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                     </div>
 
                     <!-- Status -->
@@ -220,10 +205,15 @@
                         </select>
                     </div>
 
-                    <!-- Photo URL -->
+                    <!-- Photo Upload -->
                     <div class="space-y-1 md:col-span-2">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">URL Link Foto Unit</label>
-                        <input type="text" x-model="crudForm.photo" placeholder="https://images.unsplash.com/..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Upload Foto Bungalow</label>
+                        <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                            <input type="file" accept="image/*" @change="handlePhotoUpload($event)" class="text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#0B1A30] file:text-white hover:file:bg-slate-800 cursor-pointer flex-1">
+                            <template x-if="crudForm.photo">
+                                <img :src="crudForm.photo" class="w-12 h-12 rounded-lg object-cover border border-slate-200 flex-shrink-0">
+                            </template>
+                        </div>
                     </div>
 
                     <!-- Description -->
@@ -250,7 +240,7 @@
         <!-- Cover Section Left -->
         <div class="w-[55%] h-full bg-slate-900 relative overflow-hidden hidden md:block">
             <img class="absolute inset-0 w-full h-full object-cover opacity-60" 
-                 src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80">
+                 src="/images/wisma_dpr.jpg">
             <div class="absolute inset-0 bg-gradient-to-t from-wisma-dark via-wisma-dark/45 to-transparent"></div>
             
             <div class="absolute inset-x-12 bottom-16 space-y-8 z-10">
@@ -517,14 +507,17 @@
                 <div x-show="currentTab === 'admin_management'" class="space-y-6" x-cloak>
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Manajemen Kamar & Ruang Rapat (CRUD)</h1>
-                            <p class="text-xs text-slate-500">Tambahkan unit baru, ubah tarif kamar, kelola status kebersihan, atau hapus fasilitas dari database.</p>
+                            <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Manajemen Bungalow Wisma (CRUD)</h1>
+                            <p class="text-xs text-slate-500">Tambahkan unit baru, ubah tarif bungalow, kelola status kebersihan, atau hapus fasilitas dari database.</p>
                         </div>
                         <div class="flex gap-3">
-                            <button @click="openAddModal('Kamar')" class="px-4 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1.5">
-                                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Kamar
+                            <button @click="openAddModal('Buah')" class="px-4 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1.5">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Bungalow Buah
                             </button>
-                            <button @click="openAddModal('Ruang Rapat')" class="px-4 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1.5">
+                            <button @click="openAddModal('Bunga')" class="px-4 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1.5">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Bungalow Bunga
+                            </button>
+                            <button @click="openAddModal('Rapat')" class="px-4 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1.5">
                                 <i data-lucide="plus" class="w-4 h-4"></i> Tambah Ruang Rapat
                             </button>
                         </div>
@@ -543,15 +536,21 @@
                         </div>
                         <div class="flex bg-slate-100 p-1 rounded-xl select-none">
                             <button type="button" 
-                                    @click="adminManagementSubTab = 'Kamar'"
+                                    @click="adminManagementSubTab = 'Buah'"
                                     class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all"
-                                    :class="adminManagementSubTab === 'Kamar' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
-                                Kamar
+                                    :class="adminManagementSubTab === 'Buah' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+                                Bungalow Buah
                             </button>
                             <button type="button" 
-                                    @click="adminManagementSubTab = 'Ruang Rapat'"
+                                    @click="adminManagementSubTab = 'Bunga'"
                                     class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all"
-                                    :class="adminManagementSubTab === 'Ruang Rapat' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+                                    :class="adminManagementSubTab === 'Bunga' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+                                Bungalow Bunga
+                            </button>
+                            <button type="button" 
+                                    @click="adminManagementSubTab = 'Rapat'"
+                                    class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all"
+                                    :class="adminManagementSubTab === 'Rapat' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
                                 Ruang Rapat
                             </button>
                         </div>
@@ -563,8 +562,8 @@
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                                     <th class="py-4 px-6">Foto / Nama Unit</th>
-                                    <th class="py-4 px-6">Gedung / Lantai</th>
-                                    <th class="py-4 px-6">Kapasitas & Luas</th>
+                                    <th class="py-4 px-6">Gedung / Area</th>
+                                    <th class="py-4 px-6">Luas Area</th>
                                     <th class="py-4 px-6">Tarif Unit</th>
                                     <th class="py-4 px-6">Status</th>
                                     <th class="py-4 px-6 text-right">Aksi Manajemen</th>
@@ -585,8 +584,7 @@
                                             <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.lantai"></p>
                                         </td>
                                         <td class="py-4 px-6">
-                                            <p class="font-medium text-slate-800" x-text="f.capacity + ' Orang'"></p>
-                                            <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.luas || '30 m²'"></p>
+                                            <p class="font-medium text-slate-800" x-text="f.luas || '24 m²'"></p>
                                         </td>
                                         <td class="py-4 px-6">
                                             <p class="font-bold text-slate-900" x-text="formatRupiah(f.price)"></p>
@@ -1168,7 +1166,7 @@
                 currentTab: 'admin_dashboard',
                 
                 adminManagementSearch: '',
-                adminManagementSubTab: 'Kamar',
+                adminManagementSubTab: 'Buah',
                 
                 adminGuestSearch: '',
                 adminGuestFilter: 'semua',
@@ -1181,18 +1179,18 @@
                 
                 crudModalOpen: false,
                 crudAction: 'create',
-                crudType: 'Kamar',
+                crudType: 'Buah',
                 crudForm: {
                     id: null,
                     name: '',
-                    type: 'Kamar',
-                    gedung: 'Wing A',
-                    lantai: 'Lantai 1',
+                    type: 'Buah',
+                    gedung: 'Wisma',
+                    lantai: 'Lantai Bawah',
                     capacity: 2,
-                    price: 1000000,
+                    price: 750000,
                     unit: 'night',
-                    luas: '32 m²',
-                    bed: 'Double Bed',
+                    luas: '24 m²',
+                    bed: 'Queen Size',
                     status: 'READY',
                     photo: '',
                     description: ''
@@ -1289,12 +1287,115 @@
                     const savedGuests = localStorage.getItem('wisma_guests');
                     const savedComplaints = localStorage.getItem('wisma_complaints');
                     
+                    // Force refresh schema if old structure exists
+                    let needForceRefresh = false;
                     if (savedFacilities) {
-                        this.facilities = JSON.parse(savedFacilities);
+                        try {
+                            const facilitiesList = JSON.parse(savedFacilities);
+                            if (facilitiesList.length === 0 || !facilitiesList.some(f => f.name === 'Ruang Panja (Rapat)') || facilitiesList.some(f => f.price === 750000 || f.price === 850000 || f.lantai.includes('Lantai') || f.name.includes('Kamar') || f.photo.includes('unsplash.com') || (f.photo.includes('bungalow.jpg') && !f.photo.includes('_buah') && !f.photo.includes('_bunga')))) {
+                                needForceRefresh = true;
+                            }
+                        } catch (e) {
+                            needForceRefresh = true;
+                        }
+                    } else {
+                        needForceRefresh = true;
                     }
-                    if (savedBookings) {
-                        this.bookings = JSON.parse(savedBookings);
-                        // Patch older bookings data for schema compatibility
+
+                    if (needForceRefresh) {
+                        localStorage.removeItem('wisma_facilities');
+                        localStorage.removeItem('wisma_bookings');
+                        localStorage.removeItem('wisma_guests');
+                        localStorage.removeItem('wisma_complaints');
+                    }
+
+                    const freshFacilities = localStorage.getItem('wisma_facilities');
+                    const freshBookings = localStorage.getItem('wisma_bookings');
+                    const freshGuests = localStorage.getItem('wisma_guests');
+                    const freshComplaints = localStorage.getItem('wisma_complaints');
+
+                    if (freshFacilities) {
+                        this.facilities = JSON.parse(freshFacilities);
+                    } else {
+                        const fruitNames = [
+                            'Kedondong', 'Kesemek', 'Jamblang', 'Jeruk', 'Jambu', 'Delima', 'Duku', 'Durian',
+                            'Apel', 'Anggur', 'Leci', 'Alpukat', 'Belimbing', 'Buni', 'Cempedal', 'Ceremai',
+                            'Kelengkeng', 'Kecapi', 'Kepel', 'Kelapa', 'Salak', 'Langsat', 'Mundhu', 'Mangga',
+                            'Manggis', 'Markisa', 'Mengkudu', 'Melon', 'Nana', 'Maja', 'Nangka', 'Pepaya'
+                        ];
+                        const flowerNames = [
+                            'Widelia', 'Gladiol', 'Krisan', 'Tanjung', 'Teratai', 'Lotus', 'Seroja', 'Anthurium',
+                            'Aster', 'Kemuning', 'Lili', 'Alamanda', 'Dahlia', 'Gardenia', 'Nusa Indah', 'Kana',
+                            'Asoka', 'Raflesia', 'Lavender', 'Kenanga', 'Anyelir', 'Kamboja', 'Rosalia', 'Bugenvile'
+                        ];
+                        this.facilities = [];
+                        fruitNames.forEach((name, idx) => {
+                            const id = idx + 1;
+                            let status = 'READY';
+                            if (name === 'Durian') status = 'MAINTENANCE';
+                            if (name === 'Alpukat') status = 'CLEANING';
+                            
+                            this.facilities.push({
+                                id: id,
+                                name: 'Bungalow ' + name,
+                                type: 'Buah',
+                                gedung: 'Wisma',
+                                lantai: 'Area Bawah',
+                                capacity: 2,
+                                price: 387000,
+                                unit: 'night',
+                                luas: '24 m²',
+                                bed: 'Queen Size',
+                                status: status,
+                                photo: '/images/bungalow_buah.jpg',
+                                description: 'Bungalow Standard tipe Buah yang nyaman dengan fasilitas tempat tidur Queen Size, AC, TV, kamar mandi dalam, dan perlengkapan mandi lengkap.'
+                            });
+                        });
+                        flowerNames.forEach((name, idx) => {
+                            const id = idx < 12 ? (idx + 39) : (idx - 12 + 55);
+                            let status = 'READY';
+                            if (name === 'Dahlia') status = 'CLEANING';
+                            if (name === 'Kenanga') status = 'MAINTENANCE';
+
+                            this.facilities.push({
+                                id: id,
+                                name: 'Bungalow ' + name,
+                                type: 'Bunga',
+                                gedung: 'Wisma',
+                                lantai: 'Area Atas',
+                                capacity: 2,
+                                price: 549000,
+                                unit: 'night',
+                                luas: '28 m²',
+                                bed: 'Twin Bed',
+                                status: status,
+                                photo: '/images/bungalow_bunga.jpg',
+                                description: 'Bungalow Standard tipe Bunga yang tenang dan bersih di area atas, dilengkapi dengan Twin Bed, AC, TV, Wi-Fi, dan pemandangan luar wisma.'
+                            });
+                        });
+
+                        // Add Ruang Panja (Rapat)
+                        this.facilities.push({
+                            id: 100,
+                            name: 'Ruang Panja (Rapat)',
+                            type: 'Rapat',
+                            gedung: 'Wisma',
+                            lantai: 'Area Bawah',
+                            capacity: 30,
+                            price: 250000,
+                            unit: 'day',
+                            luas: '60 m²',
+                            bed: 'Meja Rapat Oval',
+                            status: 'READY',
+                            photo: '/images/ruang_rapat.jpeg',
+                            description: 'Ruang rapat/sidang Panja Wisma DPR RI yang nyaman, dilengkapi dengan meja oval rapat, kursi ergonomis, sound system, proyektor, AC, dan Wi-Fi cepat.'
+                        });
+
+                        localStorage.setItem('wisma_facilities', JSON.stringify(this.facilities));
+                    }
+
+                    if (freshBookings) {
+                        this.bookings = JSON.parse(freshBookings);
                         this.bookings.forEach(b => {
                             if (b.hasFeedback) {
                                 if (b.rating === undefined || b.rating === null) b.rating = 5.0;
@@ -1308,13 +1409,13 @@
                         this.bookings = [
                             {
                                 id: 'WDPR-2026-0082',
-                                unit_name: 'VIP Suite Nusantara',
-                                unit_photo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 12',
+                                unit_name: 'Bungalow Kedondong',
+                                unit_photo: '/images/bungalow_buah.jpg',
+                                unit_location: 'Wisma • Area Bawah',
                                 check_in: '2026-05-10',
                                 check_out: '2026-05-12',
                                 nights: 2,
-                                total_price: 5550000,
+                                total_price: 774000,
                                 status: 'Selesai',
                                 nama: 'Budi Santoso',
                                 nip: '198904122015031002',
@@ -1323,36 +1424,17 @@
                                 rating_cleanliness: 5,
                                 rating_facilities: 4,
                                 rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, kamar bersih dan fasilitas suite bintang lima.'
+                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
                             },
                             {
                                 id: 'WDPR-2026-0083',
-                                unit_name: 'Ruang Rapat Nusantara III',
-                                unit_photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Gedung Utama • Lantai 2',
-                                check_in: '2026-06-15',
-                                check_out: '2026-06-16',
-                                nights: 1,
-                                total_price: 1200000,
-                                status: 'Selesai',
-                                nama: 'Dr. H. Heru Pramono',
-                                nip: '197805162005011003',
-                                hasFeedback: true,
-                                rating: 4.3,
-                                rating_cleanliness: 4,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Sangat cocok untuk rapat koordinasi, fasilitas projector dan sound system sangat baik.'
-                            },
-                            {
-                                id: 'WDPR-2026-0084',
-                                unit_name: 'Executive Suite - Wing A',
-                                unit_photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 5',
+                                unit_name: 'Bungalow Widelia',
+                                unit_photo: '/images/bungalow_bunga.jpg',
+                                unit_location: 'Wisma • Area Atas',
                                 check_in: '2026-06-20',
                                 check_out: '2026-06-25',
                                 nights: 5,
-                                total_price: 6250000,
+                                total_price: 2745000,
                                 status: 'Check In',
                                 nama: 'Ahmad Fauzi',
                                 nip: '199112022018031001',
@@ -1361,11 +1443,11 @@
                         ];
                         localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
                     }
-                    if (savedGuests) {
-                        this.guests = JSON.parse(savedGuests);
+                    if (freshGuests) {
+                        this.guests = JSON.parse(freshGuests);
                     }
-                    if (savedComplaints) {
-                        this.complaints = JSON.parse(savedComplaints);
+                    if (freshComplaints) {
+                        this.complaints = JSON.parse(freshComplaints);
                     }
                 },
 
@@ -1389,17 +1471,15 @@
                         id: null,
                         name: '',
                         type: type,
-                        gedung: 'Wing A',
-                        lantai: 'Lantai 1',
-                        capacity: type === 'Kamar' ? 2 : 10,
-                        price: type === 'Kamar' ? 1000000 : 500000,
-                        unit: type === 'Kamar' ? 'night' : '4 jam',
-                        luas: type === 'Kamar' ? '32 m²' : '60 m²',
-                        bed: type === 'Kamar' ? 'Queen Size' : 'Conference Table',
+                        gedung: 'Wisma',
+                        lantai: type === 'Buah' ? 'Area Bawah' : (type === 'Bunga' ? 'Area Atas' : 'Area Bawah'),
+                        capacity: type === 'Rapat' ? 30 : 2,
+                        price: type === 'Buah' ? 387000 : (type === 'Bunga' ? 549000 : 250000),
+                        unit: type === 'Rapat' ? 'day' : 'night',
+                        luas: type === 'Buah' ? '24 m²' : (type === 'Bunga' ? '28 m²' : '60 m²'),
+                        bed: type === 'Buah' ? 'Queen Size' : (type === 'Bunga' ? 'Twin Bed' : 'Meja Rapat Oval'),
                         status: 'READY',
-                        photo: type === 'Kamar' 
-                            ? 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80'
-                            : 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=600&q=80',
+                        photo: type === 'Buah' ? '/images/bungalow_buah.jpg' : (type === 'Bunga' ? '/images/bungalow_bunga.jpg' : '/images/ruang_rapat.jpeg'),
                         description: ''
                     };
                     this.crudModalOpen = true;
@@ -1414,13 +1494,51 @@
                     this.crudForm = { ...item };
                     this.crudModalOpen = true;
                     setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
+                         if (window.lucide) window.lucide.createIcons();
                     }, 50);
                 },
 
+                handlePhotoUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            const maxW = 400;
+                            const maxH = 300;
+                            let w = img.width;
+                            let h = img.height;
+                            
+                            if (w > h) {
+                                if (w > maxW) {
+                                    h *= maxW / w;
+                                    w = maxW;
+                                }
+                            } else {
+                                if (h > maxH) {
+                                    w *= maxH / h;
+                                    h = maxH;
+                                }
+                            }
+                            
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.drawImage(img, 0, 0, w, h);
+                            this.crudForm.photo = canvas.toDataURL('image/jpeg', 0.7);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
                 saveCrudItem() {
-                    if (!this.crudForm.name || !this.crudForm.price || !this.crudForm.capacity) {
-                        this.addToast('Data Tidak Lengkap', 'Nama, harga, dan kapasitas harus diisi.', 'error');
+                    if (!this.crudForm.name || !this.crudForm.price) {
+                        this.addToast('Data Tidak Lengkap', 'Nama dan harga harus diisi.', 'error');
                         return;
                     }
 
@@ -1430,7 +1548,7 @@
                             ...this.crudForm,
                             id: newId,
                             price: parseInt(this.crudForm.price),
-                            capacity: parseInt(this.crudForm.capacity)
+                            capacity: 2
                         };
                         this.facilities.push(newItem);
                         this.addToast('Berhasil Ditambahkan', `${this.crudType} '${newItem.name}' berhasil ditambahkan.`, 'success');
@@ -1440,7 +1558,7 @@
                             this.facilities[idx] = {
                                 ...this.crudForm,
                                 price: parseInt(this.crudForm.price),
-                                capacity: parseInt(this.crudForm.capacity)
+                                capacity: 2
                             };
                             this.addToast('Berhasil Diperbarui', `${this.crudType} '${this.crudForm.name}' berhasil diperbarui.`, 'success');
                         }

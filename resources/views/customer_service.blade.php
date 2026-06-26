@@ -140,15 +140,15 @@
                 <div class="space-y-1">
                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Kategori Keluhan</label>
                     <select x-model="newComplaintForm.category" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
-                        <option value="facility">Fasilitas (Kamar, Gedung)</option>
+                        <option value="facility">Fasilitas (Bungalow, Gedung)</option>
                         <option value="laundry">Layanan Laundry</option>
                         <option value="internet">Internet / Wifi</option>
                         <option value="food">Layanan Makanan</option>
                     </select>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Lokasi (No. Kamar / Area)</label>
-                    <input type="text" x-model="newComplaintForm.location" placeholder="Contoh: Kamar 1202 atau Lobby Wing A" required class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
+                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Lokasi (No. Bungalow / Area)</label>
+                    <input type="text" x-model="newComplaintForm.location" placeholder="Contoh: Bungalow Kedondong atau Lobby Wisma" required class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Pelapor (Tamu)</label>
@@ -176,7 +176,7 @@
         <!-- Cover Section Left -->
         <div class="w-[55%] h-full bg-slate-900 relative overflow-hidden hidden md:block">
             <img class="absolute inset-0 w-full h-full object-cover opacity-60" 
-                 src="https://images.unsplash.com/photo-1521791136368-1a8b27503ad7?auto=format&fit=crop&w=1200&q=80">
+                 src="/images/wisma_dpr.jpg">
             <div class="absolute inset-0 bg-gradient-to-t from-wisma-dark via-wisma-dark/45 to-transparent"></div>
             
             <div class="absolute inset-x-12 bottom-16 space-y-8 z-10">
@@ -185,7 +185,7 @@
                         <i data-lucide="life-buoy" class="w-3 h-3"></i> Customer Service Portal
                     </span>
                     <h1 class="text-4xl font-outfit font-extrabold text-white tracking-tight leading-tight max-w-lg">
-                        Pelayanan Keluhan Tamu & Maintenance Kamar
+                        Pelayanan Keluhan Tamu & Maintenance Bungalow
                     </h1>
                     <p class="text-xs text-slate-300 leading-relaxed max-w-md font-light">
                         Portal khusus petugas Customer Service Wisma DPR RI. Catat keluhan, delegasikan tugas ke tim teknis, serta monitor resolusi secara real-time.
@@ -631,7 +631,7 @@
                                 <div class="text-xs text-slate-500 flex items-center pr-2 font-bold uppercase tracking-wide">Filter:</div>
                                 <select x-model="reportComplaintFilterCategory" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none">
                                     <option value="semua">Semua Kategori</option>
-                                    <option value="Fasilitas (Kamar, Gedung)">Fasilitas (Kamar, Gedung)</option>
+                                    <option value="Fasilitas (Bungalow, Gedung)">Fasilitas (Bungalow, Gedung)</option>
                                     <option value="Layanan Laundry">Layanan Laundry</option>
                                     <option value="Internet / Wifi">Internet / Wifi</option>
                                     <option value="Layanan Makanan">Layanan Makanan</option>
@@ -734,7 +734,7 @@
                                     <!-- Cleanliness -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
-                                            <span>Kebersihan Kamar & Gedung</span>
+                                            <span>Kebersihan Bungalow & Gedung</span>
                                             <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -1148,16 +1148,41 @@
 
                 loadState() {
                     const savedComplaints = localStorage.getItem('wisma_complaints');
-                    if (savedComplaints) {
-                        this.complaints = JSON.parse(savedComplaints);
+                    const savedBookings = localStorage.getItem('wisma_bookings');
+                    
+                    // Force refresh schema if old bookings structure exists
+                    let needForceRefresh = false;
+                    if (savedBookings) {
+                        try {
+                            const bookingsList = JSON.parse(savedBookings);
+                            if (bookingsList.length === 0 || bookingsList.some(b => b.unit_name.includes('Kamar') || b.unit_location.includes('Lantai') || b.total_price === 1500000 || b.unit_photo.includes('unsplash.com') || (b.unit_photo.includes('bungalow.jpg') && !b.unit_photo.includes('_buah') && !b.unit_photo.includes('_bunga')))) {
+                                needForceRefresh = true;
+                            }
+                        } catch (e) {
+                            needForceRefresh = true;
+                        }
+                    } else {
+                        needForceRefresh = true;
+                    }
+
+                    if (needForceRefresh) {
+                        localStorage.removeItem('wisma_complaints');
+                        localStorage.removeItem('wisma_bookings');
+                    }
+
+                    const freshComplaints = localStorage.getItem('wisma_complaints');
+                    const freshBookings = localStorage.getItem('wisma_bookings');
+
+                    if (freshComplaints) {
+                        this.complaints = JSON.parse(freshComplaints);
                     } else {
                         this.complaints = [
                             {
                                 id: 'COMP-101',
-                                title: 'AC Kamar 1202 Tidak Dingin',
-                                category: 'Fasilitas (Kamar, Gedung)',
+                                title: 'AC Bungalow Kedondong Kurang Dingin',
+                                category: 'Fasilitas (Bungalow, Gedung)',
                                 category_slug: 'facility',
-                                location: 'Kamar 1202 (Dilaporkan oleh: Bpk. Kurniawan)',
+                                location: 'Bungalow Kedondong (Dilaporkan oleh: Bpk. Kurniawan)',
                                 date: '25 Jun 2026, 10:15',
                                 status: 'Pending'
                             },
@@ -1166,7 +1191,7 @@
                                 title: 'Koneksi Wifi Terputus-putus',
                                 category: 'Internet / Wifi',
                                 category_slug: 'internet',
-                                location: 'Lobby Wing B (Dilaporkan oleh: Ibu Sri Mulyani)',
+                                location: 'Lobby Wisma (Dilaporkan oleh: Ibu Sri Mulyani)',
                                 date: '24 Jun 2026, 14:30',
                                 status: 'Processed'
                             },
@@ -1175,7 +1200,7 @@
                                 title: 'Sarapan Pagi Belum Diantar',
                                 category: 'Layanan Makanan',
                                 category_slug: 'food',
-                                location: 'Kamar 402 (Dilaporkan oleh: Bpk. Budi)',
+                                location: 'Bungalow Gladiol (Dilaporkan oleh: Bpk. Budi)',
                                 date: '24 Jun 2026, 08:00',
                                 status: 'Resolved'
                             }
@@ -1183,30 +1208,28 @@
                         localStorage.setItem('wisma_complaints', JSON.stringify(this.complaints));
                     }
 
-                    const savedBookings = localStorage.getItem('wisma_bookings');
-                    if (savedBookings) {
-                        this.bookings = JSON.parse(savedBookings);
-                        // Patch older bookings data for schema compatibility
+                    if (freshBookings) {
+                        this.bookings = JSON.parse(freshBookings);
                         this.bookings.forEach(b => {
                             if (b.hasFeedback) {
                                 if (b.rating === undefined || b.rating === null) b.rating = 5.0;
                                 if (b.rating_cleanliness === undefined || b.rating_cleanliness === null) b.rating_cleanliness = Math.round(b.rating) || 5;
                                 if (b.rating_facilities === undefined || b.rating_facilities === null) b.rating_facilities = Math.round(b.rating) || 5;
                                 if (b.rating_service === undefined || b.rating_service === null) b.rating_service = Math.round(b.rating) || 5;
-                                if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
+                                  if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
                             }
                         });
                     } else {
                         this.bookings = [
                             {
                                 id: 'WDPR-2026-0082',
-                                unit_name: 'VIP Suite Nusantara',
-                                unit_photo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 12',
+                                unit_name: 'Bungalow Kedondong',
+                                unit_photo: '/images/bungalow_buah.jpg',
+                                unit_location: 'Wisma • Area Bawah',
                                 check_in: '2026-05-10',
                                 check_out: '2026-05-12',
                                 nights: 2,
-                                total_price: 5550000,
+                                total_price: 774000,
                                 status: 'Selesai',
                                 nama: 'Budi Santoso',
                                 nip: '198904122015031002',
@@ -1215,36 +1238,17 @@
                                 rating_cleanliness: 5,
                                 rating_facilities: 4,
                                 rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, kamar bersih dan fasilitas suite bintang lima.'
+                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
                             },
                             {
                                 id: 'WDPR-2026-0083',
-                                unit_name: 'Ruang Rapat Nusantara III',
-                                unit_photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Gedung Utama • Lantai 2',
-                                check_in: '2026-06-15',
-                                check_out: '2026-06-16',
-                                nights: 1,
-                                total_price: 1200000,
-                                status: 'Selesai',
-                                nama: 'Dr. H. Heru Pramono',
-                                nip: '197805162005011003',
-                                hasFeedback: true,
-                                rating: 4.3,
-                                rating_cleanliness: 4,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Sangat cocok untuk rapat koordinasi, fasilitas projector dan sound system sangat baik.'
-                            },
-                            {
-                                id: 'WDPR-2026-0084',
-                                unit_name: 'Executive Suite - Wing A',
-                                unit_photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 5',
+                                unit_name: 'Bungalow Widelia',
+                                unit_photo: '/images/bungalow_bunga.jpg',
+                                unit_location: 'Wisma • Area Atas',
                                 check_in: '2026-06-20',
                                 check_out: '2026-06-25',
                                 nights: 5,
-                                total_price: 6250000,
+                                total_price: 2745000,
                                 status: 'Check In',
                                 nama: 'Ahmad Fauzi',
                                 nip: '199112022018031001',
@@ -1328,7 +1332,7 @@
 
                 saveNewComplaint() {
                     const categoryNames = {
-                        facility: 'Fasilitas (Kamar, Gedung)',
+                        facility: 'Fasilitas (Bungalow, Gedung)',
                         laundry: 'Layanan Laundry',
                         internet: 'Internet / Wifi',
                         food: 'Layanan Makanan'

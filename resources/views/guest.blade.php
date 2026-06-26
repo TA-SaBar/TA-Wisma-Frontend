@@ -175,7 +175,7 @@
         <!-- Cover Section Left -->
         <div class="w-[55%] h-full bg-slate-900 relative overflow-hidden hidden md:block">
             <img class="absolute inset-0 w-full h-full object-cover opacity-60" 
-                 src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80">
+                 src="/images/wisma_dpr.jpg">
             <div class="absolute inset-0 bg-gradient-to-t from-wisma-dark via-wisma-dark/45 to-transparent"></div>
             
             <div class="absolute inset-x-12 bottom-16 space-y-8 z-10">
@@ -499,7 +499,7 @@
                                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                                                 <span x-text="formatIndoDate(b.check_in) + ' - ' + formatIndoDate(b.check_out)"></span>
                                                 <span class="text-slate-300">|</span>
-                                                <span x-text="b.nights + ' Malam'"></span>
+                                                <span x-text="b.nights + (b.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></span>
                                             </p>
                                         </div>
                                     </div>
@@ -525,40 +525,34 @@
                 <!-- 2. FACILITIES CATALOG VIEW -->
                 <div x-show="currentTab === 'facilities'" class="space-y-6 fade-in" x-cloak>
                     <div>
-                        <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Katalog & Booking Kamar / Ruang Rapat</h1>
-                        <p class="text-xs text-slate-500">Jelajahi dan pesan inventaris fasilitas wisma yang tersedia.</p>
+                        <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Katalog & Booking Bungalow Wisma</h1>
+                        <p class="text-xs text-slate-500">Jelajahi dan pesan bungalow wisma yang tersedia.</p>
                     </div>
 
                     <!-- Filters Bar -->
                     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                         <div>
-                            <label class="text-[10px] text-slate-500 font-bold block mb-1 uppercase tracking-wide">Gedung / Wing</label>
+                            <label class="text-[10px] text-slate-500 font-bold block mb-1 uppercase tracking-wide">Gedung</label>
                             <select x-model="filterGedung" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none">
                                 <option value="">Semua Gedung</option>
-                                <option value="Gedung Utama">Gedung Utama</option>
-                                <option value="Wing A">Wing A</option>
-                                <option value="Wing B">Wing B</option>
-                                <option value="Wing VVIP">Wing VVIP</option>
+                                <option value="Wisma">Wisma</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 font-bold block mb-1 uppercase tracking-wide">Lantai</label>
+                            <label class="text-[10px] text-slate-500 font-bold block mb-1 uppercase tracking-wide">Area</label>
                             <select x-model="filterLantai" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none">
-                                <option value="">Semua Lantai</option>
-                                <option value="Ground Floor">Ground Floor</option>
-                                <option value="Lantai 2">Lantai 2</option>
-                                <option value="Lantai 3">Lantai 3</option>
-                                <option value="Lantai 5">Lantai 5</option>
-                                <option value="Lantai 12">Lantai 12</option>
-                                <option value="Lantai 15">Lantai 15</option>
+                                <option value="">Semua Area</option>
+                                <option value="Area Bawah">Bawah</option>
+                                <option value="Area Atas">Atas</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 font-bold block mb-1 uppercase tracking-wide">Tipe Fasilitas</label>
+                            <label class="text-[10px] text-slate-500 font-bold block mb-1 uppercase tracking-wide">Tipe Unit</label>
                             <select x-model="filterTipe" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none">
                                 <option value="">Semua Tipe</option>
-                                <option value="Kamar">Kamar</option>
-                                <option value="Ruang Rapat">Ruang Rapat</option>
+                                <option value="Buah">Bungalow Buah</option>
+                                <option value="Bunga">Bungalow Bunga</option>
+                                <option value="Rapat">Ruang Rapat</option>
                             </select>
                         </div>
                         <div>
@@ -598,7 +592,7 @@
                                         <div>
                                             <span class="text-[9px] text-slate-400 block font-medium uppercase tracking-wider">Tarif Layanan</span>
                                             <p class="text-sm font-extrabold text-slate-900" x-text="formatRupiah(f.price)"></p>
-                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide block mt-0.5" x-text="'per ' + (f.unit === 'night' ? 'Malam' : f.unit)"></p>
+                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide block mt-0.5" x-text="'per ' + (f.unit === 'night' ? 'Malam' : (f.unit === 'day' ? 'Hari' : f.unit))"></span>
                                         </div>
                                         <button @click="openDrawer(f)" class="px-4 py-2 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1">
                                             Detail <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
@@ -700,8 +694,8 @@
                                     <span class="font-semibold text-slate-900" x-text="formatIndoDate(checkOutDate)"></span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Durasi Masa Inap</span>
-                                    <span class="font-semibold text-slate-900" x-text="calculateNights() + ' Malam'"></span>
+                                    <span class="text-slate-500">Durasi Booking</span>
+                                    <span class="font-semibold text-slate-900" x-text="calculateNights() + (selectedFacility.unit === 'day' ? ' Hari' : ' Malam')"></span>
                                 </div>
                             </div>
                             <button @click="proceedToStep(2)" class="w-full py-3 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors mt-4">
@@ -748,7 +742,7 @@
                             <h3 class="text-sm font-bold text-slate-900">Rincian Pembayaran</h3>
                             <div class="space-y-2.5 text-xs">
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500" x-text="formatRupiah(selectedFacility.price) + ' x ' + calculateNights() + ' Malam'"></span>
+                                    <span class="text-slate-500" x-text="formatRupiah(selectedFacility.price) + ' x ' + calculateNights() + (selectedFacility.unit === 'day' ? ' Hari' : ' Malam')"></span>
                                     <span class="font-semibold text-slate-900" x-text="formatRupiah(selectedFacility.price * calculateNights())"></span>
                                 </div>
                                 <div class="flex justify-between">
@@ -913,7 +907,7 @@
                                     </div>
                                     <div>
                                         <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Masa Inap</span>
-                                        <p class="font-bold text-slate-800" x-text="generatedTicket.nights + ' Malam'"></p>
+                                        <p class="font-bold text-slate-800" x-text="generatedTicket.nights + (generatedTicket.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></p>
                                     </div>
                                 </div>
                             </div>
@@ -964,7 +958,7 @@
                                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                                                 <span x-text="formatIndoDate(b.check_in) + ' - ' + formatIndoDate(b.check_out)"></span>
                                                 <span class="text-slate-300">•</span>
-                                                <span x-text="b.nights + ' Malam'"></span>
+                                                <span x-text="b.nights + (b.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></span>
                                             </p>
                                         </div>
                                     </div>
@@ -1137,14 +1131,7 @@
                         <p class="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span x-text="drawerFacility.gedung + ' • ' + drawerFacility.lantai"></span></p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center gap-3">
-                            <i data-lucide="users" class="w-5 h-5 text-slate-500"></i>
-                            <div>
-                                <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Kapasitas</span>
-                                <p class="text-xs font-bold text-slate-800" x-text="drawerFacility.capacity + ' Orang'"></p>
-                            </div>
-                        </div>
+                    <div class="grid grid-cols-1 gap-4">
                         <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center gap-3">
                             <i data-lucide="maximize" class="w-5 h-5 text-slate-500"></i>
                             <div>
@@ -1315,93 +1302,116 @@
                     const savedGuests = localStorage.getItem('wisma_guests');
                     const savedComplaints = localStorage.getItem('wisma_complaints');
                     
-                    // Fallback to defaults if not exists in localStorage
+                    // Force refresh schema if old structure exists
+                    let needForceRefresh = false;
                     if (savedFacilities) {
-                        this.facilities = JSON.parse(savedFacilities);
-                    } else {
-                        this.facilities = [
-                            {
-                                id: 1,
-                                name: 'VIP Suite Nusantara',
-                                type: 'Kamar',
-                                gedung: 'Wing A',
-                                lantai: 'Lantai 12',
-                                capacity: 2,
-                                price: 2500000,
-                                unit: 'night',
-                                luas: '45 m²',
-                                bed: 'King Size',
-                                status: 'READY',
-                                photo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80',
-                                description: 'Fasilitas utama untuk tamu kenegaraan tingkat tinggi dengan desain mewah, ruang lounge pribadi, kamar mandi marmer berpemanas, dan pemandangan panorama kota Jakarta.'
-                            },
-                            {
-                                id: 2,
-                                name: 'Ruang Rapat Nusantara III',
-                                type: 'Ruang Rapat',
-                                gedung: 'Gedung Utama',
-                                lantai: 'Lantai 2',
-                                capacity: 25,
-                                price: 1200000,
-                                unit: '4 jam',
-                                luas: '80 m²',
-                                bed: 'Conference Table',
-                                status: 'CLEANING',
-                                photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=600&q=80',
-                                description: 'Ruang rapat medium dengan sistem audio-visual terintegrasi, layar proyeksi otomatis, mikrofon konferensi nirkabel, dan layanan asisten rapat siap sedia.'
-                            },
-                            {
-                                id: 3,
-                                name: 'Auditorium Sasana Bhakti',
-                                type: 'Ruang Rapat',
-                                gedung: 'Gedung Utama',
-                                lantai: 'Ground Floor',
-                                capacity: 500,
-                                price: 10000000,
-                                unit: 'day',
-                                luas: '600 m²',
-                                bed: 'Theater Seating',
-                                status: 'MAINTENANCE',
-                                photo: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=600&q=80',
-                                description: 'Balai serbaguna berkapasitas besar untuk acara formal, pelantikan, seminar internasional, atau pameran seni. Dilengkapi akustik profesional dan pencahayaan panggung lengkap.'
-                            },
-                            {
-                                id: 4,
-                                name: 'Executive Suite - Wing A',
-                                type: 'Kamar',
-                                gedung: 'Wing A',
-                                lantai: 'Lantai 5',
-                                capacity: 2,
-                                price: 1250000,
-                                unit: 'night',
-                                luas: '40 m²',
-                                bed: 'King Size',
-                                status: 'READY',
-                                photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80',
-                                description: 'Suite Eksekutif dirancang khusus untuk memenuhi standar kenyamanan pejabat negara dan tamu penting. Memiliki ruang kerja luas terpisah, smart home system, dan lounge bar mini.'
-                            },
-                            {
-                                id: 5,
-                                name: 'Superior Room - Wing B',
-                                type: 'Kamar',
-                                gedung: 'Wing B',
-                                lantai: 'Lantai 3',
-                                capacity: 2,
-                                price: 1050000,
-                                unit: 'night',
-                                luas: '32 m²',
-                                bed: 'Queen Size',
-                                status: 'READY',
-                                photo: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80',
-                                description: 'Kamar superior bernuansa modern minimalis dengan fasilitas lengkap, kasur berkualitas tinggi, meja kerja ergonomis, dan akses Wi-Fi berkecepatan tinggi.'
+                        try {
+                            const facilitiesList = JSON.parse(savedFacilities);
+                            if (facilitiesList.length === 0 || !facilitiesList.some(f => f.name === 'Ruang Panja (Rapat)') || facilitiesList.some(f => f.price === 750000 || f.price === 850000 || f.lantai.includes('Lantai') || f.name.includes('Kamar') || f.photo.includes('unsplash.com') || (f.photo.includes('bungalow.jpg') && !f.photo.includes('_buah') && !f.photo.includes('_bunga')))) {
+                                needForceRefresh = true;
                             }
+                        } catch (e) {
+                            needForceRefresh = true;
+                        }
+                    } else {
+                        needForceRefresh = true;
+                    }
+
+                    if (needForceRefresh) {
+                        localStorage.removeItem('wisma_facilities');
+                        localStorage.removeItem('wisma_bookings');
+                        localStorage.removeItem('wisma_guests');
+                        localStorage.removeItem('wisma_complaints');
+                    }
+
+                    const freshFacilities = localStorage.getItem('wisma_facilities');
+                    const freshBookings = localStorage.getItem('wisma_bookings');
+                    const freshGuests = localStorage.getItem('wisma_guests');
+                    const freshComplaints = localStorage.getItem('wisma_complaints');
+
+                    // Fallback to defaults if not exists in localStorage
+                    if (freshFacilities) {
+                        this.facilities = JSON.parse(freshFacilities);
+                    } else {
+                        const fruitNames = [
+                            'Kedondong', 'Kesemek', 'Jamblang', 'Jeruk', 'Jambu', 'Delima', 'Duku', 'Durian',
+                            'Apel', 'Anggur', 'Leci', 'Alpukat', 'Belimbing', 'Buni', 'Cempedal', 'Ceremai',
+                            'Kelengkeng', 'Kecapi', 'Kepel', 'Kelapa', 'Salak', 'Langsat', 'Mundhu', 'Mangga',
+                            'Manggis', 'Markisa', 'Mengkudu', 'Melon', 'Nana', 'Maja', 'Nangka', 'Pepaya'
                         ];
+                        const flowerNames = [
+                            'Widelia', 'Gladiol', 'Krisan', 'Tanjung', 'Teratai', 'Lotus', 'Seroja', 'Anthurium',
+                            'Aster', 'Kemuning', 'Lili', 'Alamanda', 'Dahlia', 'Gardenia', 'Nusa Indah', 'Kana',
+                            'Asoka', 'Raflesia', 'Lavender', 'Kenanga', 'Anyelir', 'Kamboja', 'Rosalia', 'Bugenvile'
+                        ];
+                        this.facilities = [];
+                        fruitNames.forEach((name, idx) => {
+                            const id = idx + 1;
+                            let status = 'READY';
+                            if (name === 'Durian') status = 'MAINTENANCE';
+                            if (name === 'Alpukat') status = 'CLEANING';
+                            
+                            this.facilities.push({
+                                id: id,
+                                name: 'Bungalow ' + name,
+                                type: 'Buah',
+                                gedung: 'Wisma',
+                                lantai: 'Area Bawah',
+                                capacity: 2,
+                                price: 387000,
+                                unit: 'night',
+                                luas: '24 m²',
+                                bed: 'Queen Size',
+                                status: status,
+                                photo: '/images/bungalow_buah.jpg',
+                                description: 'Bungalow Standard tipe Buah yang nyaman dengan fasilitas tempat tidur Queen Size, AC, TV, kamar mandi dalam, dan perlengkapan mandi lengkap.'
+                            });
+                        });
+                        flowerNames.forEach((name, idx) => {
+                            const id = idx < 12 ? (idx + 39) : (idx - 12 + 55);
+                            let status = 'READY';
+                            if (name === 'Dahlia') status = 'CLEANING';
+                            if (name === 'Kenanga') status = 'MAINTENANCE';
+
+                            this.facilities.push({
+                                id: id,
+                                name: 'Bungalow ' + name,
+                                type: 'Bunga',
+                                gedung: 'Wisma',
+                                lantai: 'Area Atas',
+                                capacity: 2,
+                                price: 549000,
+                                unit: 'night',
+                                luas: '28 m²',
+                                bed: 'Twin Bed',
+                                status: status,
+                                photo: '/images/bungalow_bunga.jpg',
+                                description: 'Bungalow Standard tipe Bunga yang tenang dan bersih di lantai atas, dilengkapi dengan Twin Bed, AC, TV, Wi-Fi, dan pemandangan luar wisma.'
+                            });
+                        });
+
+                        // Add Ruang Panja (Rapat)
+                        this.facilities.push({
+                            id: 100,
+                            name: 'Ruang Panja (Rapat)',
+                            type: 'Rapat',
+                            gedung: 'Wisma',
+                            lantai: 'Area Bawah',
+                            capacity: 30,
+                            price: 250000,
+                            unit: 'day',
+                            luas: '60 m²',
+                            bed: 'Meja Rapat Oval',
+                            status: 'READY',
+                            photo: '/images/ruang_rapat.jpeg',
+                            description: 'Ruang rapat/sidang Panja Wisma DPR RI yang nyaman, dilengkapi dengan meja oval rapat, kursi ergonomis, sound system, proyektor, AC, dan Wi-Fi cepat.'
+                        });
+
                         localStorage.setItem('wisma_facilities', JSON.stringify(this.facilities));
                     }
 
-                    if (savedBookings) {
-                        this.bookings = JSON.parse(savedBookings);
-                        // Patch older bookings data for schema compatibility
+                    if (freshBookings) {
+                        this.bookings = JSON.parse(freshBookings);
                         this.bookings.forEach(b => {
                             if (b.hasFeedback) {
                                 if (b.rating === undefined || b.rating === null) b.rating = 5.0;
@@ -1415,13 +1425,13 @@
                         this.bookings = [
                             {
                                 id: 'WDPR-2026-0082',
-                                unit_name: 'VIP Suite Nusantara',
-                                unit_photo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 12',
+                                unit_name: 'Bungalow Kedondong',
+                                unit_photo: '/images/bungalow_buah.jpg',
+                                unit_location: 'Wisma • Area Bawah',
                                 check_in: '2026-05-10',
                                 check_out: '2026-05-12',
                                 nights: 2,
-                                total_price: 5550000,
+                                total_price: 774000,
                                 status: 'Selesai',
                                 nama: 'Budi Santoso',
                                 nip: '198904122015031002',
@@ -1430,36 +1440,17 @@
                                 rating_cleanliness: 5,
                                 rating_facilities: 4,
                                 rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, kamar bersih dan fasilitas suite bintang lima.'
+                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
                             },
                             {
                                 id: 'WDPR-2026-0083',
-                                unit_name: 'Ruang Rapat Nusantara III',
-                                unit_photo: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Gedung Utama • Lantai 2',
-                                check_in: '2026-06-15',
-                                check_out: '2026-06-16',
-                                nights: 1,
-                                total_price: 1200000,
-                                status: 'Selesai',
-                                nama: 'Dr. H. Heru Pramono',
-                                nip: '197805162005011003',
-                                hasFeedback: true,
-                                rating: 4.3,
-                                rating_cleanliness: 4,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Sangat cocok untuk rapat koordinasi, fasilitas projector dan sound system sangat baik.'
-                            },
-                            {
-                                id: 'WDPR-2026-0084',
-                                unit_name: 'Executive Suite - Wing A',
-                                unit_photo: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=100&h=100&q=80',
-                                unit_location: 'Wing A • Lantai 5',
+                                unit_name: 'Bungalow Widelia',
+                                unit_photo: '/images/bungalow_bunga.jpg',
+                                unit_location: 'Wisma • Area Atas',
                                 check_in: '2026-06-20',
                                 check_out: '2026-06-25',
                                 nights: 5,
-                                total_price: 6250000,
+                                total_price: 2745000,
                                 status: 'Check In',
                                 nama: 'Ahmad Fauzi',
                                 nip: '199112022018031001',
@@ -1469,8 +1460,8 @@
                         localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
                     }
 
-                    if (savedGuests) {
-                        this.guests = JSON.parse(savedGuests);
+                    if (freshGuests) {
+                        this.guests = JSON.parse(freshGuests);
                     } else {
                         this.guests = [
                             {
@@ -1487,16 +1478,16 @@
                         localStorage.setItem('wisma_guests', JSON.stringify(this.guests));
                     }
 
-                    if (savedComplaints) {
-                        this.complaints = JSON.parse(savedComplaints);
+                    if (freshComplaints) {
+                        this.complaints = JSON.parse(freshComplaints);
                     } else {
                         this.complaints = [
                             {
                                 id: 'COMP-101',
-                                title: 'AC Kamar 402 Tidak Dingin',
+                                title: 'AC Bungalow Kedondong Kurang Dingin',
                                 category: 'Fasilitas (Kamar, Gedung)',
                                 category_slug: 'facility',
-                                location: 'Kamar 402',
+                                location: 'Bungalow Kedondong',
                                 date: '24 Okt 2023, 09:15',
                                 status: 'Pending',
                                 icon: 'wind'
@@ -1865,7 +1856,7 @@
                         
                         if (checkOutVal > checkInVal) {
                             this.checkOutDate = dateStr;
-                            this.addToast('Check-out Dipilih', `Masa inap: ${this.calculateNights()} malam.`, 'success');
+                            this.addToast('Check-out Dipilih', `Durasi: ${this.calculateNights()} ${this.selectedFacility.unit === 'day' ? 'hari' : 'malam'}.`, 'success');
                         } else {
                             this.checkInDate = dateStr;
                             this.checkOutDate = null;

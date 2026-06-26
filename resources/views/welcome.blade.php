@@ -64,10 +64,8 @@
 
     <!-- Background Wallpaper -->
     <div class="absolute inset-0 z-0">
-        <img class="w-full h-full object-cover opacity-90" 
-             src="/wisma_dpr_kopo.png">
-        <!-- Soft light overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-100 via-slate-100/90 to-slate-100/70"></div>
+        <img class="w-full h-full object-cover" 
+             src="/images/wisma_dpr.jpg">
     </div>
 
     <!-- Header Logo & Nav -->
@@ -93,13 +91,13 @@
         
         <!-- Hero Title -->
         <div class="text-center space-y-4 max-w-3xl mx-auto">
-            <span class="text-[10px] text-amber-700 font-extrabold uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-wisma-gold/25 inline-block">
+            <span class="text-[10px] text-amber-900 font-extrabold uppercase tracking-widest bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-wisma-gold/40 inline-block shadow-sm">
                 Sistem Terpadu Pelayanan Wisma
             </span>
-            <h1 class="text-3xl lg:text-5xl font-outfit font-extrabold text-slate-900 tracking-tight leading-none">
+            <h1 class="text-3xl lg:text-5xl font-outfit font-extrabold text-slate-900 tracking-tight leading-none" style="text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, 0 0 8px #fff;">
                 Portal Pelayanan Digital Wisma DPR RI
             </h1>
-            <p class="text-xs lg:text-sm text-slate-700 font-normal leading-relaxed max-w-xl mx-auto">
+            <p class="text-xs lg:text-sm text-slate-900 font-semibold leading-relaxed max-w-xl mx-auto" style="text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff, 0 0 6px #fff;">
                 Integrasi penuh hospitality kenegaraan. Temukan reservasi yang nyaman untuk tamu delegasi, layanan front-desk responsif, serta kontrol manajemen backend yang transparan.
             </p>
         </div>
@@ -115,12 +113,12 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Tamu</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
-                        Pintu masuk untuk tamu DPR RI. Lakukan pemesanan kamar/ruang rapat, download boarding pass digital, beri rating, dan kirim tiket keluhan pelayanan.
+                        Pintu masuk untuk tamu DPR RI. Lakukan pemesanan bungalow wisma, download boarding pass digital, beri rating, dan kirim tiket keluhan pelayanan.
                     </p>
                     <ul class="text-[10px] text-slate-500 space-y-1.5 pt-2">
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-wisma-gold"></i> Booking & E-Payment</li>
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-wisma-gold"></i> Boarding Pass PDF</li>
-                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-wisma-gold"></i> Input Keluhan Kamar</li>
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-wisma-gold"></i> Input Keluhan Bungalow</li>
                     </ul>
                 </div>
                 <a href="/guest" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 group-hover:bg-wisma-gold group-hover:text-wisma-dark">
@@ -136,7 +134,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Resepsionis</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
-                        Portal operasional Front Office. Kelola kedatangan & check-in tamu kenegaraan, update status check-out instan, serta monitoring ketersediaan kamar secara real-time.
+                        Portal operasional Front Office. Kelola kedatangan & check-in tamu kenegaraan, update status check-out instan, serta monitoring ketersediaan bungalow secara real-time.
                     </p>
                     <ul class="text-[10px] text-slate-500 space-y-1.5 pt-2">
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Proses Check-In Instan</li>
@@ -157,7 +155,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Customer Service</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
-                        Portal pelayanan keluhan & hubungan tamu. Catat laporan kerusakan, keluhan fasilitas kamar, laundry, makanan, internet, serta penugasan tim teknis secara real-time.
+                        Portal pelayanan keluhan & hubungan tamu. Catat laporan kerusakan, keluhan fasilitas bungalow, laundry, makanan, internet, serta penugasan tim teknis secara real-time.
                     </p>
                     <ul class="text-[10px] text-slate-500 space-y-1.5 pt-2">
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-rose-600"></i> Pencatatan Keluhan Masuk</li>
@@ -178,10 +176,10 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Koordinator Wisma</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
-                        Pusat kendali inventaris & manajemen. Lakukan input data CRUD kamar/ruang rapat, audit daftar tamu terdaftar, riwayat log transaksi, serta monitoring occupancy.
+                        Pusat kendali inventaris & manajemen. Lakukan input data CRUD bungalow wisma, audit daftar tamu terdaftar, riwayat log transaksi, serta monitoring occupancy.
                     </p>
                     <ul class="text-[10px] text-slate-500 space-y-1.5 pt-2">
-                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> CRUD Kamar & Ruang Rapat</li>
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> CRUD Bungalow Wisma</li>
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> Audit Log Pemesanan DIPA</li>
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> Laporan Hunian & Okupansi</li>
                     </ul>
