@@ -801,7 +801,9 @@
                                 const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                 const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                 const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                const matchesStartDate = reportStartDateKamar === '' || new Date(b.check_in) >= new Date(reportStartDateKamar);
+                                const matchesEndDate = reportEndDateKamar === '' || new Date(b.check_in) <= new Date(reportEndDateKamar);
+                                return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                             }).length + ' Tamu'"></span>
                         </div>
 
@@ -817,6 +819,9 @@
                                        class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                             </div>
                             <div class="flex gap-2 w-full md:w-auto justify-end">
+                                <input type="date" x-model="reportStartDateKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
+                                <span class="text-[10px] text-slate-400 self-center font-bold">S/D</span>
+                                <input type="date" x-model="reportEndDateKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
                                 <select x-model="reportGuestStatusKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto">
                                     <option value="semua">Semua Status</option>
                                     <option value="Check In">Menginap (Check In)</option>
@@ -834,6 +839,7 @@
                                         <th class="py-3 px-4">Unit Kamar</th>
                                         <th class="py-3 px-4">Tanggal Menginap</th>
                                         <th class="py-3 px-4">Durasi</th>
+                                        <th class="py-3 px-4">Total Tagihan</th>
                                         <th class="py-3 px-4 text-right">Status</th>
                                     </tr>
                                 </thead>
@@ -843,7 +849,9 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                         const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                        const matchesStartDate = reportStartDateKamar === '' || new Date(b.check_in) >= new Date(reportStartDateKamar);
+                                        const matchesEndDate = reportEndDateKamar === '' || new Date(b.check_in) <= new Date(reportEndDateKamar);
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
@@ -857,6 +865,7 @@
                                             </td>
                                             <td class="py-3 px-4" x-text="formatIndoDate(b.check_in) + ' s/d ' + formatIndoDate(b.check_out)"></td>
                                             <td class="py-3 px-4" x-text="b.nights + ' Malam'"></td>
+                                            <td class="py-3 px-4 font-semibold text-wisma-gold" x-text="formatRupiah(b.total_price)"></td>
                                             <td class="py-3 px-4 text-right">
                                                 <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold"
                                                       :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'"
@@ -869,9 +878,11 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                         const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                        const matchesStartDate = reportStartDateKamar === '' || new Date(b.check_in) >= new Date(reportStartDateKamar);
+                                        const matchesEndDate = reportEndDateKamar === '' || new Date(b.check_in) <= new Date(reportEndDateKamar);
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                                     }).length === 0">
-                                        <td colspan="6" class="text-center py-6 text-slate-400">Tidak ada riwayat menginap kamar.</td>
+                                        <td colspan="7" class="text-center py-6 text-slate-400">Tidak ada riwayat menginap kamar.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -890,7 +901,9 @@
                                 const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                 const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
                                 const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                const matchesStartDate = reportStartDateRapat === '' || new Date(b.check_in) >= new Date(reportStartDateRapat);
+                                const matchesEndDate = reportEndDateRapat === '' || new Date(b.check_in) <= new Date(reportEndDateRapat);
+                                return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                             }).length + ' Ruangan'"></span>
                         </div>
 
@@ -906,6 +919,9 @@
                                        class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                             </div>
                             <div class="flex gap-2 w-full md:w-auto justify-end">
+                                <input type="date" x-model="reportStartDateRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
+                                <span class="text-[10px] text-slate-400 self-center font-bold">S/D</span>
+                                <input type="date" x-model="reportEndDateRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
                                 <select x-model="reportGuestStatusRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto">
                                     <option value="semua">Semua Status</option>
                                     <option value="Check In">Aktif (Check In)</option>
@@ -923,6 +939,7 @@
                                         <th class="py-3 px-4">Ruang Rapat</th>
                                         <th class="py-3 px-4">Tanggal Penggunaan</th>
                                         <th class="py-3 px-4">Durasi</th>
+                                        <th class="py-3 px-4">Total Tagihan</th>
                                         <th class="py-3 px-4 text-right">Status</th>
                                     </tr>
                                 </thead>
@@ -932,7 +949,9 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
                                         const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                        return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                        const matchesStartDate = reportStartDateRapat === '' || new Date(b.check_in) >= new Date(reportStartDateRapat);
+                                        const matchesEndDate = reportEndDateRapat === '' || new Date(b.check_in) <= new Date(reportEndDateRapat);
+                                        return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
@@ -946,6 +965,7 @@
                                             </td>
                                             <td class="py-3 px-4" x-text="formatIndoDate(b.check_in) + ' s/d ' + formatIndoDate(b.check_out)"></td>
                                             <td class="py-3 px-4" x-text="b.nights + ' Hari'"></td>
+                                            <td class="py-3 px-4 font-semibold text-wisma-gold" x-text="formatRupiah(b.total_price)"></td>
                                             <td class="py-3 px-4 text-right">
                                                 <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold"
                                                       :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'"
@@ -958,9 +978,11 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
                                         const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                        return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                        const matchesStartDate = reportStartDateRapat === '' || new Date(b.check_in) >= new Date(reportStartDateRapat);
+                                        const matchesEndDate = reportEndDateRapat === '' || new Date(b.check_in) <= new Date(reportEndDateRapat);
+                                        return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                                     }).length === 0">
-                                        <td colspan="6" class="text-center py-6 text-slate-400">Tidak ada riwayat pemesanan ruang rapat.</td>
+                                        <td colspan="7" class="text-center py-6 text-slate-400">Tidak ada riwayat pemesanan ruang rapat.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1174,8 +1196,12 @@
 
                 reportGuestSearchKamar: '',
                 reportGuestStatusKamar: 'semua',
+                reportStartDateKamar: '',
+                reportEndDateKamar: '',
                 reportGuestSearchRapat: '',
                 reportGuestStatusRapat: 'semua',
+                reportStartDateRapat: '',
+                reportEndDateRapat: '',
                 
                 crudModalOpen: false,
                 crudAction: 'create',
@@ -1672,3 +1698,5 @@
     </script>
 </body>
 </html>
+
+

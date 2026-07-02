@@ -41,6 +41,9 @@
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- Midtrans Snap Sandbox CDN -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-wisma-dpr-123"></script>
+
     <style>
         [x-cloak] { display: none !important; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -765,90 +768,47 @@
                         </div>
                     </div>
 
-                    <!-- STEP 3: VIRTUAL ACCOUNT / CC PAYMENT -->
+                    <!-- STEP 3: PAYMENT METHOD (MIDTRANS) -->
                     <div x-show="wizardStep === 3" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm lg:col-span-2 space-y-6">
-                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                                <h3 class="text-sm font-bold text-slate-900">Metode Pembayaran Kedinasan</h3>
-                                <div class="flex items-center gap-1.5 text-red-500 font-bold text-xs">
-                                    <i data-lucide="clock" class="w-4 h-4"></i>
-                                    <span x-text="paymentTimer"></span>
-                                </div>
+                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm lg:col-span-2 flex flex-col justify-center items-center space-y-6 text-center py-12">
+                            <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto shadow-inner mb-2">
+                                <i data-lucide="credit-card" class="w-10 h-10"></i>
                             </div>
-
-                            <!-- Payment Choice -->
-                            <div class="flex bg-slate-100 p-1 rounded-xl w-full select-none">
-                                <button type="button" 
-                                        @click="paymentMethod = 'va'"
-                                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5"
-                                        :class="paymentMethod === 'va' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
-                                    Virtual Account
-                                </button>
-                                <button type="button" 
-                                        @click="paymentMethod = 'cc'"
-                                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5"
-                                        :class="paymentMethod === 'cc' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
-                                    Kartu Kredit Korporat
-                                </button>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 font-outfit mb-2">Pilih Metode Pembayaran</h3>
+                                <p class="text-xs text-slate-500 max-w-sm mx-auto">Kami menggunakan *Payment Gateway* Midtrans yang aman untuk memproses pembayaran reservasi Anda. Tersedia berbagai opsi seperti Virtual Account, QRIS, dan Kartu Kredit.</p>
                             </div>
-
-                            <!-- VA Section -->
-                            <div x-show="paymentMethod === 'va'" class="space-y-4">
-                                <div class="p-4 bg-amber-50/50 border border-amber-200/50 rounded-2xl flex items-center gap-3">
-                                    <i data-lucide="info" class="w-5 h-5 text-amber-500"></i>
-                                    <p class="text-[11px] text-slate-600 leading-normal">Nomor Virtual Account ini terhubung langsung dengan sistem e-Budgeting DIPA Setjen DPR RI.</p>
-                                </div>
-                                <div class="p-6 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
-                                    <div>
-                                        <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Bank Mandiri (DPR Channel)</span>
-                                        <p class="text-base font-extrabold text-slate-900 tracking-wider mt-1">8807 1989 0412 2015</p>
-                                    </div>
-                                    <button @click="copyVA()" class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-bold transition-all flex items-center gap-1">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Credit Card Section -->
-                            <div x-show="paymentMethod === 'cc'" class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-1">
-                                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Pemegang Kartu</label>
-                                        <input type="text" x-model="ccName" placeholder="Contoh: BUDI SANTOSO" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
-                                    </div>
-                                    <div class="space-y-1">
-                                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nomor Kartu</label>
-                                        <input type="text" x-model="ccNumber" placeholder="4111 2222 3333 4444" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="space-y-1">
-                                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Masa Berlaku</label>
-                                        <input type="text" x-model="ccExpiry" placeholder="MM/YY" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
-                                    </div>
-                                    <div class="space-y-1">
-                                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">CVV</label>
-                                        <input type="text" x-model="ccCvv" placeholder="123" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
-                                    </div>
+                            
+                            <div class="p-4 bg-amber-50/50 border border-amber-200/50 rounded-2xl flex items-start gap-3 text-left w-full max-w-md">
+                                <i data-lucide="info" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <h4 class="text-xs font-bold text-amber-900">Pembayaran Terlindungi</h4>
+                                    <p class="text-[11px] text-slate-600 mt-1">Sistem kami terhubung langsung dengan API Midtrans. Pastikan Anda menyelesaikan pembayaran dalam waktu yang ditentukan setelah jendela pop-up terbuka.</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Summary Column Right -->
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
-                            <h3 class="text-sm font-bold text-slate-900">Total Pembayaran</h3>
+                            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-2">
+                                <h3 class="text-sm font-bold text-slate-900">Total Tagihan</h3>
+                                <div class="flex items-center gap-1.5 text-red-500 font-bold text-xs">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span x-text="paymentTimer"></span>
+                                </div>
+                            </div>
                             <div class="space-y-2.5 text-xs">
                                 <div class="flex justify-between font-bold text-slate-900">
                                     <span>Total Pembayaran</span>
                                     <span class="text-wisma-navy text-sm font-extrabold" x-text="formatRupiah(calculateTotal())"></span>
                                 </div>
                             </div>
-                            <div class="flex gap-2.5 pt-2">
-                                <button @click="proceedToStep(2)" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
-                                    Kembali
+                            <div class="flex flex-col gap-3 pt-4 border-t border-slate-100 mt-2">
+                                <button @click="payWithMidtrans()" class="w-full py-3.5 bg-[#0091FF] hover:bg-[#007CE6] text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="shield-check" class="w-4 h-4"></i> Bayar via Midtrans
                                 </button>
-                                <button @click="simulatePaymentProcess()" class="flex-[2] py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-lg transition-colors">
-                                    Simulasi Konfirmasi
+                                <button @click="proceedToStep(2)" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
+                                    Kembali Edit Data
                                 </button>
                             </div>
                         </div>
@@ -1035,6 +995,35 @@
                             </button>
                         </form>
                     </div>
+
+                    <div class="max-w-2xl bg-white border border-slate-100 rounded-3xl p-8 shadow-sm space-y-6 mt-6">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 font-outfit">Keamanan Akun</h3>
+                            <p class="text-xs text-slate-500">Ubah kata sandi Anda secara berkala untuk menjaga keamanan akun.</p>
+                        </div>
+                        <form @submit.prevent="showToast('Kata sandi berhasil diperbarui (Simulasi)')" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Kata Sandi Saat Ini</label>
+                                    <input type="password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
+                                </div>
+                                <div class="space-y-1 md:col-span-2">
+                                    <hr class="border-slate-100 my-2">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Kata Sandi Baru</label>
+                                    <input type="password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Konfirmasi Kata Sandi Baru</label>
+                                    <input type="password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="py-3 px-6 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors mt-2">
+                                Perbarui Kata Sandi
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- 6. COMPLAINTS & HELP VIEW -->
@@ -1195,11 +1184,7 @@
                     email: 'budi.santoso@dpr.go.id',
                     untukOrangLain: false
                 },
-                paymentMethod: 'va',
-                ccName: '',
-                ccNumber: '',
-                ccExpiry: '',
-                ccCvv: '',
+                // Midtrans payment handled externally
                 paymentTimer: '29:59',
                 timerInterval: null,
                 
@@ -1577,70 +1562,80 @@
                     }, 50);
                 },
 
-                simulatePaymentProcess() {
-                    if (this.paymentMethod === 'cc' && (!this.ccName || !this.ccNumber || !this.ccExpiry || !this.ccCvv)) {
-                        this.addToast('Detail Kartu Tidak Lengkap', 'Harap lengkapi informasi kartu kredit Anda.', 'error');
-                        return;
-                    }
-
+                payWithMidtrans() {
                     clearInterval(this.timerInterval);
-                    this.addToast('Memproses Otorisasi', 'Menghubungkan ke server e-Budgeting Setjen DPR...', 'info');
+                    this.addToast('Menghubungkan Midtrans', 'Mendapatkan Snap Token dari server...', 'info');
 
+                    // Simulasi memanggil Backend API untuk mendapatkan Snap Token
                     setTimeout(() => {
-                        const newBookingId = 'WDPR-2026-' + String(Math.floor(1000 + Math.random() * 9000));
-                        const totalNights = this.calculateNights();
-                        
-                        this.generatedTicket = {
-                            id: newBookingId,
-                            unit_id: this.selectedFacility.id,
-                            unit_name: this.selectedFacility.name,
-                            unit_photo: this.selectedFacility.photo,
-                            unit_location: `${this.selectedFacility.gedung} • ${this.selectedFacility.lantai}`,
-                            check_in: this.checkInDate,
-                            check_out: this.checkOutDate,
-                            nights: totalNights,
-                            total_price: this.calculateTotal(),
-                            status: 'Lunas',
-                            nama: this.bookingForm.untukOrangLain ? 'Tamu Delegasi: ' + this.bookingForm.nama : this.bookingForm.nama,
-                            nip: this.bookingForm.nip,
-                            whatsapp: this.bookingForm.whatsapp,
-                            email: this.bookingForm.email,
-                            hasFeedback: false,
-                            rating: 0
-                        };
+                        // Memanggil Snap UI Midtrans
+                        window.snap.pay('MOCK_SNAP_TOKEN_123', {
+                            onSuccess: (result) => {
+                                // Simulasi Callback Success
+                                const newBookingId = 'WDPR-2026-' + String(Math.floor(1000 + Math.random() * 9000));
+                                const totalNights = this.calculateNights();
+                                
+                                this.generatedTicket = {
+                                    id: newBookingId,
+                                    unit_id: this.selectedFacility.id,
+                                    unit_name: this.selectedFacility.name,
+                                    unit_photo: this.selectedFacility.photo,
+                                    unit_location: `${this.selectedFacility.gedung} • ${this.selectedFacility.lantai}`,
+                                    check_in: this.checkInDate,
+                                    check_out: this.checkOutDate,
+                                    nights: totalNights,
+                                    total_price: this.calculateTotal(),
+                                    status: 'Lunas',
+                                    nama: this.bookingForm.untukOrangLain ? 'Tamu Delegasi: ' + this.bookingForm.nama : this.bookingForm.nama,
+                                    nip: this.bookingForm.nip,
+                                    whatsapp: this.bookingForm.whatsapp,
+                                    email: this.bookingForm.email,
+                                    hasFeedback: false,
+                                    rating: 0
+                                };
 
-                        this.bookings.unshift(this.generatedTicket);
+                                this.bookings.unshift(this.generatedTicket);
 
-                        // Dynamic guest registration
-                        const guestNip = this.bookingForm.nip;
-                        const existingGuestIdx = this.guests.findIndex(g => g.nip === guestNip);
-                        if (existingGuestIdx === -1) {
-                            this.guests.push({
-                                id: 'T-2026-' + String(Math.floor(100 + Math.random() * 900)),
-                                nama: this.bookingForm.nama,
-                                nip: guestNip,
-                                phone: this.bookingForm.whatsapp,
-                                email: this.bookingForm.email,
-                                status: 'Reguler',
-                                kunjungan: 1,
-                                terakhir: 'Hari ini (Booking)'
-                            });
-                        } else {
-                            this.guests[existingGuestIdx].kunjungan += 1;
-                            this.guests[existingGuestIdx].terakhir = 'Hari ini (Booking)';
-                        }
-                        
-                        this.persistState();
-                        
-                        this.wizardStep = 4;
-                        this.addToast('Pembayaran Sukses!', 'Reservasi Anda telah terkonfirmasi oleh sistem DIPA.', 'success');
-                        
-                        setTimeout(() => {
-                            if (window.lucide) {
-                                window.lucide.createIcons();
+                                // Registrasi tamu dinamis
+                                const guestNip = this.bookingForm.nip;
+                                const existingGuestIdx = this.guests.findIndex(g => g.nip === guestNip);
+                                if (existingGuestIdx === -1) {
+                                    this.guests.push({
+                                        id: 'T-2026-' + String(Math.floor(100 + Math.random() * 900)),
+                                        nama: this.bookingForm.nama,
+                                        nip: guestNip,
+                                        phone: this.bookingForm.whatsapp,
+                                        email: this.bookingForm.email,
+                                        status: 'Reguler',
+                                        kunjungan: 1,
+                                        terakhir: 'Hari ini (Booking)'
+                                    });
+                                } else {
+                                    this.guests[existingGuestIdx].kunjungan += 1;
+                                    this.guests[existingGuestIdx].terakhir = 'Hari ini (Booking)';
+                                }
+                                
+                                this.persistState();
+                                
+                                this.wizardStep = 4;
+                                this.addToast('Pembayaran Berhasil', 'Transaksi Midtrans berhasil diselesaikan.', 'success');
+                                
+                                setTimeout(() => {
+                                    if (window.lucide) window.lucide.createIcons();
+                                }, 50);
+                            },
+                            onPending: (result) => {
+                                this.addToast('Menunggu Pembayaran', 'Silakan selesaikan pembayaran sesuai instruksi Midtrans.', 'info');
+                                this.switchTab('history');
+                            },
+                            onError: (result) => {
+                                this.addToast('Pembayaran Gagal', 'Terjadi kesalahan pada transaksi pembayaran.', 'error');
+                            },
+                            onClose: () => {
+                                this.addToast('Dibatalkan', 'Anda menutup pop-up pembayaran sebelum selesai.', 'error');
                             }
-                        }, 50);
-                    }, 1500);
+                        });
+                    }, 800);
                 },
 
                 saveProfile() {
