@@ -771,10 +771,39 @@
                         </button>
                     </div>
 
+                    <!-- Filter Periode Laporan (no-print) -->
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wide">
+                                <i data-lucide="calendar" class="w-4 h-4 text-wisma-gold"></i>
+                                <span>Filter Periode Laporan</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="setQuickPeriod('all')" :class="!reportStartDate && !reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
+                                <button @click="setQuickPeriod('this_month')" :class="reportStartDate && reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
+                                <button @click="setQuickPeriod('last_month')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Bulan Lalu</button>
+                                <button @click="setQuickPeriod('this_year')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Tahun Ini</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Mulai</label>
+                                <input type="date" x-model="reportStartDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Selesai</label>
+                                <input type="date" x-model="reportEndDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Print-only Title Header -->
                     <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
                         <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN OKUPANSI & REKAPITULASI PENGGUNAAN WISMA</h2>
                         <p class="text-xs text-slate-600">Sistem Informasi & Manajemen Wisma DPR RI Kopo</p>
+                        <p class="text-xs text-slate-800 mt-1 font-semibold">
+                            Periode: <span x-text="reportStartDate ? formatIndoDate(reportStartDate) : 'Awal'"></span> s/d <span x-text="reportEndDate ? formatIndoDate(reportEndDate) : 'Akhir'"></span>
+                        </p>
                         <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                     </div>
 
@@ -821,7 +850,8 @@
                                 const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                 const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                 const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
                             }).length + ' Tamu'"></span>
                         </div>
 
@@ -863,7 +893,8 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                         const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                        const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
@@ -889,7 +920,8 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                         const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus;
+                                        const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
                                     }).length === 0">
                                         <td colspan="6" class="text-center py-6 text-slate-400">Tidak ada riwayat menginap kamar.</td>
                                     </tr>
@@ -910,7 +942,8 @@
                                 const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                 const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
                                 const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                return isRapat && matchesActive && matchesSearch && matchesStatus && periodMatch;
                             }).length + ' Ruangan'"></span>
                         </div>
 
@@ -952,7 +985,8 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
                                         const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                        return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                        const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                        return isRapat && matchesActive && matchesSearch && matchesStatus && periodMatch;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
@@ -978,7 +1012,8 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
                                         const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                        return isRapat && matchesActive && matchesSearch && matchesStatus;
+                                        const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                        return isRapat && matchesActive && matchesSearch && matchesStatus && periodMatch;
                                     }).length === 0">
                                         <td colspan="6" class="text-center py-6 text-slate-400">Tidak ada riwayat pemesanan ruang rapat.</td>
                                     </tr>
@@ -1196,6 +1231,8 @@
                 reportGuestStatusKamar: 'semua',
                 reportGuestSearchRapat: '',
                 reportGuestStatusRapat: 'semua',
+                reportStartDate: '',
+                reportEndDate: '',
                 
                 crudModalOpen: false,
                 crudAction: 'create',
@@ -1489,6 +1526,75 @@
 
                 printReport() {
                     window.print();
+                },
+
+                parseIndoDate(dateStr) {
+                    if (!dateStr) return null;
+                    if (dateStr.includes('-')) {
+                        return new Date(dateStr);
+                    }
+                    try {
+                        const cleanStr = dateStr.split(',')[0].trim();
+                        const parts = cleanStr.split(' ');
+                        if (parts.length !== 3) return null;
+                        const day = parseInt(parts[0]);
+                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                        const monthIdx = months.indexOf(parts[1]);
+                        const year = parseInt(parts[2]);
+                        if (monthIdx === -1) return null;
+                        return new Date(year, monthIdx, day);
+                    } catch (e) {
+                        return null;
+                    }
+                },
+
+                isDateInPeriod(dateStr, startStr, endStr) {
+                    const itemDate = this.parseIndoDate(dateStr);
+                    if (!itemDate) return true;
+                    itemDate.setHours(0,0,0,0);
+                    const itemTime = itemDate.getTime();
+                    
+                    if (startStr) {
+                        const startDate = new Date(startStr);
+                        startDate.setHours(0,0,0,0);
+                        if (itemTime < startDate.getTime()) return false;
+                    }
+                    if (endStr) {
+                        const endDate = new Date(endStr);
+                        endDate.setHours(0,0,0,0);
+                        if (itemTime > endDate.getTime()) return false;
+                    }
+                    return true;
+                },
+
+                formatISODate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+
+                setQuickPeriod(period) {
+                    const now = new Date();
+                    if (period === 'this_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'last_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'this_year') {
+                        const firstDay = new Date(now.getFullYear(), 0, 1);
+                        const lastDay = new Date(now.getFullYear(), 11, 31);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'all') {
+                        this.reportStartDate = '';
+                        this.reportEndDate = '';
+                    }
                 },
 
                 openAddModal(type) {

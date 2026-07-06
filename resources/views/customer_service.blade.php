@@ -596,30 +596,56 @@
                         </button>
                     </div>
 
+                    <!-- Filter Periode Laporan (no-print) -->
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wide">
+                                <i data-lucide="calendar" class="w-4 h-4 text-wisma-gold"></i>
+                                <span>Filter Periode Laporan</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="setQuickPeriod('all')" :class="!reportStartDate && !reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
+                                <button @click="setQuickPeriod('this_month')" :class="reportStartDate && reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
+                                <button @click="setQuickPeriod('last_month')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Bulan Lalu</button>
+                                <button @click="setQuickPeriod('this_year')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Tahun Ini</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Mulai</label>
+                                <input type="date" x-model="reportStartDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Selesai</label>
+                                <input type="date" x-model="reportEndDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- SUBTAB 1: REKAP KELUHAN MASUK -->
                     <div x-show="csReportSubTab === 'keluhan'" class="space-y-6">
                         <!-- Stats Grid -->
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 no-print">
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Keluhan</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-slate-800" x-text="complaints.length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-slate-800" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate)).length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Menunggu (Pending)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-red-500" x-text="complaints.filter(c => c.status === 'Pending').length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-red-500" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Pending').length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Sedang Diproses</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-blue-500" x-text="complaints.filter(c => c.status === 'Processed').length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-blue-500" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Processed').length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Selesai (Resolved)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-emerald-500" x-text="complaints.filter(c => c.status === 'Resolved').length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-emerald-500" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Resolved').length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm col-span-2 md:col-span-1">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Tingkat Resolusi</span>
                                 <h3 class="text-xl font-bold font-outfit mt-1 text-amber-600" 
-                                    x-text="complaints.length ? Math.round((complaints.filter(c => c.status === 'Resolved').length / complaints.length) * 100) + '%' : '0%'"></h3>
+                                    x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate)).length ? Math.round((complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Resolved').length / complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate)).length) * 100) + '%' : '0%'"></h3>
                             </div>
                         </div>
 
@@ -627,6 +653,9 @@
                         <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
                             <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN REKAPITULASI KELUHAN TAMU</h2>
                             <p class="text-xs text-slate-600">Sistem Pelayanan Wisma DPR RI Kopo</p>
+                            <p class="text-xs text-slate-800 mt-1 font-semibold">
+                                Periode: <span x-text="reportStartDate ? formatIndoDate(reportStartDate) : 'Awal'"></span> s/d <span x-text="reportEndDate ? formatIndoDate(reportEndDate) : 'Akhir'"></span>
+                            </p>
                             <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                         </div>
 
@@ -668,7 +697,8 @@
                                         <template x-for="c in complaints.filter(c => {
                                             const categoryMatch = reportComplaintFilterCategory === 'semua' || c.category === reportComplaintFilterCategory;
                                             const statusMatch = reportComplaintFilterStatus === 'semua' || c.status === reportComplaintFilterStatus;
-                                            return categoryMatch && statusMatch;
+                                            const periodMatch = isDateInPeriod(c.date, reportStartDate, reportEndDate);
+                                            return categoryMatch && statusMatch && periodMatch;
                                         })" :key="c.id">
                                             <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                                                 <td class="py-3 px-4 font-bold text-slate-900" x-text="c.id"></td>
@@ -690,7 +720,8 @@
                                         <tr x-show="complaints.filter(c => {
                                             const categoryMatch = reportComplaintFilterCategory === 'semua' || c.category === reportComplaintFilterCategory;
                                             const statusMatch = reportComplaintFilterStatus === 'semua' || c.status === reportComplaintFilterStatus;
-                                            return categoryMatch && statusMatch;
+                                            const periodMatch = isDateInPeriod(c.date, reportStartDate, reportEndDate);
+                                            return categoryMatch && statusMatch && periodMatch;
                                         }).length === 0">
                                             <td colspan="6" class="text-center py-8 text-slate-400">Tidak ada rekapitulasi keluhan.</td>
                                         </tr>
@@ -722,15 +753,15 @@
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center">
                                 <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block">Rata-rata Rating</span>
                                 <h1 class="text-5xl font-extrabold font-outfit text-slate-900 mt-2" 
-                                    x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) : '0.0'"></h1>
+                                    x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) : '0.0'"></h1>
                                 <div class="flex items-center gap-1 mt-2 text-wisma-gold">
                                     <template x-for="star in [1, 2, 3, 4, 5]">
-                                        <svg class="w-4 h-4 fill-current" :class="star <= Math.round(bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback).length) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
+                                        <svg class="w-4 h-4 fill-current" :class="star <= Math.round(bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>
                                     </template>
                                 </div>
-                                <span class="text-[10px] text-slate-400 mt-2" x-text="'Dari ' + bookings.filter(b => b.hasFeedback).length + ' ulasan tamu'"></span>
+                                <span class="text-[10px] text-slate-400 mt-2" x-text="'Dari ' + bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length + ' ulasan tamu'"></span>
                             </div>
 
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm md:col-span-3 space-y-4">
@@ -740,33 +771,33 @@
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Kebersihan Bungalow & Gedung</span>
-                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback).length) * 20 : 0) + '%'"></div>
+                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) * 20 : 0) + '%'"></div>
                                         </div>
                                     </div>
                                     <!-- Facilities -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Kualitas Fasilitas & Peralatan</span>
-                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback).length) * 20 : 0) + '%'"></div>
+                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) * 20 : 0) + '%'"></div>
                                         </div>
                                     </div>
                                     <!-- Service -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Keramahan & Kecepatan Pelayanan</span>
-                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback).length) * 20 : 0) + '%'"></div>
+                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) * 20 : 0) + '%'"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -777,6 +808,9 @@
                         <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
                             <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN ULASAN & PENILAIAN TAMU</h2>
                             <p class="text-xs text-slate-600">Sistem Pelayanan Wisma DPR RI Kopo</p>
+                            <p class="text-xs text-slate-800 mt-1 font-semibold">
+                                Periode: <span x-text="reportStartDate ? formatIndoDate(reportStartDate) : 'Awal'"></span> s/d <span x-text="reportEndDate ? formatIndoDate(reportEndDate) : 'Akhir'"></span>
+                            </p>
                             <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                         </div>
 
@@ -794,6 +828,7 @@
                         <div class="space-y-4 printable-report">
                             <template x-for="b in bookings.filter(b => {
                                 if (!b.hasFeedback) return false;
+                                if (!isDateInPeriod(b.check_in, reportStartDate, reportEndDate)) return false;
                                 if (reportRatingFilter === '5') return Math.floor(b.rating) === 5;
                                 if (reportRatingFilter === '4') return Math.floor(b.rating) === 4;
                                 if (reportRatingFilter === '3') return b.rating < 4;
@@ -846,6 +881,7 @@
 
                             <div x-show="bookings.filter(b => {
                                 if (!b.hasFeedback) return false;
+                                if (!isDateInPeriod(b.check_in, reportStartDate, reportEndDate)) return false;
                                 if (reportRatingFilter === '5') return Math.floor(b.rating) === 5;
                                 if (reportRatingFilter === '4') return Math.floor(b.rating) === 4;
                                 if (reportRatingFilter === '3') return b.rating < 4;
@@ -1061,6 +1097,8 @@
                 reportComplaintFilterCategory: 'semua',
                 reportComplaintFilterStatus: 'semua',
                 reportRatingFilter: 'semua',
+                reportStartDate: '',
+                reportEndDate: '',
                 
                 inputComplaintModalOpen: false,
                 newComplaintForm: {
@@ -1276,6 +1314,75 @@
 
                 printReport() {
                     window.print();
+                },
+
+                parseIndoDate(dateStr) {
+                    if (!dateStr) return null;
+                    if (dateStr.includes('-')) {
+                        return new Date(dateStr);
+                    }
+                    try {
+                        const cleanStr = dateStr.split(',')[0].trim();
+                        const parts = cleanStr.split(' ');
+                        if (parts.length !== 3) return null;
+                        const day = parseInt(parts[0]);
+                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                        const monthIdx = months.indexOf(parts[1]);
+                        const year = parseInt(parts[2]);
+                        if (monthIdx === -1) return null;
+                        return new Date(year, monthIdx, day);
+                    } catch (e) {
+                        return null;
+                    }
+                },
+
+                isDateInPeriod(dateStr, startStr, endStr) {
+                    const itemDate = this.parseIndoDate(dateStr);
+                    if (!itemDate) return true;
+                    itemDate.setHours(0,0,0,0);
+                    const itemTime = itemDate.getTime();
+                    
+                    if (startStr) {
+                        const startDate = new Date(startStr);
+                        startDate.setHours(0,0,0,0);
+                        if (itemTime < startDate.getTime()) return false;
+                    }
+                    if (endStr) {
+                        const endDate = new Date(endStr);
+                        endDate.setHours(0,0,0,0);
+                        if (itemTime > endDate.getTime()) return false;
+                    }
+                    return true;
+                },
+
+                formatISODate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+
+                setQuickPeriod(period) {
+                    const now = new Date();
+                    if (period === 'this_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'last_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'this_year') {
+                        const firstDay = new Date(now.getFullYear(), 0, 1);
+                        const lastDay = new Date(now.getFullYear(), 11, 31);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'all') {
+                        this.reportStartDate = '';
+                        this.reportEndDate = '';
+                    }
                 },
 
                 formatIndoDate(dateStr) {
