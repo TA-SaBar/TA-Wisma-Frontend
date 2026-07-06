@@ -395,10 +395,93 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <button @click="showFeatureMuted('Notifikasi')" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors relative">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
-                        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div class="relative" @click.outside="notificationsOpen = false">
+                        <button @click="notificationsOpen = !notificationsOpen; if(notificationsOpen) setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" 
+                                class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors relative shadow-sm hover:shadow">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <template x-if="unreadNotificationsCount() > 0">
+                                <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+                            </template>
+                        </button>
+
+                        <!-- Dropdown Panel -->
+                        <div x-show="notificationsOpen" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                             class="absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 flex flex-col max-h-[480px] overflow-hidden" 
+                             x-cloak>
+                            
+                            <!-- Header -->
+                            <div class="px-5 py-4 bg-slate-50/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-sm font-bold text-slate-900 font-outfit">Notifikasi</h3>
+                                    <span class="px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-[9px] font-extrabold" x-show="unreadNotificationsCount() > 0" x-text="unreadNotificationsCount() + ' Baru'"></span>
+                                </div>
+                                <button @click="markAllAsRead()" x-show="unreadNotificationsCount() > 0" class="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold hover:underline">
+                                    Tandai semua dibaca
+                                </button>
+                            </div>
+
+                            <!-- List -->
+                            <div class="flex-1 overflow-y-auto divide-y divide-slate-50 scrollbar-hide">
+                                <template x-for="n in notifications" :key="n.id">
+                                    <div class="px-5 py-4 hover:bg-slate-50/50 transition-colors flex gap-3 relative group"
+                                         :class="!n.read ? 'bg-indigo-50/30' : ''">
+                                        
+                                        <!-- Unread indicator dot -->
+                                        <div x-show="!n.read" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
+                                        
+                                        <!-- Icon -->
+                                        <div class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5"
+                                             :class="{
+                                                 'bg-emerald-50 text-emerald-600': n.type === 'booking',
+                                                 'bg-amber-50 text-amber-500': n.type === 'complaint',
+                                                 'bg-blue-50 text-blue-600': n.type === 'system'
+                                             }">
+                                            <template x-if="n.type === 'booking'">
+                                                <i data-lucide="calendar-check" class="w-4.5 h-4.5"></i>
+                                            </template>
+                                            <template x-if="n.type === 'complaint'">
+                                                <i data-lucide="alert-triangle" class="w-4.5 h-4.5"></i>
+                                            </template>
+                                            <template x-if="n.type === 'system'">
+                                                <i data-lucide="bell" class="w-4.5 h-4.5"></i>
+                                            </template>
+                                        </div>
+
+                                        <!-- Message content -->
+                                        <div class="flex-1 min-w-0 cursor-pointer" @click="handleNotificationClick(n)">
+                                            <h4 class="text-xs font-bold text-slate-800 truncate" x-text="n.title"></h4>
+                                            <p class="text-[11px] text-slate-500 leading-normal mt-0.5 font-light" x-text="n.message"></p>
+                                            <span class="text-[9px] text-slate-400 font-medium block mt-1" x-text="n.time"></span>
+                                        </div>
+
+                                        <!-- Delete action button -->
+                                        <button @click.stop="deleteNotification(n.id)" class="opacity-0 group-hover:opacity-100 absolute right-4 top-4 text-slate-400 hover:text-red-500 p-1 hover:bg-slate-100 rounded transition-all">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <div x-show="notifications.length === 0" class="text-center py-12 text-slate-400">
+                                    <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-slate-200"></i>
+                                    <p class="text-xs">Tidak ada notifikasi untuk Anda.</p>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="px-5 py-3.5 bg-slate-50/50 border-t border-slate-100 text-center shrink-0">
+                                <button @click="notificationsOpen = false" class="text-xs text-slate-500 hover:text-slate-700 font-bold">
+                                    Tutup Panel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="w-px h-6 bg-slate-200 mx-2"></div>
                     
@@ -572,7 +655,8 @@
                     <!-- Facilities Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <template x-for="f in filteredFacilities()" :key="f.id">
-                            <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+                            <div class="rounded-3xl border overflow-hidden transition-all duration-300 flex flex-col group"
+                                 :class="f.status !== 'READY' ? 'bg-slate-100/70 border-slate-200 opacity-60 grayscale pointer-events-none select-none' : 'bg-white border-slate-100 shadow-sm hover:shadow-xl'">
                                 <div class="relative overflow-hidden h-48 bg-slate-200 shrink-0">
                                     <img :src="f.photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                                     <div class="absolute top-4 left-4 flex gap-1.5 flex-wrap">
@@ -662,8 +746,7 @@
                                             class="py-2.5 rounded-xl font-bold transition-all relative flex flex-col items-center justify-center"
                                             :class="{
                                                 'text-slate-300 cursor-not-allowed': day.isPast,
-                                                'bg-wisma-navy text-wisma-gold font-extrabold shadow-md': isDateSelected(day.dateStr),
-                                                'bg-indigo-50 text-indigo-700': isDateInRange(day.dateStr),
+                                                'bg-wisma-navy text-wisma-gold font-extrabold shadow-md': isDateSelected(day.dateStr) || isDateInRange(day.dateStr),
                                                 'hover:bg-slate-100 text-slate-700': !day.isPast && !isDateSelected(day.dateStr) && !isDateInRange(day.dateStr)
                                             }">
                                         <span x-text="day.dayNum"></span>
@@ -1154,8 +1237,12 @@
                     <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Tarif Unit</span>
                     <p class="text-base font-extrabold text-slate-900" x-text="formatRupiah(drawerFacility.price)"></p>
                 </div>
-                <button @click="startBookingFlow(drawerFacility)" class="px-6 py-3 bg-wisma-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center gap-1.5">
-                    <i data-lucide="calendar" class="w-4 h-4"></i> Booking Sekarang
+                <button :disabled="drawerFacility.status !== 'READY'"
+                        @click="startBookingFlow(drawerFacility)" 
+                        class="px-6 py-3 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center gap-1.5"
+                        :class="drawerFacility.status === 'READY' ? 'bg-wisma-navy hover:bg-slate-800' : 'bg-slate-400 cursor-not-allowed'">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> 
+                    <span x-text="drawerFacility.status === 'READY' ? 'Booking Sekarang' : 'Tidak Tersedia'"></span>
                 </button>
             </div>
         </div>
@@ -1243,8 +1330,12 @@
                     description: ''
                 },
 
+                notificationsOpen: false,
+                notifications: [],
+
                 initApp() {
                     this.loadState();
+                    this.loadNotifications();
                     this.selectedFacility = this.facilities[0] || {};
                     this.buildCalendar();
                     setTimeout(() => {
@@ -1511,6 +1602,125 @@
                     this.addToast('Info Simulasi', `Fitur '${featureName}' sukses disimulasikan pada versi UI prototype ini.`, 'info');
                 },
 
+                persistNotifications() {
+                    localStorage.setItem('wisma_notifications', JSON.stringify(this.notifications));
+                },
+
+                loadNotifications() {
+                    const savedNotifications = localStorage.getItem('wisma_notifications');
+                    if (savedNotifications) {
+                        this.notifications = JSON.parse(savedNotifications);
+                    } else {
+                        this.notifications = [
+                            {
+                                id: 'NOTIF-001',
+                                title: 'Reservasi Selesai',
+                                message: 'Booking Bungalow Kedondong (WDPR-2026-0082) telah selesai. Terima kasih telah menginap di Wisma DPR RI!',
+                                time: '24 Okt 2023, 11:00',
+                                type: 'booking',
+                                read: false,
+                                refId: 'WDPR-2026-0082'
+                            },
+                            {
+                                id: 'NOTIF-002',
+                                title: 'Keluhan Diterima',
+                                message: 'Keluhan AC Bungalow Kedondong Kurang Dingin (COMP-101) telah diajukan dan sedang diproses.',
+                                time: '24 Okt 2023, 09:15',
+                                type: 'complaint',
+                                read: false,
+                                refId: 'COMP-101'
+                            },
+                            {
+                                id: 'NOTIF-003',
+                                title: 'Check-In Berhasil',
+                                message: 'Selamat datang! Anda telah check-in aktif di Bungalow Widelia (WDPR-2026-0083).',
+                                time: '20 Jun 2026, 14:00',
+                                type: 'booking',
+                                read: true,
+                                refId: 'WDPR-2026-0083'
+                            },
+                            {
+                                id: 'NOTIF-004',
+                                title: 'Pembayaran Sukses',
+                                message: 'Pembayaran WDPR-2026-0083 sebesar Rp 2.745.000 terverifikasi lunas.',
+                                time: '19 Jun 2026, 16:30',
+                                type: 'booking',
+                                read: true,
+                                refId: 'WDPR-2026-0083'
+                            }
+                        ];
+                        this.persistNotifications();
+                    }
+                },
+
+                unreadNotificationsCount() {
+                    return this.notifications.filter(n => !n.read).length;
+                },
+
+                markAsRead(id) {
+                    const idx = this.notifications.findIndex(n => n.id === id);
+                    if (idx !== -1) {
+                        this.notifications[idx].read = true;
+                        this.persistNotifications();
+                    }
+                },
+
+                markAllAsRead() {
+                    this.notifications.forEach(n => n.read = true);
+                    this.persistNotifications();
+                    this.addToast('Notifikasi Dibaca', 'Semua notifikasi ditandai sebagai dibaca.', 'success');
+                },
+
+                deleteNotification(id) {
+                    this.notifications = this.notifications.filter(n => n.id !== id);
+                    this.persistNotifications();
+                    this.addToast('Notifikasi Dihapus', 'Notifikasi berhasil dihapus.', 'info');
+                },
+
+                addNotification(title, message, type = 'system', refId = null) {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const mins = String(now.getMinutes()).padStart(2, '0');
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const timeStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}, ${hours}:${mins}`;
+
+                    const newNotif = {
+                        id: 'NOTIF-' + String(Math.floor(1000 + Math.random() * 9000)),
+                        title: title,
+                        message: message,
+                        time: timeStr,
+                        type: type,
+                        read: false,
+                        refId: refId
+                    };
+                    this.notifications.unshift(newNotif);
+                    this.persistNotifications();
+
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 50);
+                },
+
+                handleNotificationClick(notif) {
+                    this.markAsRead(notif.id);
+
+                    if (notif.type === 'booking' && notif.refId) {
+                        const booking = this.bookings.find(b => b.id === notif.refId);
+                        if (booking) {
+                            this.viewTicket(booking);
+                            this.notificationsOpen = false;
+                        } else {
+                            this.switchTab('history');
+                            this.notificationsOpen = false;
+                        }
+                    } else if (notif.type === 'complaint') {
+                        this.switchTab('help');
+                        this.notificationsOpen = false;
+                    } else {
+                        this.notificationsOpen = false;
+                    }
+                },
+
                 filteredFacilities() {
                     return this.facilities.filter(f => {
                         const matchesSearch = f.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
@@ -1632,6 +1842,13 @@
                         
                         this.persistState();
                         
+                        this.addNotification(
+                            'Pembayaran Sukses',
+                            `Booking ${newBookingId} untuk ${this.selectedFacility.name} terkonfirmasi Lunas!`,
+                            'booking',
+                            newBookingId
+                        );
+                        
                         this.wizardStep = 4;
                         this.addToast('Pembayaran Sukses!', 'Reservasi Anda telah terkonfirmasi oleh sistem DIPA.', 'success');
                         
@@ -1730,6 +1947,13 @@
 
                     this.complaints.unshift(newComplaint);
                     this.persistState();
+
+                    this.addNotification(
+                        'Keluhan Terkirim',
+                        `Laporan keluhan "${newComplaint.title}" di ${newComplaint.location} telah diajukan.`,
+                        'complaint',
+                        newComplaint.id
+                    );
 
                     this.complaintForm.location = '';
                     this.complaintForm.description = '';

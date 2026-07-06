@@ -144,7 +144,12 @@
                         <option value="laundry">Layanan Laundry</option>
                         <option value="internet">Internet / Wifi</option>
                         <option value="food">Layanan Makanan</option>
+                        <option value="lainnya">Lainnya (Other)</option>
                     </select>
+                </div>
+                <div x-show="newComplaintForm.category === 'lainnya'" class="space-y-1 fade-in">
+                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Masukkan Kategori Keluhan Kustom</label>
+                    <input type="text" x-model="newComplaintForm.customCategory" placeholder="Contoh: Masalah Listrik, Air Bersih, dll." :required="newComplaintForm.category === 'lainnya'" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Lokasi (No. Bungalow / Area)</label>
@@ -1062,7 +1067,8 @@
                     category: 'facility',
                     location: '',
                     guestName: '',
-                    description: ''
+                    description: '',
+                    customCategory: ''
                 },
 
                 toasts: [],
@@ -1325,7 +1331,8 @@
                         category: 'facility',
                         location: '',
                         guestName: '',
-                        description: ''
+                        description: '',
+                        customCategory: ''
                     };
                     this.inputComplaintModalOpen = true;
                 },
@@ -1338,6 +1345,13 @@
                         food: 'Layanan Makanan'
                     };
 
+                    let categoryLabel = '';
+                    if (this.newComplaintForm.category === 'lainnya') {
+                        categoryLabel = this.newComplaintForm.customCategory || 'Lainnya';
+                    } else {
+                        categoryLabel = categoryNames[this.newComplaintForm.category] || this.newComplaintForm.category;
+                    }
+
                     const now = new Date();
                     const hours = String(now.getHours()).padStart(2, '0');
                     const mins = String(now.getMinutes()).padStart(2, '0');
@@ -1347,7 +1361,7 @@
                     const newComplaint = {
                         id: 'COMP-' + String(Math.floor(104 + Math.random() * 800)),
                         title: this.newComplaintForm.description.length > 30 ? this.newComplaintForm.description.substring(0, 30) + '...' : this.newComplaintForm.description,
-                        category: categoryNames[this.newComplaintForm.category],
+                        category: categoryLabel,
                         category_slug: this.newComplaintForm.category,
                         location: `${this.newComplaintForm.location} (Dilaporkan oleh: ${this.newComplaintForm.guestName})`,
                         date: dateStr,

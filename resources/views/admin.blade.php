@@ -124,6 +124,31 @@
         </template>
     </div>
 
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div x-show="deleteModal.isOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
+        <div @click="deleteModal.isOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10 space-y-6 transform scale-100 transition-all fade-in">
+            <div class="text-center space-y-3">
+                <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-2 shadow-inner">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-base font-extrabold text-slate-900 font-outfit">Konfirmasi Hapus Unit</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Apakah Anda yakin ingin menghapus unit <strong x-text="deleteModal.itemName"></strong>? Tindakan ini tidak dapat dibatalkan.
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button @click="deleteModal.isOpen = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
+                    Batal
+                </button>
+                <button @click="executeDelete()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all">
+                    Hapus Unit
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CRUD CREATION & MODIFICATION MODAL -->
     <div x-show="crudModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
         <div @click="crudModalOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
@@ -183,11 +208,6 @@
                         </select>
                     </div>
 
-                    <!-- Luas -->
-                    <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Luas Area</label>
-                        <input type="text" x-model="crudForm.luas" placeholder="Contoh: 32 m²" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                    </div>
 
                     <!-- Bed Configuration -->
                     <div class="space-y-1">
@@ -600,7 +620,7 @@
                                                 <button @click="openEditModal(f)" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors" title="Edit">
                                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                                 </button>
-                                                <button @click="deleteCrudItem(f.id)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors" title="Hapus">
+                                                <button @click="confirmDelete(f.id)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors" title="Hapus">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
                                             </div>
@@ -1180,6 +1200,13 @@
                 crudModalOpen: false,
                 crudAction: 'create',
                 crudType: 'Buah',
+                // Deletion Confirmation Modal State
+                deleteModal: {
+                    isOpen: false,
+                    itemId: null,
+                    itemName: ''
+                },
+
                 crudForm: {
                     id: null,
                     name: '',
@@ -1572,11 +1599,22 @@
                     }, 50);
                 },
 
-                deleteCrudItem(id) {
+                confirmDelete(id) {
                     const item = this.facilities.find(f => f.id === id);
                     if (!item) return;
 
-                    if (confirm(`Apakah Anda yakin ingin menghapus ${item.type} '${item.name}'?`)) {
+                    this.deleteModal.itemId = id;
+                    this.deleteModal.itemName = item.name;
+                    this.deleteModal.isOpen = true;
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 50);
+                },
+
+                executeDelete() {
+                    const id = this.deleteModal.itemId;
+                    const item = this.facilities.find(f => f.id === id);
+                    if (item) {
                         this.facilities = this.facilities.filter(f => f.id !== id);
                         this.persistState();
                         this.addToast('Berhasil Dihapus', `${item.type} '${item.name}' telah dihapus dari sistem.`, 'success');
@@ -1585,6 +1623,7 @@
                             if (window.lucide) window.lucide.createIcons();
                         }, 50);
                     }
+                    this.deleteModal.isOpen = false;
                 },
 
                 filteredAdminFacilities() {

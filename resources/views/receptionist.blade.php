@@ -90,6 +90,33 @@
         </template>
     </div>
 
+    <!-- CONFIRMATION MODAL -->
+    <div x-show="confirmModal.isOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
+        <div @click="confirmModal.isOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10 space-y-6 transform scale-100 transition-all fade-in">
+            <div class="text-center space-y-3">
+                <div :class="confirmModal.iconBg" class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-inner">
+                    <template x-if="confirmModal.icon === 'log-in'">
+                        <i data-lucide="log-in" class="w-6 h-6"></i>
+                    </template>
+                    <template x-if="confirmModal.icon === 'log-out'">
+                        <i data-lucide="log-out" class="w-6 h-6"></i>
+                    </template>
+                </div>
+                <h3 class="text-base font-extrabold text-slate-900 font-outfit" x-text="confirmModal.title"></h3>
+                <p class="text-xs text-slate-600 leading-relaxed" x-html="confirmModal.message"></p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button @click="confirmModal.isOpen = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
+                    Batal
+                </button>
+                <button @click="executeConfirm()" :class="confirmModal.btnClass" class="flex-1 py-3 font-bold text-xs rounded-xl shadow-lg transition-all" x-text="confirmModal.btnText">
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 1. LOGIN SCREEN -->
     <div x-show="!isLoggedIn" class="w-full h-screen flex relative z-30 fade-in">
         <!-- Cover Section Left -->
@@ -398,12 +425,12 @@
                                         </td>
                                         <td class="py-4 px-6 text-right">
                                             <template x-if="b.status === 'Lunas'">
-                                                <button @click="doCheckIn(b)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
+                                                <button @click="showConfirm('checkin', b)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
                                                     <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Proses Check In
                                                 </button>
                                             </template>
                                             <template x-if="b.status === 'Check In'">
-                                                <button @click="doCheckOut(b)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
+                                                <button @click="showConfirm('checkout', b)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
                                                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Proses Check Out
                                                 </button>
                                             </template>
@@ -628,6 +655,19 @@
                 },
                 settingsPasswordVisible: { current: false, new: false, confirm: false },
 
+                // Confirmation Modal State
+                confirmModal: {
+                    isOpen: false,
+                    title: '',
+                    message: '',
+                    icon: 'log-in',
+                    iconBg: 'bg-emerald-100 text-emerald-600',
+                    btnText: 'Check In',
+                    btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white',
+                    booking: null,
+                    action: ''
+                },
+
                 profile: {
                     role: 'receptionist',
                     nama: 'Amira Resepsionis',
@@ -794,6 +834,39 @@
                         const matchesFilter = this.receptionistFilter === 'semua' || b.status === this.receptionistFilter;
                         return matchesSearch && matchesFilter;
                     });
+                },
+
+                showConfirm(action, booking) {
+                    this.confirmModal.booking = booking;
+                    this.confirmModal.action = action;
+                    this.confirmModal.isOpen = true;
+                    if (action === 'checkin') {
+                        this.confirmModal.title = 'Konfirmasi Check-In';
+                        this.confirmModal.message = `Apakah Anda yakin ingin memproses check-in untuk tamu <strong>${booking.nama}</strong> di <strong>${booking.unit_name}</strong>?`;
+                        this.confirmModal.icon = 'log-in';
+                        this.confirmModal.iconBg = 'bg-emerald-100 text-emerald-600';
+                        this.confirmModal.btnText = 'Konfirmasi Check-In';
+                        this.confirmModal.btnClass = 'bg-emerald-600 hover:bg-emerald-700 text-white';
+                    } else if (action === 'checkout') {
+                        this.confirmModal.title = 'Konfirmasi Check-Out';
+                        this.confirmModal.message = `Apakah Anda yakin ingin memproses check-out untuk tamu <strong>${booking.nama}</strong> dari <strong>${booking.unit_name}</strong>?`;
+                        this.confirmModal.icon = 'log-out';
+                        this.confirmModal.iconBg = 'bg-red-100 text-red-600';
+                        this.confirmModal.btnText = 'Konfirmasi Check-Out';
+                        this.confirmModal.btnClass = 'bg-red-600 hover:bg-red-700 text-white';
+                    }
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 50);
+                },
+
+                executeConfirm() {
+                    this.confirmModal.isOpen = false;
+                    if (this.confirmModal.action === 'checkin') {
+                        this.doCheckIn(this.confirmModal.booking);
+                    } else if (this.confirmModal.action === 'checkout') {
+                        this.doCheckOut(this.confirmModal.booking);
+                    }
                 },
 
                 doCheckIn(booking) {
