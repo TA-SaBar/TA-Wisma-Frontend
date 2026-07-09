@@ -186,7 +186,10 @@
                     <!-- Luas -->
                     <div class="space-y-1">
                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Luas Area</label>
-                        <input type="text" x-model="crudForm.luas" placeholder="Contoh: 32 m²" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                        <div class="relative">
+                            <input type="number" x-model="crudForm.luas" placeholder="Contoh: 32" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 pr-10 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                            <span class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 text-xs font-semibold">m²</span>
+                        </div>
                     </div>
 
                     <!-- Bed Configuration -->
@@ -1175,14 +1178,17 @@
 
     <!-- APP SCRIPT STATE MANAGEMENT -->
     <script>
+        const API_URL = '{{ env('BACKEND_API_URL', 'http://localhost:8000/api') }}';
+
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                isLoading: false,
                 passwordVisible: false,
                 loginForm: {
                     role: 'admin',
-                    dprId: 'admin',
-                    password: 'admin'
+                    dprId: 'koordinator@wisma.dpr.go.id',
+                    password: 'password'
                 },
 
                 currentTab: 'admin_dashboard',
@@ -1211,23 +1217,25 @@
                     name: '',
                     type: 'Buah',
                     gedung: 'Wisma',
-                    lantai: 'Lantai Bawah',
+                    lantai: 'Area Bawah',
                     capacity: 2,
-                    price: 750000,
+                    price: 387000,
                     unit: 'night',
-                    luas: '24 m²',
+                    luas: '24',
                     bed: 'Queen Size',
                     status: 'READY',
                     photo: '',
                     description: ''
                 },
+                crudPhotoFile: null,
 
                 toasts: [],
                 toastCount: 0,
 
                 profile: {
-                    role: 'admin',
-                    nama: 'Admin Wisma',
+                    id: null,
+                    role: 'koordinator_wisma',
+                    nama: '',
                     role_label: 'Koordinator Wisma',
                     instansi: 'Wisma DPR RI'
                 },
@@ -1235,14 +1243,14 @@
                 // Settings state
                 settingsTab: 'profil',
                 settingsProfile: {
-                    nama: 'Admin Wisma',
+                    nama: '',
                     jabatan: 'Koordinator Wisma',
-                    nip: '198704122010011001',
+                    nip: '',
                     instansi: 'Wisma DPR RI'
                 },
                 settingsContact: {
-                    email: 'admin.wisma@dpr.go.id',
-                    telepon: '+62 812-3456-7890'
+                    email: '',
+                    telepon: ''
                 },
                 settingsPassword: {
                     current: '',
@@ -1251,53 +1259,124 @@
                 },
                 settingsPasswordVisible: { current: false, new: false, confirm: false },
 
-                // Shared LocalStorage data
+                // Shared data
                 facilities: [],
                 bookings: [],
                 guests: [],
                 complaints: [],
 
-                initApp() {
-                    this.loadState();
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
+                // ==========================================
+                // HELPER: API CALL
+                // ==========================================
+                async apiCall(method, path, body = null, isFormData = false) {
+                    const token = localStorage.getItem('wisma_token');
+                    const headers = {
+                        'Accept': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+                        ...(!isFormData ? { 'Content-Type': 'application/json' } : {})
+                    };
+                    const opts = {
+                        method,
+                        headers,
+                        ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {})
+                    };
+                    const res = await fetch(API_URL + path, opts);
+                    return res.json();
+                },
+
+                // ==========================================
+                // INIT
+                // ==========================================
+                async initApp() {
+                    const token = localStorage.getItem('wisma_token');
+                    if (token) {
+                        const me = await this.apiCall('GET', '/me');
+                        if (me.success) {
+                            this.fillProfile(me.data);
+                            this.isLoggedIn = true;
+                            await this.loadFacilitiesFromApi();
+                        } else {
+                            localStorage.removeItem('wisma_token');
                         }
+                    }
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
                     }, 100);
                 },
 
-                login() {
-                    if (this.loginForm.dprId !== 'admin' || this.loginForm.password !== 'admin') {
-                        this.addToast('Login Gagal', 'Username atau Password salah.', 'error');
-                        return;
-                    }
-                    
-                    this.isLoggedIn = true;
-                    this.profile.role = 'admin';
-                    this.profile.nama = 'Admin Wisma';
-                    this.profile.role_label = 'Koordinator Wisma';
-                    this.currentTab = 'admin_dashboard';
-                    
-                    this.addToast('Login Berhasil', `Selamat datang di Portal Koordinator Wisma, ${this.profile.nama}.`, 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    }, 50);
+                fillProfile(user) {
+                    this.profile.id       = user.id;
+                    this.profile.role     = user.role;
+                    this.profile.nama     = user.name;
+                    this.profile.instansi = user.instansi || 'Wisma DPR RI';
+                    this.settingsProfile.nama     = user.name;
+                    this.settingsProfile.nip      = user.nip || '';
+                    this.settingsProfile.instansi = user.instansi || 'Wisma DPR RI';
+                    this.settingsContact.email    = user.email;
+                    this.settingsContact.telepon  = user.phone || '';
                 },
 
-                logout() {
-                    this.isLoggedIn = false;
-                    this.loginForm.dprId = 'admin';
-                    this.loginForm.password = 'admin';
-                    this.addToast('Logout Sukses', 'Anda telah keluar dari sesi admin.', 'info');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
+                async loadFacilitiesFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/facilities');
+                        if (res.success) {
+                            this.facilities = res.data.map(f => ({
+                                ...f,
+                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : 'http://localhost:8000' + f.photo) : '/images/bungalow_buah.jpg'
+                            }));
                         }
-                    }, 50);
+                    } catch (e) {
+                        console.error('Gagal memuat fasilitas dari API:', e);
+                    }
+                },
+
+                // ==========================================
+                // LOGIN
+                // ==========================================
+                async login() {
+                    if (this.isLoading) return;
+                    if (!this.loginForm.dprId || !this.loginForm.password) {
+                        this.addToast('Data Tidak Lengkap', 'Email dan Password tidak boleh kosong.', 'error');
+                        return;
+                    }
+                    this.isLoading = true;
+                    try {
+                        const res = await this.apiCall('POST', '/login', {
+                            email:    this.loginForm.dprId,
+                            password: this.loginForm.password
+                        });
+                        if (res.success) {
+                            if (res.data.user.role !== 'koordinator_wisma') {
+                                this.addToast('Akses Ditolak', 'Portal ini hanya untuk Koordinator Wisma.', 'error');
+                                return;
+                            }
+                            localStorage.setItem('wisma_token', res.data.token);
+                            this.fillProfile(res.data.user);
+                            this.isLoggedIn = true;
+                            this.currentTab = 'admin_dashboard';
+                            await this.loadFacilitiesFromApi();
+                            this.addToast('Login Berhasil', `Selamat datang, ${this.profile.nama}.`, 'success');
+                        } else {
+                            this.addToast('Login Gagal', res.message || 'Email atau password salah.', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server backend.', 'error');
+                    } finally {
+                        this.isLoading = false;
+                        setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                    }
+                },
+
+                // ==========================================
+                // LOGOUT
+                // ==========================================
+                async logout() {
+                    try { await this.apiCall('POST', '/logout'); } catch (e) { /* ignore */ }
+                    localStorage.removeItem('wisma_token');
+                    this.isLoggedIn = false;
+                    this.facilities = [];
+                    this.addToast('Logout Sukses', 'Anda telah keluar dari sesi admin.', 'info');
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
                 persistState() {
@@ -1502,7 +1581,7 @@
                         capacity: type === 'Rapat' ? 30 : 2,
                         price: type === 'Buah' ? 387000 : (type === 'Bunga' ? 549000 : 250000),
                         unit: type === 'Rapat' ? 'day' : 'night',
-                        luas: type === 'Buah' ? '24 m²' : (type === 'Bunga' ? '28 m²' : '60 m²'),
+                        luas: type === 'Buah' ? '24' : (type === 'Bunga' ? '28' : '60'),
                         bed: type === 'Buah' ? 'Queen Size' : (type === 'Bunga' ? 'Twin Bed' : 'Meja Rapat Oval'),
                         status: 'READY',
                         photo: type === 'Buah' ? '/images/bungalow_buah.jpg' : (type === 'Bunga' ? '/images/bungalow_bunga.jpg' : '/images/ruang_rapat.jpeg'),
@@ -1518,6 +1597,9 @@
                     this.crudAction = 'edit';
                     this.crudType = item.type;
                     this.crudForm = { ...item };
+                    if (this.crudForm.luas && typeof this.crudForm.luas === 'string') {
+                        this.crudForm.luas = this.crudForm.luas.replace(/m²|m2|\s/gi, '');
+                    }
                     this.crudModalOpen = true;
                     setTimeout(() => {
                          if (window.lucide) window.lucide.createIcons();
@@ -1527,6 +1609,8 @@
                 handlePhotoUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
+
+                    this.crudPhotoFile = file;
 
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -1562,54 +1646,138 @@
                     reader.readAsDataURL(file);
                 },
 
-                saveCrudItem() {
+                async saveCrudItem() {
                     if (!this.crudForm.name || !this.crudForm.price) {
                         this.addToast('Data Tidak Lengkap', 'Nama dan harga harus diisi.', 'error');
                         return;
                     }
 
-                    if (this.crudAction === 'create') {
-                        const newId = this.facilities.reduce((max, f) => f.id > max ? f.id : max, 0) + 1;
-                        const newItem = {
-                            ...this.crudForm,
-                            id: newId,
-                            price: parseInt(this.crudForm.price),
-                            capacity: 2
-                        };
-                        this.facilities.push(newItem);
-                        this.addToast('Berhasil Ditambahkan', `${this.crudType} '${newItem.name}' berhasil ditambahkan.`, 'success');
-                    } else {
-                        const idx = this.facilities.findIndex(f => f.id === this.crudForm.id);
-                        if (idx !== -1) {
-                            this.facilities[idx] = {
-                                ...this.crudForm,
-                                price: parseInt(this.crudForm.price),
-                                capacity: 2
-                            };
-                            this.addToast('Berhasil Diperbarui', `${this.crudType} '${this.crudForm.name}' berhasil diperbarui.`, 'success');
-                        }
+                    const formData = new FormData();
+                    formData.append('name', this.crudForm.name);
+                    formData.append('type', this.crudForm.type);
+                    formData.append('gedung', this.crudForm.gedung);
+                    formData.append('lantai', this.crudForm.lantai);
+                    formData.append('capacity', this.crudForm.capacity || 2);
+                    formData.append('price', parseInt(this.crudForm.price));
+                    formData.append('unit', this.crudForm.unit);
+                    
+                    let finalLuas = this.crudForm.luas ? this.crudForm.luas.toString().trim() : '';
+                    if (finalLuas && !finalLuas.includes('m²') && !finalLuas.includes('m2')) {
+                        finalLuas += ' m²';
+                    }
+                    formData.append('luas', finalLuas);
+                    
+                    formData.append('bed', this.crudForm.bed || '');
+                    formData.append('status', this.crudForm.status);
+                    formData.append('description', this.crudForm.description || '');
+                    
+                    if (this.crudPhotoFile) {
+                        formData.append('photo', this.crudPhotoFile);
+                    }
+                    
+                    if (this.crudAction === 'edit') {
+                        formData.append('_method', 'PUT'); // Laravel requirement for FormData PUT
                     }
 
-                    this.persistState();
-                    this.crudModalOpen = false;
-                    
+                    try {
+                        let res;
+                        if (this.crudAction === 'create') {
+                            res = await this.apiCall('POST', '/facilities', formData, true);
+                        } else {
+                            res = await this.apiCall('POST', `/facilities/${this.crudForm.id}`, formData, true);
+                        }
+
+                        if (res.success) {
+                            this.addToast('Berhasil', res.message, 'success');
+                            this.crudModalOpen = false;
+                            this.crudPhotoFile = null;
+                            await this.loadFacilitiesFromApi();
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : res.message;
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Gagal menyimpan data ke server.', 'error');
+                    }
+
                     setTimeout(() => {
                         if (window.lucide) window.lucide.createIcons();
                     }, 50);
                 },
 
-                deleteCrudItem(id) {
+                async deleteCrudItem(id) {
                     const item = this.facilities.find(f => f.id === id);
                     if (!item) return;
 
                     if (confirm(`Apakah Anda yakin ingin menghapus ${item.type} '${item.name}'?`)) {
-                        this.facilities = this.facilities.filter(f => f.id !== id);
-                        this.persistState();
-                        this.addToast('Berhasil Dihapus', `${item.type} '${item.name}' telah dihapus dari sistem.`, 'success');
+                        try {
+                            const res = await this.apiCall('DELETE', `/facilities/${id}`);
+                            if (res.success) {
+                                this.addToast('Berhasil Dihapus', res.message, 'success');
+                                await this.loadFacilitiesFromApi();
+                            } else {
+                                this.addToast('Gagal Menghapus', res.message, 'error');
+                            }
+                        } catch (e) {
+                            this.addToast('Koneksi Gagal', 'Gagal menghapus data dari server.', 'error');
+                        }
                         
                         setTimeout(() => {
                             if (window.lucide) window.lucide.createIcons();
                         }, 50);
+                    }
+                },
+                
+                async saveSettingsProfile() {
+                    try {
+                        const res = await this.apiCall('PUT', '/profile', {
+                            name:     this.settingsProfile.nama,
+                            phone:    this.settingsContact.telepon,
+                            email:    this.settingsContact.email,
+                            instansi: this.settingsProfile.instansi,
+                        });
+                        if (res.success) {
+                            this.fillProfile(res.data);
+                            this.addToast('Profil Diperbarui', 'Data diri Anda berhasil diperbarui.', 'success');
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal memperbarui profil.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                },
+
+                async saveSettingsContact() {
+                    // Contact settings use the same endpoint as profile settings
+                    await this.saveSettingsProfile();
+                },
+
+                async saveSettingsPassword() {
+                    if (!this.settingsPassword.current) {
+                        this.addToast('Gagal', 'Masukkan kata sandi saat ini.', 'error'); return;
+                    }
+                    if (this.settingsPassword.new.length < 6) {
+                        this.addToast('Gagal', 'Kata sandi baru minimal 6 karakter.', 'error'); return;
+                    }
+                    if (this.settingsPassword.new !== this.settingsPassword.confirm) {
+                        this.addToast('Gagal', 'Konfirmasi kata sandi tidak cocok.', 'error'); return;
+                    }
+                    try {
+                        const res = await this.apiCall('PUT', '/profile/password', {
+                            current_password:      this.settingsPassword.current,
+                            password:              this.settingsPassword.new,
+                            password_confirmation: this.settingsPassword.confirm,
+                        });
+                        if (res.success) {
+                            this.settingsPassword = { current: '', new: '', confirm: '' };
+                            this.addToast('Kata Sandi Diperbarui', 'Kata sandi Anda berhasil diubah.', 'success');
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal mengubah kata sandi.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
                     }
                 },
 

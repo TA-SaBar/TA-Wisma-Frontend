@@ -398,10 +398,43 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <button @click="showFeatureMuted('Notifikasi')" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors relative">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
-                        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                    </button>
+                    <div class="relative" @click.away="showNotifications = false">
+                        <button @click="showNotifications = !showNotifications; if(showNotifications && unreadNotificationCount > 0) markNotificationsRead()" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors relative">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span x-show="unreadNotificationCount > 0" class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                        </button>
+                        
+                        <!-- Dropdown Notifikasi -->
+                        <div x-show="showNotifications" 
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden fade-in"
+                             x-cloak>
+                            <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h3 class="font-bold text-sm text-slate-900">Notifikasi</h3>
+                                <span class="text-[10px] px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full font-semibold" x-text="notifications.length + ' Pesan'"></span>
+                            </div>
+                            <div class="max-h-80 overflow-y-auto">
+                                <template x-if="notifications.length === 0">
+                                    <div class="px-4 py-6 text-center">
+                                        <i data-lucide="bell-off" class="w-8 h-8 mx-auto text-slate-300 mb-2"></i>
+                                        <p class="text-xs text-slate-500">Belum ada notifikasi terbaru.</p>
+                                    </div>
+                                </template>
+                                <template x-for="notif in notifications" :key="notif.id">
+                                    <div class="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group" :class="notif.is_read ? 'opacity-70' : 'bg-blue-50/30'">
+                                        <p class="text-xs font-semibold text-slate-900 group-hover:text-wisma-navy transition-colors" x-text="notif.title"></p>
+                                        <p class="text-[11px] text-slate-500 mt-0.5 leading-snug" x-text="notif.message"></p>
+                                        <p class="text-[9px] text-slate-400 mt-1.5 font-medium flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-3 h-3"></i> 
+                                            <span x-text="new Date(notif.created_at).toLocaleString('id-ID', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'})"></span>
+                                        </p>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="px-4 py-2 border-t border-slate-100 bg-slate-50 text-center">
+                                <button class="text-xs text-indigo-600 font-semibold hover:underline">Lihat Semua Notifikasi</button>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="w-px h-6 bg-slate-200 mx-2"></div>
                     
@@ -1001,22 +1034,22 @@
                             <h3 class="text-sm font-bold text-slate-900 font-outfit">Keamanan Akun</h3>
                             <p class="text-xs text-slate-500">Ubah kata sandi Anda secara berkala untuk menjaga keamanan akun.</p>
                         </div>
-                        <form @submit.prevent="showToast('Kata sandi berhasil diperbarui (Simulasi)')" class="space-y-4">
+                        <form @submit.prevent="savePassword()" class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1">
                                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Kata Sandi Saat Ini</label>
-                                    <input type="password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
+                                    <input type="password" x-model="passwordForm.current_password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
                                 </div>
                                 <div class="space-y-1 md:col-span-2">
                                     <hr class="border-slate-100 my-2">
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Kata Sandi Baru</label>
-                                    <input type="password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
+                                    <input type="password" x-model="passwordForm.password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Konfirmasi Kata Sandi Baru</label>
-                                    <input type="password" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
+                                    <input type="password" x-model="passwordForm.password_confirmation" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all" placeholder="••••••••" required>
                                 </div>
                             </div>
                             <button type="submit" class="py-3 px-6 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors mt-2">
@@ -1152,14 +1185,17 @@
 
     <!-- APP SCRIPT STATE MANAGEMENT -->
     <script>
+        const API_URL = '{{ env('BACKEND_API_URL', 'http://localhost:8000/api') }}';
+
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                isLoading: false,
                 passwordVisible: false,
                 loginForm: {
                     role: 'guest',
-                    dprId: '1989041220',
-                    password: 'password123'
+                    dprId: 'budi.santoso@dpr.go.id',
+                    password: 'password'
                 },
 
                 currentTab: 'dashboard',
@@ -1178,10 +1214,10 @@
                 checkOutDate: '2026-06-22',
                 guestCount: 2,
                 bookingForm: {
-                    nama: 'Budi Santoso',
-                    nip: '198904122015031002',
-                    whatsapp: '+62 812-3456-7890',
-                    email: 'budi.santoso@dpr.go.id',
+                    nama: '',
+                    nip: '',
+                    whatsapp: '',
+                    email: '',
                     untukOrangLain: false
                 },
                 // Midtrans payment handled externally
@@ -1198,20 +1234,24 @@
                 calendarBlanks: [],
 
                 profile: {
+                    id: null,
                     role: 'guest',
-                    nama: 'Budi Santoso',
-                    nip: '198904122015031002',
-                    whatsapp: '+62 812-3456-7890',
-                    email: 'budi.santoso@dpr.go.id',
-                    instansi: 'Sekretariat Jenderal DPR RI',
-                    role_label: 'Anggota Kehormatan'
+                    nama: '',
+                    nip: '',
+                    whatsapp: '',
+                    email: '',
+                    instansi: '',
+                    role_label: 'Tamu'
                 },
 
-                // Shared LocalStorage data collections
+                // Shared data collections
                 facilities: [],
                 bookings: [],
                 guests: [],
                 complaints: [],
+                notifications: [],
+                unreadNotificationCount: 0,
+                showNotifications: false,
 
                 ratingModalOpen: false,
                 feedbackBooking: {},
@@ -1228,50 +1268,178 @@
                     description: ''
                 },
 
-                initApp() {
-                    this.loadState();
+                passwordForm: {
+                    current_password: '',
+                    password: '',
+                    password_confirmation: ''
+                },
+
+                // ==========================================
+                // HELPER: API CALL
+                // ==========================================
+                async apiCall(method, path, body = null, isFormData = false) {
+                    const token = localStorage.getItem('wisma_token');
+                    const headers = {
+                        'Accept': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+                        ...(!isFormData ? { 'Content-Type': 'application/json' } : {})
+                    };
+                    const opts = {
+                        method,
+                        headers,
+                        ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {})
+                    };
+                    const res = await fetch(API_URL + path, opts);
+                    return res.json();
+                },
+
+                // ==========================================
+                // INIT
+                // ==========================================
+                async initApp() {
+                    const token = localStorage.getItem('wisma_token');
+                    if (token) {
+                        // Try restore session
+                        const me = await this.apiCall('GET', '/me');
+                        if (me.success) {
+                            this.fillProfile(me.data);
+                            this.isLoggedIn = true;
+                            await this.loadFacilitiesFromApi();
+                            await this.loadNotifications();
+                        } else {
+                            localStorage.removeItem('wisma_token');
+                            this.loadFallbackState();
+                        }
+                    } else {
+                        this.loadFallbackState();
+                    }
                     this.selectedFacility = this.facilities[0] || {};
                     this.buildCalendar();
                     setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
+                        if (window.lucide) window.lucide.createIcons();
                     }, 100);
                 },
 
-                login() {
-                    if (!this.loginForm.dprId || !this.loginForm.password) {
-                        this.addToast('Data Tidak Lengkap', 'DPR ID dan Password tidak boleh kosong.', 'error');
-                        return;
-                    }
-                    
-                    this.isLoggedIn = true;
-                    this.profile.role = 'guest';
-                    this.profile.role_label = 'Anggota Kehormatan';
-                    this.profile.nama = 'Budi Santoso';
-                    this.profile.instansi = 'Sekretariat Jenderal DPR RI';
-                    this.currentTab = 'dashboard';
-                    
-                    this.addToast('Login Berhasil', `Selamat datang di Portal Tamu Wisma, ${this.profile.nama}.`, 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    }, 50);
+                fillProfile(user) {
+                    const roleLabels = {
+                        guest: 'Anggota Kehormatan',
+                        receptionist: 'Resepsionis',
+                        koordinator_wisma: 'Koordinator Wisma',
+                        customer_service: 'Customer Service'
+                    };
+                    this.profile.id        = user.id;
+                    this.profile.role      = user.role;
+                    this.profile.role_label= roleLabels[user.role] || user.role;
+                    this.profile.nama      = user.name;
+                    this.profile.nip       = user.nip || '';
+                    this.profile.whatsapp  = user.phone || '';
+                    this.profile.email     = user.email;
+                    this.profile.instansi  = user.instansi || '';
+                    // Pre-fill booking form with logged-in user data
+                    this.bookingForm.nama  = user.name;
+                    this.bookingForm.nip   = user.nip || '';
+                    this.bookingForm.whatsapp = user.phone || '';
+                    this.bookingForm.email = user.email;
                 },
 
-                logout() {
-                    this.isLoggedIn = false;
-                    this.loginForm.dprId = '1989041220';
-                    this.loginForm.password = 'password123';
-                    this.addToast('Logout Sukses', 'Anda telah keluar dari sesi portal tamu.', 'info');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
+                async loadFacilitiesFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/facilities');
+                        if (res.success) {
+                            this.facilities = res.data.map(f => ({
+                                ...f,
+                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : 'http://localhost:8000' + f.photo) : '/images/bungalow_buah.jpg'
+                            }));
                         }
-                    }, 50);
+                    } catch (e) {
+                        console.error('Gagal memuat fasilitas dari API:', e);
+                    }
+                },
+
+                loadFallbackState() {
+                    // Tampilkan data kosong saat belum login
+                    this.facilities = [];
+                    this.bookings   = [];
+                    this.guests     = [];
+                    this.complaints = [];
+                    this.notifications = [];
+                    this.unreadNotificationCount = 0;
+                },
+
+                // ==========================================
+                // LOGIN
+                // ==========================================
+                async login() {
+                    if (!this.loginForm.dprId || !this.loginForm.password) {
+                        this.addToast('Data Tidak Lengkap', 'Email dan Password tidak boleh kosong.', 'error');
+                        return;
+                    }
+                    this.isLoading = true;
+                    try {
+                        const res = await this.apiCall('POST', '/login', {
+                            email: this.loginForm.dprId,
+                            password: this.loginForm.password
+                        });
+                        if (res.success) {
+                            localStorage.setItem('wisma_token', res.data.token);
+                            this.fillProfile(res.data.user);
+                            this.isLoggedIn = true;
+                            this.currentTab = 'dashboard';
+                            await this.loadFacilitiesFromApi();
+                            await this.loadNotifications();
+                            this.addToast('Login Berhasil', `Selamat datang, ${this.profile.nama}.`, 'success');
+                        } else {
+                            const msg = res.message || 'Email atau password salah.';
+                            this.addToast('Login Gagal', msg, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server. Pastikan backend berjalan.', 'error');
+                    } finally {
+                        this.isLoading = false;
+                        setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                    }
+                },
+
+                // ==========================================
+                // NOTIFICATIONS
+                // ==========================================
+                async loadNotifications() {
+                    try {
+                        const res = await this.apiCall('GET', '/notifications');
+                        if (res.success) {
+                            this.notifications = res.data;
+                            this.unreadNotificationCount = res.unread_count;
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat notifikasi', e);
+                    }
+                },
+
+                async markNotificationsRead() {
+                    try {
+                        const res = await this.apiCall('PUT', '/notifications/read-all');
+                        if (res.success) {
+                            this.unreadNotificationCount = 0;
+                            this.notifications = this.notifications.map(n => ({...n, is_read: true}));
+                        }
+                    } catch (e) {
+                        console.error('Gagal menandai notifikasi dibaca', e);
+                    }
+                },
+
+                // ==========================================
+                // LOGOUT
+                // ==========================================
+                async logout() {
+                    try {
+                        await this.apiCall('POST', '/logout');
+                    } catch (e) { /* ignore */ }
+                    localStorage.removeItem('wisma_token');
+                    this.isLoggedIn = false;
+                    this.profile = { id: null, role: 'guest', nama: '', nip: '', whatsapp: '', email: '', instansi: '', role_label: 'Tamu' };
+                    this.loadFallbackState();
+                    this.addToast('Logout Sukses', 'Anda telah keluar dari sesi portal tamu.', 'info');
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
                 persistState() {
@@ -1638,8 +1806,52 @@
                     }, 800);
                 },
 
-                saveProfile() {
-                    this.addToast('Profil Disimpan', 'Data diri Anda berhasil diperbarui.', 'success');
+                async saveProfile() {
+                    try {
+                        const res = await this.apiCall('PUT', '/profile', {
+                            name:     this.profile.nama,
+                            phone:    this.profile.whatsapp,
+                            email:    this.profile.email,
+                            instansi: this.profile.instansi,
+                        });
+                        if (res.success) {
+                            this.fillProfile(res.data);
+                            this.addToast('Profil Diperbarui', 'Data diri Anda berhasil diperbarui.', 'success');
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal memperbarui profil.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                },
+
+                async savePassword() {
+                    if (!this.passwordForm.current_password) {
+                        this.addToast('Gagal', 'Masukkan kata sandi saat ini.', 'error'); return;
+                    }
+                    if (this.passwordForm.password.length < 8) {
+                        this.addToast('Gagal', 'Kata sandi baru minimal 8 karakter.', 'error'); return;
+                    }
+                    if (this.passwordForm.password !== this.passwordForm.password_confirmation) {
+                        this.addToast('Gagal', 'Konfirmasi kata sandi tidak cocok.', 'error'); return;
+                    }
+                    try {
+                        const res = await this.apiCall('PUT', '/profile/password', {
+                            current_password:      this.passwordForm.current_password,
+                            password:              this.passwordForm.password,
+                            password_confirmation: this.passwordForm.password_confirmation,
+                        });
+                        if (res.success) {
+                            this.passwordForm = { current_password: '', password: '', password_confirmation: '' };
+                            this.addToast('Kata Sandi Diperbarui', 'Kata sandi Anda berhasil diubah.', 'success');
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal mengubah kata sandi.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
                 },
 
                 downloadPDF() {
