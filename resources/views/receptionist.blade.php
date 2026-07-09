@@ -153,20 +153,20 @@
             <div class="max-w-md w-full mx-auto space-y-8">
                 <div class="space-y-2 text-center md:text-left">
                     <h2 class="text-2xl font-extrabold text-slate-900 font-outfit tracking-tight">Portal Resepsionis</h2>
-                    <p class="text-xs text-slate-500">Silakan masukkan kredensial petugas Resepsionis.</p>
+                    <p class="text-xs text-slate-500">Silakan masukkan email dan password petugas Resepsionis.</p>
                 </div>
 
                 <form @submit.prevent="login()" class="space-y-5">
-                    <!-- Username -->
+                    <!-- Email -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Username Petugas</label>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Email</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="user" class="w-4.5 h-4.5"></i>
+                                <i data-lucide="mail" class="w-4.5 h-4.5"></i>
                             </span>
-                            <input type="text" 
-                                   x-model="loginForm.username"
-                                   placeholder="Contoh: receptionist" 
+                            <input type="email" 
+                                   x-model="loginForm.email"
+                                   placeholder="Contoh: receptionist@dpr.go.id" 
                                    class="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
                     </div>
@@ -189,8 +189,9 @@
                     </div>
 
                     <!-- Button submit -->
-                    <button type="submit" class="w-full py-3 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2">
-                        Masuk Portal Resepsionis <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <button type="submit" :disabled="isLoading" class="w-full py-3 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+                        <span x-show="!isLoading">Masuk Portal Resepsionis <i data-lucide="arrow-right" class="w-4 h-4 inline"></i></span>
+                        <span x-show="isLoading">Memuat...</span>
                     </button>
                 </form>
             </div>
@@ -234,7 +235,7 @@
                         :class="currentTab === 'receptionist_check' ? 'bg-gradient-to-r from-wisma-gold to-amber-500 text-wisma-dark font-semibold shadow-lg shadow-wisma-gold/15' : 'text-wisma-textMuted hover:bg-slate-800/50 hover:text-white'">
                     <i data-lucide="log-in" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
                     <span class="text-sm">Check-In / Check-Out</span>
-                    <span class="ml-auto px-2 py-0.5 bg-wisma-dark/25 rounded-md text-[10px]" x-text="bookings.filter(b => b.status === 'Lunas').length + ' Antre'"></span>
+                    <span class="ml-auto px-2 py-0.5 bg-wisma-dark/25 rounded-md text-[10px]" x-text="bookings.filter(b => b.status === 'lunas').length + ' Antre'"></span>
                 </button>
 
                 <div class="border-t border-slate-800 my-2 mx-3"></div>
@@ -250,9 +251,9 @@
 
             <!-- Sidebar Footer/Petugas Profile Summary -->
             <div class="p-4 border-t border-slate-800 bg-wisma-dark/40 flex items-center gap-3">
-                <img class="w-10 h-10 rounded-full border border-wisma-gold/30 object-cover" 
-                     src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&h=100&q=80" 
-                     alt="Resepsionis Avatar">
+                <div class="w-10 h-10 rounded-full border border-wisma-gold/30 bg-emerald-700 flex items-center justify-center text-white font-bold text-sm">
+                    <span x-text="profile.nama ? profile.nama.charAt(0).toUpperCase() : 'R'"></span>
+                </div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-semibold text-white truncate" x-text="profile.nama"></p>
                     <p class="text-[10px] text-wisma-textMuted truncate" x-text="profile.role_label"></p>
@@ -279,7 +280,7 @@
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
                             <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm">R</div>
+                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm" x-text="profile.nama ? profile.nama.charAt(0).toUpperCase() : 'R'"></div>
                     </div>
                 </div>
             </header>
@@ -314,7 +315,7 @@
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
                             <div>
                                 <span class="text-xs text-slate-500 font-medium">Antrean Check-in (Lunas)</span>
-                                <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="bookings.filter(b => b.status === 'Lunas').length"></h3>
+                                <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="bookings.filter(b => b.status === 'lunas').length"></h3>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center transition-transform group-hover:scale-110">
                                 <i data-lucide="bell" class="w-6 h-6"></i>
@@ -323,7 +324,7 @@
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
                             <div>
                                 <span class="text-xs text-slate-500 font-medium">Tamu Sedang Menginap</span>
-                                <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="bookings.filter(b => b.status === 'Check In').length"></h3>
+                                <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="bookings.filter(b => b.status === 'check_in').length"></h3>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center transition-transform group-hover:scale-110">
                                 <i data-lucide="key" class="w-6 h-6"></i>
@@ -350,11 +351,11 @@
                                    placeholder="Cari nama tamu, NIP, atau no booking..." 
                                    class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 flex-wrap">
                             <button @click="receptionistFilter = 'semua'" :class="receptionistFilter === 'semua' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Semua</button>
-                            <button @click="receptionistFilter = 'Lunas'" :class="receptionistFilter === 'Lunas' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Antrean Check-In</button>
-                            <button @click="receptionistFilter = 'Check In'" :class="receptionistFilter === 'Check In' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Sedang Menginap</button>
-                            <button @click="receptionistFilter = 'Selesai'" :class="receptionistFilter === 'Selesai' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Check-Out Selesai</button>
+                            <button @click="receptionistFilter = 'lunas'" :class="receptionistFilter === 'lunas' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Antrean Check-In</button>
+                            <button @click="receptionistFilter = 'check_in'" :class="receptionistFilter === 'check_in' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Sedang Menginap</button>
+                            <button @click="receptionistFilter = 'selesai'" :class="receptionistFilter === 'selesai' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Check-Out Selesai</button>
                         </div>
                     </div>
 
@@ -374,40 +375,42 @@
                                 <template x-for="b in filteredBookings()" :key="b.id">
                                     <tr class="hover:bg-slate-50/50 transition-all">
                                         <td class="py-4 px-6">
-                                            <p class="font-bold text-slate-900" x-text="b.id"></p>
-                                            <p class="text-[11px] text-slate-500 font-medium mt-0.5" x-text="b.nama"></p>
-                                            <p class="text-[9px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip"></p>
+                                            <p class="font-bold text-slate-900" x-text="b.booking_code"></p>
+                                            <p class="text-[11px] text-slate-500 font-medium mt-0.5" x-text="b.guest_name"></p>
+                                            <p class="text-[9px] text-slate-400 mt-0.5" x-text="'NIP: ' + (b.guest_nip || '-')"></p>
                                         </td>
                                         <td class="py-4 px-6">
-                                            <p class="font-bold text-slate-900" x-text="b.unit_name"></p>
-                                            <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.unit_location"></p>
+                                            <p class="font-bold text-slate-900" x-text="b.facility ? b.facility.name : '-'"></p>
+                                            <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.facility ? (b.facility.gedung + ' • ' + b.facility.lantai) : ''"></p>
                                         </td>
                                         <td class="py-4 px-6">
                                             <p class="font-semibold text-slate-800" x-text="formatIndoDate(b.check_in) + ' s/d'"></p>
                                             <p class="font-semibold text-slate-800" x-text="formatIndoDate(b.check_out)"></p>
-                                            <span class="text-[10px] text-slate-400 block mt-1" x-text="b.nights + (b.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></span>
+                                            <span class="text-[10px] text-slate-400 block mt-1" x-text="b.nights + ' Malam/Hari'"></span>
                                         </td>
                                         <td class="py-4 px-6">
                                             <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide"
                                                   :class="{
-                                                      'bg-emerald-100 text-emerald-700': b.status === 'Lunas',
-                                                      'bg-blue-100 text-blue-700': b.status === 'Check In',
-                                                      'bg-slate-100 text-slate-600': b.status === 'Selesai'
+                                                      'bg-yellow-100 text-yellow-700': b.status === 'pending',
+                                                      'bg-emerald-100 text-emerald-700': b.status === 'lunas',
+                                                      'bg-blue-100 text-blue-700': b.status === 'check_in',
+                                                      'bg-slate-100 text-slate-600': b.status === 'selesai',
+                                                      'bg-red-100 text-red-600': b.status === 'cancelled'
                                                   }"
-                                                  x-text="b.status === 'Check In' ? 'Aktif Menginap' : b.status"></span>
+                                                  x-text="statusLabel(b.status)"></span>
                                         </td>
                                         <td class="py-4 px-6 text-right">
-                                            <template x-if="b.status === 'Lunas'">
+                                            <template x-if="b.status === 'lunas'">
                                                 <button @click="doCheckIn(b)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
                                                     <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Proses Check In
                                                 </button>
                                             </template>
-                                            <template x-if="b.status === 'Check In'">
+                                            <template x-if="b.status === 'check_in'">
                                                 <button @click="doCheckOut(b)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
                                                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Proses Check Out
                                                 </button>
                                             </template>
-                                            <template x-if="b.status === 'Selesai'">
+                                            <template x-if="b.status === 'selesai'">
                                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Selesai/Arsip</span>
                                             </template>
                                         </td>
@@ -455,12 +458,11 @@
                             <!-- PROFIL SAYA -->
                             <div x-show="settingsTab === 'profil'" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 space-y-6">
                                 <div class="flex items-center gap-4 pb-6 border-b border-slate-100">
-                                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white flex items-center justify-center font-bold text-xl font-outfit shadow-lg">
-                                        R
+                                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white flex items-center justify-center font-bold text-xl font-outfit shadow-lg" x-text="profile.nama ? profile.nama.charAt(0).toUpperCase() : 'R'">
                                     </div>
                                     <div>
-                                        <h2 class="text-base font-bold text-slate-900 font-outfit" x-text="settingsProfile.nama"></h2>
-                                        <p class="text-xs text-slate-500 mt-0.5" x-text="settingsProfile.jabatan"></p>
+                                        <h2 class="text-base font-bold text-slate-900 font-outfit" x-text="profile.nama"></h2>
+                                        <p class="text-xs text-slate-500 mt-0.5" x-text="profile.role_label"></p>
                                         <span class="inline-block mt-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-md uppercase tracking-wide">Resepsionis</span>
                                     </div>
                                 </div>
@@ -469,10 +471,6 @@
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Lengkap</label>
                                         <input type="text" x-model="settingsProfile.nama" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Jabatan / Role</label>
-                                        <input type="text" x-model="settingsProfile.jabatan" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">NIP</label>
@@ -552,7 +550,7 @@
                                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                                 <i data-lucide="key" class="w-4 h-4"></i>
                                             </span>
-                                            <input :type="settingsPasswordVisible.new ? 'text' : 'password'" x-model="settingsPassword.new" placeholder="Min. 6 karakter" class="w-full pl-10 pr-10 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                                            <input :type="settingsPasswordVisible.new ? 'text' : 'password'" x-model="settingsPassword.new" placeholder="Min. 8 karakter" class="w-full pl-10 pr-10 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                                             <button type="button" @click="settingsPasswordVisible.new = !settingsPasswordVisible.new" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
                                                 <i :data-lucide="settingsPasswordVisible.new ? 'eye-off' : 'eye'" class="w-4 h-4"></i>
                                             </button>
@@ -592,13 +590,16 @@
 
     <!-- APP SCRIPT STATE MANAGEMENT -->
     <script>
+        const API_URL = 'http://localhost:8000/api';
+
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                isLoading: false,
                 passwordVisible: false,
                 loginForm: {
-                    username: 'receptionist',
-                    password: 'receptionist'
+                    email: '',
+                    password: ''
                 },
 
                 currentTab: 'receptionist_dashboard',
@@ -612,14 +613,13 @@
                 // Settings state
                 settingsTab: 'profil',
                 settingsProfile: {
-                    nama: 'Amira Resepsionis',
-                    jabatan: 'Front Office & Resepsionis',
-                    nip: '199203142015032001',
-                    instansi: 'Front Desk Wisma'
+                    nama: '',
+                    nip: '',
+                    instansi: ''
                 },
                 settingsContact: {
-                    email: 'amira.receptionist@dpr.go.id',
-                    telepon: '+62 813-2345-6789'
+                    email: '',
+                    telepon: ''
                 },
                 settingsPassword: {
                     current: '',
@@ -629,253 +629,287 @@
                 settingsPasswordVisible: { current: false, new: false, confirm: false },
 
                 profile: {
+                    id: null,
                     role: 'receptionist',
-                    nama: 'Amira Resepsionis',
-                    role_label: 'Front Office & Resepsionis',
-                    instansi: 'Front Desk Wisma'
+                    nama: '',
+                    nip: '',
+                    phone: '',
+                    email: '',
+                    instansi: '',
+                    role_label: 'Resepsionis'
                 },
 
-                // Shared LocalStorage data
+                // Data from API
                 facilities: [],
                 bookings: [],
-                guests: [],
 
-                initApp() {
-                    this.loadState();
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
+                // ==========================================
+                // HELPER: API CALL
+                // ==========================================
+                async apiCall(method, path, body = null) {
+                    const token = localStorage.getItem('wisma_token');
+                    const headers = {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+                    };
+                    const opts = {
+                        method,
+                        headers,
+                        ...(body ? { body: JSON.stringify(body) } : {}),
+                    };
+                    const res = await fetch(API_URL + path, opts);
+                    return res.json();
+                },
+
+                // ==========================================
+                // INIT
+                // ==========================================
+                async initApp() {
+                    const token = localStorage.getItem('wisma_token');
+                    if (token) {
+                        const me = await this.apiCall('GET', '/me');
+                        if (me.success && (me.data.role === 'receptionist' || me.data.role === 'koordinator_wisma')) {
+                            this.fillProfile(me.data);
+                            this.isLoggedIn = true;
+                            await this.loadBookings();
+                        } else {
+                            localStorage.removeItem('wisma_token');
                         }
+                    }
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
                     }, 100);
                 },
 
-                login() {
-                    if (this.loginForm.username !== 'receptionist' || this.loginForm.password !== 'receptionist') {
-                        this.addToast('Login Gagal', 'Username atau Password Resepsionis salah.', 'error');
+                fillProfile(user) {
+                    const roleLabels = {
+                        receptionist: 'Resepsionis',
+                        koordinator_wisma: 'Koordinator Wisma',
+                    };
+                    this.profile.id         = user.id;
+                    this.profile.role       = user.role;
+                    this.profile.role_label = roleLabels[user.role] || user.role;
+                    this.profile.nama       = user.name;
+                    this.profile.nip        = user.nip || '';
+                    this.profile.phone      = user.phone || '';
+                    this.profile.email      = user.email;
+                    this.profile.instansi   = user.instansi || '';
+
+                    // Pre-fill settings forms
+                    this.settingsProfile.nama    = user.name;
+                    this.settingsProfile.nip     = user.nip || '';
+                    this.settingsProfile.instansi= user.instansi || '';
+                    this.settingsContact.email   = user.email;
+                    this.settingsContact.telepon = user.phone || '';
+                },
+
+                async loadBookings() {
+                    try {
+                        const res = await this.apiCall('GET', '/bookings');
+                        if (res.success) {
+                            this.bookings = res.data;
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat bookings:', e);
+                    }
+                },
+
+                // ==========================================
+                // LOGIN
+                // ==========================================
+                async login() {
+                    if (!this.loginForm.email || !this.loginForm.password) {
+                        this.addToast('Data Tidak Lengkap', 'Email dan Password wajib diisi.', 'error');
                         return;
                     }
-                    
-                    this.isLoggedIn = true;
-                    this.profile.role = 'receptionist';
-                    this.profile.nama = 'Amira Resepsionis';
-                    this.profile.role_label = 'Front Office & Resepsionis';
-                    this.currentTab = 'receptionist_dashboard';
-                    
-                    this.addToast('Login Berhasil', `Selamat datang kembali, ${this.profile.nama}.`, 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    }, 50);
-                },
-
-                logout() {
-                    this.isLoggedIn = false;
-                    this.loginForm.username = 'receptionist';
-                    this.loginForm.password = 'receptionist';
-                    this.addToast('Sesi Berakhir', 'Anda telah logout dari portal resepsionis.', 'info');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    }, 50);
-                },
-
-                persistState() {
-                    localStorage.setItem('wisma_facilities', JSON.stringify(this.facilities));
-                    localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
-                    localStorage.setItem('wisma_guests', JSON.stringify(this.guests));
-                },
-
-                loadState() {
-                    const savedFacilities = localStorage.getItem('wisma_facilities');
-                    const savedBookings = localStorage.getItem('wisma_bookings');
-                    const savedGuests = localStorage.getItem('wisma_guests');
-                    
-                    // Force refresh schema if old structure exists
-                    let needForceRefresh = false;
-                    if (savedFacilities) {
-                        try {
-                            const facilitiesList = JSON.parse(savedFacilities);
-                            if (facilitiesList.length === 0 || !facilitiesList.some(f => f.name === 'Ruang Panja (Rapat)') || facilitiesList.some(f => f.price === 750000 || f.price === 850000 || f.lantai.includes('Lantai') || f.name.includes('Kamar') || f.photo.includes('unsplash.com') || (f.photo.includes('bungalow.jpg') && !f.photo.includes('_buah') && !f.photo.includes('_bunga')))) {
-                                needForceRefresh = true;
-                            }
-                        } catch (e) {
-                            needForceRefresh = true;
-                        }
-                    } else {
-                        needForceRefresh = true;
-                    }
-
-                    if (needForceRefresh) {
-                        localStorage.removeItem('wisma_facilities');
-                        localStorage.removeItem('wisma_bookings');
-                        localStorage.removeItem('wisma_guests');
-                    }
-
-                    const freshFacilities = localStorage.getItem('wisma_facilities');
-                    const freshBookings = localStorage.getItem('wisma_bookings');
-                    const freshGuests = localStorage.getItem('wisma_guests');
-                    
-                    if (freshFacilities) {
-                        this.facilities = JSON.parse(freshFacilities);
-                    }
-
-                    if (freshBookings) {
-                        this.bookings = JSON.parse(freshBookings);
-                        this.bookings.forEach(b => {
-                            if (b.hasFeedback) {
-                                if (b.rating === undefined || b.rating === null) b.rating = 5.0;
-                                if (b.rating_cleanliness === undefined || b.rating_cleanliness === null) b.rating_cleanliness = Math.round(b.rating) || 5;
-                                if (b.rating_facilities === undefined || b.rating_facilities === null) b.rating_facilities = Math.round(b.rating) || 5;
-                                if (b.rating_service === undefined || b.rating_service === null) b.rating_service = Math.round(b.rating) || 5;
-                                if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
-                            }
+                    this.isLoading = true;
+                    try {
+                        const res = await this.apiCall('POST', '/login', {
+                            email:    this.loginForm.email,
+                            password: this.loginForm.password,
                         });
-                    } else {
-                        this.bookings = [
-                            {
-                                id: 'WDPR-2026-0082',
-                                unit_name: 'Bungalow Kedondong',
-                                unit_photo: '/images/bungalow_buah.jpg',
-                                unit_location: 'Wisma • Area Bawah',
-                                check_in: '2026-05-10',
-                                check_out: '2026-05-12',
-                                nights: 2,
-                                total_price: 774000,
-                                status: 'Selesai',
-                                nama: 'Budi Santoso',
-                                nip: '198904122015031002',
-                                hasFeedback: true,
-                                rating: 4.7,
-                                rating_cleanliness: 5,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
-                            },
-                            {
-                                id: 'WDPR-2026-0083',
-                                unit_name: 'Bungalow Widelia',
-                                unit_photo: '/images/bungalow_bunga.jpg',
-                                unit_location: 'Wisma • Area Atas',
-                                check_in: '2026-06-20',
-                                check_out: '2026-06-25',
-                                nights: 5,
-                                total_price: 2745000,
-                                status: 'Check In',
-                                nama: 'Ahmad Fauzi',
-                                nip: '199112022018031001',
-                                hasFeedback: false
+                        if (res.success) {
+                            const role = res.data.user.role;
+                            if (role !== 'receptionist' && role !== 'koordinator_wisma') {
+                                this.addToast('Akses Ditolak', 'Akun ini tidak memiliki akses ke portal Resepsionis.', 'error');
+                                return;
                             }
-                        ];
-                        localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
-                    }
-                    if (freshGuests) {
-                        this.guests = JSON.parse(freshGuests);
-                    }
-                },
-
-                switchTab(tab) {
-                    this.currentTab = tab;
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
+                            localStorage.setItem('wisma_token', res.data.token);
+                            this.fillProfile(res.data.user);
+                            this.isLoggedIn = true;
+                            this.currentTab = 'receptionist_dashboard';
+                            this.addToast('Login Berhasil', `Selamat bertugas, ${this.profile.nama}.`, 'success');
+                            await this.loadBookings();
+                            setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 100);
+                        } else {
+                            const msg = res.message || 'Email atau password salah.';
+                            this.addToast('Login Gagal', msg, 'error');
                         }
-                    }, 50);
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    } finally {
+                        this.isLoading = false;
+                        setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                    }
                 },
 
+                // ==========================================
+                // LOGOUT
+                // ==========================================
+                async logout() {
+                    try { await this.apiCall('POST', '/logout'); } catch (e) { /* ignore */ }
+                    localStorage.removeItem('wisma_token');
+                    this.isLoggedIn = false;
+                    this.bookings   = [];
+                    this.profile    = { id: null, role: 'receptionist', nama: '', nip: '', phone: '', email: '', instansi: '', role_label: 'Resepsionis' };
+                    this.addToast('Logout Sukses', 'Anda telah keluar dari portal resepsionis.', 'info');
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                },
+
+                // ==========================================
+                // CHECK-IN / CHECK-OUT
+                // ==========================================
+                async doCheckIn(booking) {
+                    try {
+                        const res = await this.apiCall('PUT', `/bookings/${booking.id}/checkin`);
+                        if (res.success) {
+                            // Update local state
+                            const idx = this.bookings.findIndex(b => b.id === booking.id);
+                            if (idx !== -1) this.bookings[idx].status = 'check_in';
+                            this.addToast('Check In Sukses', `Tamu ${booking.guest_name} resmi check-in.`, 'success');
+                        } else {
+                            this.addToast('Gagal', res.message || 'Gagal memproses check-in.', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                },
+
+                async doCheckOut(booking) {
+                    try {
+                        const res = await this.apiCall('PUT', `/bookings/${booking.id}/checkout`);
+                        if (res.success) {
+                            // Update local state
+                            const idx = this.bookings.findIndex(b => b.id === booking.id);
+                            if (idx !== -1) this.bookings[idx].status = 'selesai';
+                            this.addToast('Check Out Sukses', `Masa inap ${booking.guest_name} selesai.`, 'success');
+                        } else {
+                            this.addToast('Gagal', res.message || 'Gagal memproses check-out.', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                },
+
+                // ==========================================
+                // FILTERS & HELPERS
+                // ==========================================
                 filteredBookings() {
                     return this.bookings.filter(b => {
-                        const matchesSearch = b.nama.toLowerCase().includes(this.receptionistSearch.toLowerCase()) || 
-                                              b.id.toLowerCase().includes(this.receptionistSearch.toLowerCase()) ||
-                                              b.nip.includes(this.receptionistSearch);
+                        const search = this.receptionistSearch.toLowerCase();
+                        const matchesSearch = !search ||
+                            (b.guest_name || '').toLowerCase().includes(search) ||
+                            (b.booking_code || '').toLowerCase().includes(search) ||
+                            (b.guest_nip || '').includes(search);
                         const matchesFilter = this.receptionistFilter === 'semua' || b.status === this.receptionistFilter;
                         return matchesSearch && matchesFilter;
                     });
                 },
 
-                doCheckIn(booking) {
-                    // Update Booking Status
-                    const idx = this.bookings.findIndex(b => b.id === booking.id);
-                    if (idx !== -1) {
-                        this.bookings[idx].status = 'Check In';
-                    }
-
-                    // Update Facility Status to OCCUPIED
-                    const fIdx = this.facilities.findIndex(f => f.name === booking.unit_name || f.id === booking.unit_id);
-                    if (fIdx !== -1) {
-                        this.facilities[fIdx].status = 'OCCUPIED';
-                    }
-
-                    this.persistState();
-                    this.addToast('Check In Sukses', `Tamu ${booking.nama} resmi check-in ke bungalow.`, 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 50);
+                statusLabel(status) {
+                    const labels = {
+                        pending: 'Menunggu Bayar',
+                        lunas: 'Lunas',
+                        check_in: 'Aktif Menginap',
+                        selesai: 'Selesai',
+                        cancelled: 'Dibatalkan',
+                    };
+                    return labels[status] || status;
                 },
 
-                doCheckOut(booking) {
-                    // Update Booking Status
-                    const idx = this.bookings.findIndex(b => b.id === booking.id);
-                    if (idx !== -1) {
-                        this.bookings[idx].status = 'Selesai';
-                    }
-
-                    // Update Facility Status to READY
-                    const fIdx = this.facilities.findIndex(f => f.name === booking.unit_name || f.id === booking.unit_id);
-                    if (fIdx !== -1) {
-                        this.facilities[fIdx].status = 'READY';
-                    }
-
-                    this.persistState();
-                    this.addToast('Check Out Sukses', `Masa inap tamu ${booking.nama} selesai. Unit siap dibersihkan.`, 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 50);
+                formatIndoDate(dateStr) {
+                    if (!dateStr) return '-';
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const d = new Date(dateStr);
+                    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                 },
 
+                switchTab(tab) {
+                    this.currentTab = tab;
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                },
+
+                // ==========================================
+                // SETTINGS PROFILE & PASSWORD
+                // ==========================================
+                async saveSettingsProfile() {
+                    try {
+                        const res = await this.apiCall('PUT', '/profile', {
+                            name:     this.settingsProfile.nama,
+                            phone:    this.settingsContact.telepon,
+                            email:    this.settingsContact.email,
+                            instansi: this.settingsProfile.instansi,
+                        });
+                        if (res.success) {
+                            this.fillProfile(res.data);
+                            this.addToast('Profil Diperbarui', 'Data profil berhasil disimpan.', 'success');
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal memperbarui profil.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                },
+
+                async saveSettingsContact() {
+                    await this.saveSettingsProfile();
+                },
+
+                async saveSettingsPassword() {
+                    if (!this.settingsPassword.current) {
+                        this.addToast('Gagal', 'Masukkan kata sandi saat ini.', 'error'); return;
+                    }
+                    if (this.settingsPassword.new.length < 8) {
+                        this.addToast('Gagal', 'Kata sandi baru minimal 8 karakter.', 'error'); return;
+                    }
+                    if (this.settingsPassword.new !== this.settingsPassword.confirm) {
+                        this.addToast('Gagal', 'Konfirmasi kata sandi tidak cocok.', 'error'); return;
+                    }
+                    try {
+                        const res = await this.apiCall('PUT', '/profile/password', {
+                            current_password:      this.settingsPassword.current,
+                            password:              this.settingsPassword.new,
+                            password_confirmation: this.settingsPassword.confirm,
+                        });
+                        if (res.success) {
+                            this.settingsPassword = { current: '', new: '', confirm: '' };
+                            this.addToast('Kata Sandi Diperbarui', 'Kata sandi berhasil diubah.', 'success');
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal mengubah kata sandi.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                },
+
+                // ==========================================
+                // TOAST
+                // ==========================================
                 addToast(title, message, type = 'success') {
                     const id = this.toastCount++;
                     this.toasts.push({ id, title, message, type });
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 20);
-                    setTimeout(() => {
-                        this.removeToast(id);
-                    }, 4000);
+                    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 20);
+                    setTimeout(() => { this.removeToast(id); }, 4000);
                 },
 
                 removeToast(id) {
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
-
-                saveSettingsProfile() {
-                    this.profile.nama = this.settingsProfile.nama;
-                    this.profile.instansi = this.settingsProfile.instansi;
-                    this.addToast('Profil Diperbarui', 'Data profil berhasil disimpan.', 'success');
-                },
-
-                saveSettingsContact() {
-                    this.addToast('Kontak Diperbarui', 'Email dan nomor telepon berhasil disimpan.', 'success');
-                },
-
-                saveSettingsPassword() {
-                    if (!this.settingsPassword.current) {
-                        this.addToast('Gagal', 'Masukkan kata sandi saat ini.', 'error'); return;
-                    }
-                    if (this.settingsPassword.new.length < 6) {
-                        this.addToast('Gagal', 'Kata sandi baru minimal 6 karakter.', 'error'); return;
-                    }
-                    if (this.settingsPassword.new !== this.settingsPassword.confirm) {
-                        this.addToast('Gagal', 'Konfirmasi kata sandi tidak cocok.', 'error'); return;
-                    }
-                    this.settingsPassword = { current: '', new: '', confirm: '' };
-                    this.addToast('Kata Sandi Diperbarui', 'Kata sandi berhasil diubah.', 'success');
-                }
             };
         }
     </script>
