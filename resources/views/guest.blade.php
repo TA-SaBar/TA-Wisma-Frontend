@@ -693,14 +693,15 @@
                                     <div class="py-2.5"></div>
                                 </template>
                                 <template x-for="day in calendarDays" :key="day.dateStr">
-                                    <button @click="if(!day.isPast) selectCalendarDate(day.dateStr)" 
-                                            :disabled="day.isPast"
+                                    <button @click="if(!day.isPast && !day.isBooked) selectCalendarDate(day.dateStr)" 
+                                            :disabled="day.isPast || day.isBooked"
                                             class="py-2.5 rounded-xl font-bold transition-all relative flex flex-col items-center justify-center"
                                             :class="{
                                                 'text-slate-300 cursor-not-allowed': day.isPast,
-                                                'bg-wisma-navy text-wisma-gold font-extrabold shadow-md': isDateSelected(day.dateStr),
-                                                'bg-indigo-50 text-indigo-700': isDateInRange(day.dateStr),
-                                                'hover:bg-slate-100 text-slate-700': !day.isPast && !isDateSelected(day.dateStr) && !isDateInRange(day.dateStr)
+                                                'text-red-400 bg-red-50 cursor-not-allowed line-through': day.isBooked,
+                                                'bg-wisma-navy text-wisma-gold font-extrabold shadow-md': isDateSelected(day.dateStr) && !day.isBooked,
+                                                'bg-indigo-50 text-indigo-700': isDateInRange(day.dateStr) && !day.isBooked,
+                                                'hover:bg-slate-100 text-slate-700': !day.isPast && !day.isBooked && !isDateSelected(day.dateStr) && !isDateInRange(day.dateStr)
                                             }">
                                         <span x-text="day.dayNum"></span>
                                         <span x-show="day.dateStr === checkInDate" class="text-[7px] text-wisma-gold absolute bottom-0.5 uppercase tracking-tighter">IN</span>
@@ -825,16 +826,21 @@
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                             <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-2">
                                 <h3 class="text-sm font-bold text-slate-900">Total Tagihan</h3>
-                                <div class="flex items-center gap-1.5 text-red-500 font-bold text-xs">
-                                    <i data-lucide="clock" class="w-4 h-4"></i>
-                                    <span x-text="paymentTimer"></span>
+                                <span class="text-wisma-navy text-lg font-extrabold" x-text="formatRupiah(calculateTotal())"></span>
+                            </div>
+                            <div class="space-y-2.5 text-xs pb-3 border-b border-slate-100">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500" x-text="formatRupiah(selectedFacility.price) + ' x ' + calculateNights() + (selectedFacility.unit === 'day' ? ' Hari' : ' Malam')"></span>
+                                    <span class="font-semibold text-slate-900" x-text="formatRupiah(selectedFacility.price * calculateNights())"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Pajak PPN (11%)</span>
+                                    <span class="font-semibold text-slate-900" x-text="formatRupiah(calculateTax())"></span>
                                 </div>
                             </div>
-                            <div class="space-y-2.5 text-xs">
-                                <div class="flex justify-between font-bold text-slate-900">
-                                    <span>Total Pembayaran</span>
-                                    <span class="text-wisma-navy text-sm font-extrabold" x-text="formatRupiah(calculateTotal())"></span>
-                                </div>
+                            <div class="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 font-bold text-xs justify-center mt-4">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                <span>Selesaikan pembayaran dalam <span x-text="paymentTimer"></span></span>
                             </div>
                             <div class="flex flex-col gap-3 pt-4 border-t border-slate-100 mt-2">
                                 <button @click="payWithMidtrans()" class="w-full py-3.5 bg-[#0091FF] hover:bg-[#007CE6] text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
@@ -858,7 +864,7 @@
                         </div>
 
                         <!-- Ticket Layout -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden relative">
+                        <div id="ticket-print-area" class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden relative">
                             <!-- Header Ticket -->
                             <div class="bg-wisma-navy text-white p-4 flex items-center justify-between">
                                 <div class="flex items-center gap-2">
@@ -873,7 +879,7 @@
                                 <div class="grid grid-cols-2 gap-4 border-b border-dashed border-slate-200 pb-4">
                                     <div>
                                         <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">No. Booking</span>
-                                        <p class="font-bold text-slate-800" x-text="generatedTicket.id"></p>
+                                        <p class="font-bold text-slate-800" x-text="generatedTicket.booking_code"></p>
                                     </div>
                                     <div>
                                         <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Nama Tamu</span>
@@ -939,14 +945,16 @@
                                                 <h4 class="text-sm font-bold text-slate-900" x-text="b.unit_name"></h4>
                                                 <span class="px-2 py-0.5 text-[9px] uppercase font-bold rounded"
                                                       :class="{
+                                                          'bg-amber-100 text-amber-700': b.status === 'Pending',
                                                           'bg-emerald-100 text-emerald-700': b.status === 'Lunas',
                                                           'bg-blue-100 text-blue-700': b.status === 'Check In',
+                                                          'bg-red-100 text-red-700': b.status === 'Dibatalkan' || b.status === 'Cancelled',
                                                           'bg-slate-100 text-slate-600': b.status === 'Selesai'
                                                       }"
                                                       x-text="b.status === 'Check In' ? 'Aktif Menginap' : b.status"></span>
                                             </div>
                                             <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
-                                                <span x-text="b.id"></span>
+                                                <span x-text="b.booking_code"></span>
                                                 <span class="text-slate-300">•</span>
                                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                                                 <span x-text="formatIndoDate(b.check_in) + ' - ' + formatIndoDate(b.check_out)"></span>
@@ -963,9 +971,27 @@
                                         
                                         <!-- Actions -->
                                         <div class="flex items-center gap-2">
-                                            <button @click="viewTicket(b)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1">
-                                                <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Tiket
-                                            </button>
+                                            <template x-if="b.status !== 'Pending' && b.status !== 'Cancelled' && b.status !== 'Dibatalkan'">
+                                                <button @click="viewTicket(b)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1">
+                                                    <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Tiket
+                                                </button>
+                                            </template>
+                                            <template x-if="b.status === 'Pending'">
+                                                <div class="flex flex-col items-end gap-1.5">
+                                                    <div class="text-[10px] text-red-500 font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-md border border-red-100">
+                                                        <i data-lucide="clock" class="w-3 h-3"></i> 
+                                                        <span x-text="'Batas Waktu: ' + formatExpiryTime(b.created_at)"></span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5 mt-1">
+                                                        <button @click="resumePayment(b)" class="px-3 py-2 bg-[#0091FF] hover:bg-[#007CE6] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1">
+                                                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Bayar
+                                                        </button>
+                                                        <button @click="checkPaymentStatus(b)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl shadow-sm transition-all" title="Cek Status Manual">
+                                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </template>
                                             <template x-if="b.status === 'Selesai' && !b.hasFeedback">
                                                 <button @click="openRatingModal(b)" class="px-3 py-2 bg-wisma-gold hover:bg-wisma-goldHover text-wisma-dark font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1">
                                                     <i data-lucide="star" class="w-3.5 h-3.5"></i> Ulas
@@ -1192,6 +1218,7 @@
                 isLoggedIn: false,
                 isLoading: false,
                 passwordVisible: false,
+                currentTime: new Date(),
                 loginForm: {
                     role: 'guest',
                     dprId: 'budi.santoso@dpr.go.id',
@@ -1210,8 +1237,8 @@
                 
                 selectedFacility: {},
                 wizardStep: 1,
-                checkInDate: '2026-06-20',
-                checkOutDate: '2026-06-22',
+                checkInDate: '',
+                checkOutDate: '',
                 guestCount: 2,
                 bookingForm: {
                     nama: '',
@@ -1228,10 +1255,12 @@
                 toastCount: 0,
                 generatedTicket: {},
                 
-                calendarYear: 2026,
-                calendarMonth: 5,
+                calendarYear: new Date().getFullYear(),
+                calendarMonth: new Date().getMonth(),
+                calendarDays: [],
                 calendarDays: [],
                 calendarBlanks: [],
+                bookedDatesArr: [],
 
                 profile: {
                     id: null,
@@ -1305,6 +1334,8 @@
                             this.fillProfile(me.data);
                             this.isLoggedIn = true;
                             await this.loadFacilitiesFromApi();
+                            await this.loadBookingsFromApi();
+                            await this.loadComplaintsFromApi();
                             await this.loadNotifications();
                         } else {
                             localStorage.removeItem('wisma_token');
@@ -1313,6 +1344,17 @@
                     } else {
                         this.loadFallbackState();
                     }
+                    
+                    // Set timer for current time updates every second
+                    setInterval(() => {
+                        this.currentTime = new Date();
+                    }, 1000);
+
+                    // Re-initialize lucide icons periodically if DOM changes (or use MutationObserver)
+                    setInterval(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 1000);
+                    
                     this.selectedFacility = this.facilities[0] || {};
                     this.buildCalendar();
                     setTimeout(() => {
@@ -1366,6 +1408,37 @@
                     this.unreadNotificationCount = 0;
                 },
 
+                async loadBookingsFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/bookings');
+                        if (res.success) {
+                            this.bookings = res.data.map(b => ({
+                                id: b.id,
+                                booking_code: b.booking_code,
+                                unit_name: b.facility.name,
+                                unit_photo: b.facility.photo ? (b.facility.photo.startsWith('http') ? b.facility.photo : 'http://localhost:8000' + b.facility.photo) : '/images/bungalow_buah.jpg',
+                                unit_location: b.facility.gedung + ' • ' + b.facility.lantai,
+                                check_in: b.check_in.substring(0,10),
+                                check_out: b.check_out.substring(0,10),
+                                nights: b.nights,
+                                total_price: b.total_price,
+                                snap_token: b.snap_token,
+                                created_at: b.created_at,
+                                status: (b.status === 'pending' ? 'Pending' : 
+                                        (b.status === 'lunas' ? 'Lunas' : 
+                                        (b.status === 'check_in' ? 'Check In' : 
+                                        (b.status === 'cancelled' ? 'Dibatalkan' : 'Selesai')))),
+                                nama: b.guest_name,
+                                nip: b.guest_nip,
+                                hasFeedback: b.has_feedback,
+                                rating: b.has_feedback ? 5 : 0 // The exact rating is not returned by default unless feedback relation is loaded, but hasFeedback boolean is enough for the UI to hide the button.
+                            }));
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat bookings dari API:', e);
+                    }
+                },
+
                 // ==========================================
                 // LOGIN
                 // ==========================================
@@ -1386,6 +1459,8 @@
                             this.isLoggedIn = true;
                             this.currentTab = 'dashboard';
                             await this.loadFacilitiesFromApi();
+                            await this.loadBookingsFromApi();
+                            await this.loadComplaintsFromApi();
                             await this.loadNotifications();
                             this.addToast('Login Berhasil', `Selamat datang, ${this.profile.nama}.`, 'success');
                         } else {
@@ -1700,15 +1775,39 @@
                     this.drawerOpen = false;
                 },
 
-                startBookingFlow(facility) {
+                async startBookingFlow(facility) {
                     this.selectedFacility = facility;
                     this.drawerOpen = false;
                     this.wizardStep = 1;
+                    
+                    // Reset tanggal agar tidak terbawa dari fasilitas sebelumnya
+                    this.checkInDate = null;
+                    this.checkOutDate = null;
+
+                    try {
+                        const res = await this.apiCall('GET', `/facilities/${facility.id}/booked-dates`);
+                        if (res.success) {
+                            this.bookedDatesArr = res.data.map(d => ({
+                                check_in: new Date(d.check_in),
+                                check_out: new Date(d.check_out)
+                            }));
+                        } else {
+                            this.bookedDatesArr = [];
+                        }
+                    } catch (e) {
+                        this.bookedDatesArr = [];
+                    }
+                    this.buildCalendar(); // Rebuild calendar to apply booked dates
+
                     this.switchTab('booking_wizard');
                 },
 
                 proceedToStep(step) {
                     if (step === 2) {
+                        if (!this.checkInDate || !this.checkOutDate) {
+                            this.addToast('Pilih Tanggal', 'Silakan pilih tanggal Check-in dan Check-out terlebih dahulu.', 'error');
+                            return;
+                        }
                         const diff = this.calculateNights();
                         if (diff <= 0) {
                             this.addToast('Tanggal Tidak Valid', 'Tanggal check-out harus setelah tanggal check-in.', 'error');
@@ -1730,80 +1829,126 @@
                     }, 50);
                 },
 
-                payWithMidtrans() {
+                async payWithMidtrans() {
                     clearInterval(this.timerInterval);
                     this.addToast('Menghubungkan Midtrans', 'Mendapatkan Snap Token dari server...', 'info');
 
-                    // Simulasi memanggil Backend API untuk mendapatkan Snap Token
-                    setTimeout(() => {
-                        // Memanggil Snap UI Midtrans
-                        window.snap.pay('MOCK_SNAP_TOKEN_123', {
-                            onSuccess: (result) => {
-                                // Simulasi Callback Success
-                                const newBookingId = 'WDPR-2026-' + String(Math.floor(1000 + Math.random() * 9000));
-                                const totalNights = this.calculateNights();
-                                
-                                this.generatedTicket = {
-                                    id: newBookingId,
-                                    unit_id: this.selectedFacility.id,
-                                    unit_name: this.selectedFacility.name,
-                                    unit_photo: this.selectedFacility.photo,
-                                    unit_location: `${this.selectedFacility.gedung} • ${this.selectedFacility.lantai}`,
-                                    check_in: this.checkInDate,
-                                    check_out: this.checkOutDate,
-                                    nights: totalNights,
-                                    total_price: this.calculateTotal(),
-                                    status: 'Lunas',
-                                    nama: this.bookingForm.untukOrangLain ? 'Tamu Delegasi: ' + this.bookingForm.nama : this.bookingForm.nama,
-                                    nip: this.bookingForm.nip,
-                                    whatsapp: this.bookingForm.whatsapp,
-                                    email: this.bookingForm.email,
-                                    hasFeedback: false,
-                                    rating: 0
-                                };
+                    try {
+                        const payload = {
+                            facility_id: this.selectedFacility.id,
+                            check_in: this.checkInDate,
+                            check_out: this.checkOutDate,
+                            guest_name: this.bookingForm.untukOrangLain ? 'Delegasi: ' + this.bookingForm.nama : this.bookingForm.nama,
+                            guest_nip: this.bookingForm.nip,
+                            guest_phone: this.bookingForm.whatsapp,
+                            guest_email: this.bookingForm.email,
+                        };
 
-                                this.bookings.unshift(this.generatedTicket);
+                        const res = await this.apiCall('POST', '/bookings', payload);
 
-                                // Registrasi tamu dinamis
-                                const guestNip = this.bookingForm.nip;
-                                const existingGuestIdx = this.guests.findIndex(g => g.nip === guestNip);
-                                if (existingGuestIdx === -1) {
-                                    this.guests.push({
-                                        id: 'T-2026-' + String(Math.floor(100 + Math.random() * 900)),
-                                        nama: this.bookingForm.nama,
-                                        nip: guestNip,
-                                        phone: this.bookingForm.whatsapp,
-                                        email: this.bookingForm.email,
-                                        status: 'Reguler',
-                                        kunjungan: 1,
-                                        terakhir: 'Hari ini (Booking)'
-                                    });
-                                } else {
-                                    this.guests[existingGuestIdx].kunjungan += 1;
-                                    this.guests[existingGuestIdx].terakhir = 'Hari ini (Booking)';
+                        if (res.success) {
+                            const snapToken = res.data.snap_token;
+                            const createdBooking = res.data;
+                            
+                            window.snap.pay(snapToken, {
+                                onSuccess: (result) => {
+                                    this.addToast('Pembayaran Berhasil', 'Transaksi Midtrans berhasil diselesaikan.', 'success');
+                                    
+                                    // Generate ticket for display
+                                    this.generatedTicket = {
+                                        id: createdBooking.id,
+                                        booking_code: createdBooking.booking_code,
+                                        unit_name: this.selectedFacility.name,
+                                        unit_location: `${this.selectedFacility.gedung} • ${this.selectedFacility.lantai}`,
+                                        check_in: this.checkInDate,
+                                        check_out: this.checkOutDate,
+                                        nights: this.calculateNights(),
+                                        status: 'Lunas',
+                                        nama: payload.guest_name
+                                    };
+                                    
+                                    this.wizardStep = 4;
+                                    this.loadBookingsFromApi();
+                                    
+                                    setTimeout(() => {
+                                        if (window.lucide) window.lucide.createIcons();
+                                    }, 50);
+                                },
+                                onPending: (result) => {
+                                    this.addToast('Menunggu Pembayaran', 'Silakan selesaikan pembayaran sesuai instruksi Midtrans.', 'info');
+                                    this.loadBookingsFromApi();
+                                    this.switchTab('history');
+                                },
+                                onError: (result) => {
+                                    this.addToast('Pembayaran Gagal', 'Terjadi kesalahan pada transaksi pembayaran.', 'error');
+                                    this.loadBookingsFromApi();
+                                    this.switchTab('history');
+                                },
+                                onClose: () => {
+                                    this.addToast('Dibatalkan', 'Anda menutup pop-up pembayaran sebelum selesai.', 'error');
+                                    this.loadBookingsFromApi();
+                                    this.switchTab('history');
                                 }
-                                
-                                this.persistState();
-                                
-                                this.wizardStep = 4;
-                                this.addToast('Pembayaran Berhasil', 'Transaksi Midtrans berhasil diselesaikan.', 'success');
-                                
-                                setTimeout(() => {
-                                    if (window.lucide) window.lucide.createIcons();
-                                }, 50);
-                            },
-                            onPending: (result) => {
-                                this.addToast('Menunggu Pembayaran', 'Silakan selesaikan pembayaran sesuai instruksi Midtrans.', 'info');
-                                this.switchTab('history');
-                            },
-                            onError: (result) => {
-                                this.addToast('Pembayaran Gagal', 'Terjadi kesalahan pada transaksi pembayaran.', 'error');
-                            },
-                            onClose: () => {
-                                this.addToast('Dibatalkan', 'Anda menutup pop-up pembayaran sebelum selesai.', 'error');
+                            });
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal membuat reservasi.');
+                            this.addToast('Gagal', errors, 'error');
+                            this.proceedToStep(2); // Kembali ke form
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                },
+
+                resumePayment(booking) {
+                    if (!booking.snap_token) {
+                        this.addToast('Token Tidak Valid', 'Booking ini tidak memiliki token pembayaran aktif.', 'error');
+                        return;
+                    }
+                    this.addToast('Menghubungkan Midtrans', 'Membuka jendela pembayaran...', 'info');
+                    window.snap.pay(booking.snap_token, {
+                        onSuccess: (result) => {
+                            this.addToast('Pembayaran Berhasil', 'Transaksi Midtrans berhasil diselesaikan.', 'success');
+                            this.loadBookingsFromApi();
+                        },
+                        onPending: (result) => {
+                            this.addToast('Menunggu Pembayaran', 'Silakan selesaikan pembayaran.', 'info');
+                            this.loadBookingsFromApi();
+                        },
+                        onError: (result) => {
+                            this.addToast('Pembayaran Gagal', 'Terjadi kesalahan pada transaksi pembayaran.', 'error');
+                            this.loadBookingsFromApi();
+                        },
+                        onClose: () => {
+                            this.addToast('Dibatalkan', 'Anda menutup pop-up pembayaran sebelum selesai.', 'info');
+                            this.loadBookingsFromApi();
+                        }
+                    });
+                },
+
+                async checkPaymentStatus(booking) {
+                    this.addToast('Mengecek Status', 'Menghubungkan ke server Midtrans...', 'info');
+                    try {
+                        const res = await this.apiCall('POST', `/bookings/${booking.id}/check-status`);
+                        if (res.success) {
+                            if (res.data && res.data.status === 'lunas') {
+                                this.addToast('Sukses', 'Pembayaran telah diverifikasi lunas!', 'success');
+                            } else if (res.data && res.data.status === 'cancelled') {
+                                this.addToast('Dibatalkan', 'Transaksi telah dibatalkan atau kedaluwarsa.', 'error');
+                            } else {
+                                this.addToast('Pending', 'Pembayaran masih tertunda.', 'info');
                             }
-                        });
-                    }, 800);
+                            this.loadBookingsFromApi();
+                        } else {
+                            this.addToast('Gagal', res.message || 'Gagal mengecek status.', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
+                    
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 50);
                 },
 
                 async saveProfile() {
@@ -1855,7 +2000,42 @@
                 },
 
                 downloadPDF() {
-                    this.addToast('Mengunduh Tiket', 'Boarding pass PDF berhasil diunduh.', 'success');
+                    // FR-07.02: Cetak / Unduh E-Tiket (Boarding Pass) via browser print
+                    const printContents = document.getElementById('ticket-print-area');
+                    if (!printContents) {
+                        this.addToast('Gagal', 'Tidak dapat menemukan area tiket untuk dicetak.', 'error');
+                        return;
+                    }
+                    const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>Boarding Pass - ${this.generatedTicket.booking_code}</title>
+<style>
+  body { font-family: sans-serif; padding: 24px; color: #1e293b; }
+  .header { background: #0B1A30; color: white; padding: 16px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+  .header .title { font-weight: bold; font-size: 14px; letter-spacing: 1px; }
+  .badge { background: #10b981; color: white; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+  .body { border: 1px solid #e2e8f0; border-top: none; padding: 20px; border-radius: 0 0 8px 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed #cbd5e1; }
+  .label { font-size: 9px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+  .value { font-size: 13px; font-weight: bold; color: #0f172a; }
+  .total { text-align: center; padding-top: 12px; }
+  .total .label { font-size: 11px; }
+  .total .value { font-size: 20px; color: #0B1A30; }
+  .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #94a3b8; }
+</style>
+</head>
+<body>
+${printContents.innerHTML}
+<div class="footer">Dicetak dari Sistem Informasi Wisma DPR RI Kopo — ${new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+</body>
+</html>`;
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(html);
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => { printWindow.print(); }, 300);
+                    this.addToast('Boarding Pass Siap', 'Jendela cetak dibuka. Pilih "Save as PDF" untuk mengunduh.', 'success');
                 },
 
                 copyVA() {
@@ -1883,21 +2063,29 @@
                     this.ratingModalOpen = true;
                 },
 
-                submitRating() {
+                async submitRating() {
                     const avg = (this.feedbackRating.cleanliness + this.feedbackRating.facilities + this.feedbackRating.service) / 3;
-                    const idx = this.bookings.findIndex(b => b.id === this.feedbackBooking.id);
-                    if (idx !== -1) {
-                        this.bookings[idx].hasFeedback = true;
-                        this.bookings[idx].rating = Number(avg.toFixed(1));
-                        this.bookings[idx].rating_cleanliness = this.feedbackRating.cleanliness;
-                        this.bookings[idx].rating_facilities = this.feedbackRating.facilities;
-                        this.bookings[idx].rating_service = this.feedbackRating.service;
-                        this.bookings[idx].comment = this.feedbackComment;
-                    }
+                    const bookingId = this.feedbackBooking.id;
+                    
+                    try {
+                        const res = await this.apiCall('POST', `/bookings/${bookingId}/feedback`, {
+                            rating_cleanliness: this.feedbackRating.cleanliness,
+                            rating_facilities: this.feedbackRating.facilities,
+                            rating_service: this.feedbackRating.service,
+                            comment: this.feedbackComment
+                        });
 
-                    this.ratingModalOpen = false;
-                    this.persistState();
-                    this.addToast('Feedback Terkirim', 'Terima kasih atas ulasan Anda untuk meningkatkan layanan kami.', 'success');
+                        if (res.success) {
+                            this.ratingModalOpen = false;
+                            this.addToast('Feedback Terkirim', 'Terima kasih atas ulasan Anda untuk meningkatkan layanan kami.', 'success');
+                            this.loadBookingsFromApi(); // Reload to update status
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal mengirim ulasan.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
                     
                     setTimeout(() => {
                         if (window.lucide) {
@@ -1906,48 +2094,70 @@
                     }, 50);
                 },
 
-                submitComplaint() {
+                async submitComplaint() {
                     if (!this.complaintForm.location || !this.complaintForm.description) {
                         this.addToast('Gagal Mengirim', 'Harap isi lokasi dan deskripsi keluhan Anda.', 'error');
                         return;
                     }
 
-                    const categoryNames = {
-                        facility: 'Fasilitas (Kamar, Gedung)',
-                        laundry: 'Layanan Laundry',
-                        internet: 'Internet / Wifi',
-                        food: 'Layanan Makanan'
-                    };
+                    try {
+                        const title = this.complaintForm.description.length > 30 ? this.complaintForm.description.substring(0, 30) + '...' : this.complaintForm.description;
+                        
+                        const res = await this.apiCall('POST', '/complaints', {
+                            title: title,
+                            category: this.complaintForm.category,
+                            location: this.complaintForm.location,
+                            description: this.complaintForm.description
+                        });
 
-                    const now = new Date();
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const mins = String(now.getMinutes()).padStart(2, '0');
-                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                    const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}, ${hours}:${mins}`;
-
-                    const newComplaint = {
-                        id: 'COMP-' + String(Math.floor(104 + Math.random() * 800)),
-                        title: this.complaintForm.description.length > 30 ? this.complaintForm.description.substring(0, 30) + '...' : this.complaintForm.description,
-                        category: categoryNames[this.complaintForm.category],
-                        category_slug: this.complaintForm.category,
-                        location: this.complaintForm.location,
-                        date: dateStr,
-                        status: 'Pending'
-                    };
-
-                    this.complaints.unshift(newComplaint);
-                    this.persistState();
-
-                    this.complaintForm.location = '';
-                    this.complaintForm.description = '';
-
-                    this.addToast('Keluhan Terkirim', 'Laporan Anda sudah diterima front office untuk segera ditangani.', 'success');
+                        if (res.success) {
+                            this.complaintForm.location = '';
+                            this.complaintForm.description = '';
+                            this.addToast('Keluhan Terkirim', 'Laporan Anda sudah diterima front office untuk segera ditangani.', 'success');
+                            this.loadComplaintsFromApi();
+                        } else {
+                            const errors = res.errors ? Object.values(res.errors).flat().join(' ') : (res.message || 'Gagal mengirim keluhan.');
+                            this.addToast('Gagal', errors, 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Koneksi Gagal', 'Tidak dapat terhubung ke server.', 'error');
+                    }
                     
                     setTimeout(() => {
                         if (window.lucide) {
                             window.lucide.createIcons();
                         }
                     }, 50);
+                },
+
+                async loadComplaintsFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/complaints');
+                        if (res.success) {
+                            this.complaints = res.data.map(c => {
+                                const categoryNames = {
+                                    facility: 'Fasilitas',
+                                    laundry: 'Layanan Laundry',
+                                    internet: 'Internet / Wifi',
+                                    food: 'Layanan Makanan'
+                                };
+                                const d = new Date(c.created_at);
+                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                                const dateStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                                
+                                return {
+                                    id: c.complaint_code,
+                                    title: c.title,
+                                    category: categoryNames[c.category] || c.category,
+                                    location: c.location,
+                                    date: dateStr,
+                                    status: c.status === 'pending' ? 'Pending' : (c.status === 'processed' ? 'Processed' : 'Resolved')
+                                };
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat keluhan', e);
+                    }
                 },
 
                 calculateNights() {
@@ -1959,7 +2169,28 @@
                 },
 
                 calculateTax() {
-                    return Math.floor((this.selectedFacility.price * this.calculateNights()) * 0.11);
+                    if (!this.selectedFacility) return 0;
+                    const subtotal = this.selectedFacility.price * this.calculateNights();
+                    return subtotal * 0.11;
+                },
+
+                formatExpiryTime(createdAtStr) {
+                    // Update trigger for Alpine reactivity using currentTime
+                    const trigger = this.currentTime; 
+                    
+                    const createdDate = new Date(createdAtStr);
+                    // Add 60 minutes
+                    createdDate.setMinutes(createdDate.getMinutes() + 60);
+                    
+                    const now = new Date();
+                    const diffMs = createdDate - now;
+                    
+                    if (diffMs <= 0) return 'Kedaluwarsa';
+                    
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffSecs = Math.floor((diffMs % 60000) / 1000);
+                    
+                    return `${String(diffMins).padStart(2, '0')}:${String(diffSecs).padStart(2, '0')}`;
                 },
 
                 calculateTotal() {
@@ -2018,10 +2249,26 @@
                         const curDate = new Date(this.calendarYear, this.calendarMonth, i);
                         const dateStr = `${this.calendarYear}-${String(this.calendarMonth+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                         
+                        let isBooked = false;
+                        if (this.bookedDatesArr && this.bookedDatesArr.length > 0) {
+                            for (const b of this.bookedDatesArr) {
+                                const bIn = new Date(b.check_in);
+                                bIn.setHours(0,0,0,0);
+                                const bOut = new Date(b.check_out);
+                                bOut.setHours(0,0,0,0);
+                                
+                                if (curDate >= bIn && curDate < bOut) {
+                                    isBooked = true;
+                                    break;
+                                }
+                            }
+                        }
+
                         daysArr.push({
                             dayNum: i,
                             dateStr: dateStr,
-                            isPast: curDate < today
+                            isPast: curDate < today,
+                            isBooked: isBooked
                         });
                     }
                     this.calendarDays = daysArr;
@@ -2062,12 +2309,35 @@
                         const checkOutVal = new Date(dateStr);
                         
                         if (checkOutVal > checkInVal) {
-                            this.checkOutDate = dateStr;
-                            this.addToast('Check-out Dipilih', `Durasi: ${this.calculateNights()} ${this.selectedFacility.unit === 'day' ? 'hari' : 'malam'}.`, 'success');
+                            // Cek tabrakan dengan rentang booking yang sudah ada
+                            let overlap = false;
+                            if (this.bookedDatesArr && this.bookedDatesArr.length > 0) {
+                                for (const b of this.bookedDatesArr) {
+                                    const bIn = new Date(b.check_in);
+                                    bIn.setHours(0,0,0,0);
+                                    const bOut = new Date(b.check_out);
+                                    bOut.setHours(0,0,0,0);
+                                    
+                                    // Overlap terjadi jika checkIn kita < checkOut dia DAN checkOut kita > checkIn dia
+                                    if (checkInVal < bOut && checkOutVal > bIn) {
+                                        overlap = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (overlap) {
+                                this.addToast('Tanggal Bertabrakan', 'Rentang tanggal yang Anda pilih bertabrakan dengan pesanan yang sudah ada.', 'error');
+                                this.checkInDate = dateStr; // Reset checkin to selected date
+                                this.checkOutDate = null;
+                            } else {
+                                this.checkOutDate = dateStr;
+                                this.addToast('Check-out Dipilih', `Durasi: ${this.calculateNights()} ${this.selectedFacility.unit === 'day' ? 'hari' : 'malam'}.`, 'success');
+                            }
                         } else {
                             this.checkInDate = dateStr;
                             this.checkOutDate = null;
-                            this.addToast('Check-in Direset', `Tanggal check-in baru diatur ke ${this.formatIndoDate(dateStr)}.`, 'info');
+                            this.addToast('Check-in Diubah', `Tanggal check-in diatur ke ${this.formatIndoDate(dateStr)}.`, 'info');
                         }
                     }
                 },

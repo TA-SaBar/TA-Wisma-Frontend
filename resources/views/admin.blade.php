@@ -497,7 +497,7 @@
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
                             <div>
                                 <span class="text-xs text-slate-500 font-medium">Pendapatan Diterima (Estimasi)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1.5 text-slate-900" x-text="formatRupiah(bookings.reduce((sum, b) => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In' ? sum + b.total_price : sum, 0))"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1.5 text-slate-900" x-text="formatRupiah(bookings.reduce((sum, b) => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In' ? sum + Number(b.total_price) : sum, 0))"></h3>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-amber-50 text-wisma-gold flex items-center justify-center transition-transform group-hover:scale-110">
                                 <i data-lucide="wallet" class="w-6 h-6"></i>
@@ -539,19 +539,19 @@
                         </div>
                         <div class="flex bg-slate-100 p-1 rounded-xl select-none">
                             <button type="button" 
-                                    @click="adminManagementSubTab = 'Buah'"
+                                    @click="adminManagementSubTab = 'Buah'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);"
                                     class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all"
                                     :class="adminManagementSubTab === 'Buah' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
                                 Bungalow Buah
                             </button>
                             <button type="button" 
-                                    @click="adminManagementSubTab = 'Bunga'"
+                                    @click="adminManagementSubTab = 'Bunga'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);"
                                     class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all"
                                     :class="adminManagementSubTab === 'Bunga' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
                                 Bungalow Bunga
                             </button>
                             <button type="button" 
-                                    @click="adminManagementSubTab = 'Rapat'"
+                                    @click="adminManagementSubTab = 'Rapat'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);"
                                     class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all"
                                     :class="adminManagementSubTab === 'Rapat' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
                                 Ruang Rapat
@@ -663,6 +663,13 @@
                         </div>
 
                         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="mb-4 bg-blue-50/50 p-3 rounded-xl border border-blue-100/50">
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5 text-blue-500"></i>
+                                    <strong>Status Registrasi:</strong> Label <span class="text-indigo-600 font-bold">Member</span> menandakan bahwa akun tersebut sudah memiliki riwayat reservasi (pernah menginap). Sedangkan label <span class="text-slate-500 font-bold">Reguler</span> berarti pengguna baru mendaftar atau belum memiliki transaksi.
+                                </p>
+                            </div>
+
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
@@ -703,7 +710,7 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                    <th class="py-4 px-6">No. Booking</th>
+                                    <th class="py-4 px-6">No. | Kode</th>
                                     <th class="py-4 px-6">Nama Tamu</th>
                                     <th class="py-4 px-6">Fasilitas / Unit</th>
                                     <th class="py-4 px-6">Masa Inap</th>
@@ -714,7 +721,10 @@
                             <tbody class="divide-y divide-slate-100 text-xs text-slate-800">
                                 <template x-for="b in bookings" :key="b.id">
                                     <tr class="hover:bg-slate-50/50 transition-all">
-                                        <td class="py-4 px-6 font-bold text-slate-900" x-text="b.id"></td>
+                                        <td class="py-4 px-6">
+                                            <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
+                                            <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
+                                        </td>
                                         <td class="py-4 px-6">
                                             <p class="font-semibold" x-text="b.nama"></p>
                                             <p class="text-[9px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip"></p>
@@ -766,28 +776,25 @@
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                             <h3 class="text-sm font-bold text-slate-900">Performa Hunian Kamar & Ruang</h3>
                             <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-1/2"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Apr</span></div>
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-2/3"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Mei</span></div>
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-3/4"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Jun</span></div>
+                                <template x-for="(m, idx) in getMonthlyChart()" :key="idx">
+                                    <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group flex flex-col justify-end">
+                                        <div class="w-full bg-[#0B1A30] rounded-t-lg transition-all" :style="'height: ' + m.percent + '%'"></div>
+                                        <span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block" x-text="m.label"></span>
+                                    </div>
+                                </template>
                             </div>
-                            <p class="text-[10px] text-slate-500">Tren hunian kamar (okupansi) mengalami kenaikan sebesar +12% di bulan Juni 2026.</p>
+                            <p class="text-[10px] text-slate-500 mt-2">Grafik dinamis ini menghitung tren kepadatan pemesanan (okupansi) selama 3 bulan terakhir berdasarkan data di sistem.</p>
                         </div>
 
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                             <h3 class="text-sm font-bold text-slate-900">Persentase Hunian Berdasarkan Tipe</h3>
                             <div class="space-y-3 pt-4 text-xs">
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Kamar Deluxe/Executive</span><span>72%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 72%"></div></div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Ruang Rapat Nusantara</span><span>48%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 48%"></div></div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Auditorium Sasana Bhakti</span><span>15%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 15%"></div></div>
-                                </div>
+                                <template x-for="t in getTypeOccupancy()" :key="t.label">
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between font-bold text-slate-800"><span x-text="t.label"></span><span x-text="t.percent + '%'"></span></div>
+                                        <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full transition-all" :style="'width: ' + t.percent + '%'"></div></div>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -837,7 +844,7 @@
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                        <th class="py-3 px-4">No. Booking</th>
+                                        <th class="py-3 px-4">No. | Kode</th>
                                         <th class="py-3 px-4">Nama Tamu & NIP</th>
                                         <th class="py-3 px-4">Unit Kamar</th>
                                         <th class="py-3 px-4">Tanggal Menginap</th>
@@ -857,7 +864,10 @@
                                         return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                            <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
+                                                <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
+                                            </td>
                                             <td class="py-3 px-4">
                                                 <p class="font-bold text-slate-800" x-text="b.nama"></p>
                                                 <p class="text-[10px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip"></p>
@@ -937,7 +947,7 @@
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                        <th class="py-3 px-4">No. Booking</th>
+                                        <th class="py-3 px-4">No. | Kode</th>
                                         <th class="py-3 px-4">Nama Pemesan & NIP</th>
                                         <th class="py-3 px-4">Ruang Rapat</th>
                                         <th class="py-3 px-4">Tanggal Penggunaan</th>
@@ -957,7 +967,10 @@
                                         return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                            <td class="py-3 px-4 font-bold text-slate-900" x-text="b.id"></td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
+                                                <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
+                                            </td>
                                             <td class="py-3 px-4">
                                                 <p class="font-bold text-slate-800" x-text="b.nama"></p>
                                                 <p class="text-[10px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip"></p>
@@ -1295,6 +1308,8 @@
                             this.fillProfile(me.data);
                             this.isLoggedIn = true;
                             await this.loadFacilitiesFromApi();
+                            await this.loadBookingsFromApi();
+                            await this.loadGuestsFromApi();
                         } else {
                             localStorage.removeItem('wisma_token');
                         }
@@ -1330,6 +1345,52 @@
                     }
                 },
 
+                async loadBookingsFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/bookings');
+                        if (res.success) {
+                            this.bookings = res.data.map(b => ({
+                                id: b.id,
+                                booking_code: b.booking_code,
+                                unit_name: b.facility.name,
+                                check_in: b.check_in.substring(0,10),
+                                check_out: b.check_out.substring(0,10),
+                                nights: b.nights,
+                                total_price: b.total_price,
+                                status: (b.status === 'pending' ? 'Pending' : 
+                                        (b.status === 'lunas' ? 'Lunas' : 
+                                        (b.status === 'check_in' ? 'Check In' : 
+                                        (b.status === 'cancelled' ? 'Dibatalkan' : 'Selesai')))),
+                                nama: b.guest_name,
+                                nip: b.guest_nip,
+                            }));
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat bookings:', e);
+                    }
+                },
+
+                async loadGuestsFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/reports/master-guests');
+                        if (res.success) {
+                            this.guests = res.data.map(g => ({
+                                id: g.id,
+                                nama: g.name,
+                                nip: g.nip || '-',
+                                instansi: g.instansi || '-',
+                                email: g.email,
+                                phone: g.phone || '-',
+                                kunjungan: g.total_booking,
+                                status: g.total_booking > 0 ? 'Member' : 'Reguler',
+                                joinDate: g.last_visit_at ? g.last_visit_at.substring(0,10) : '2026-07-09'
+                            }));
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat guests:', e);
+                    }
+                },
+
                 // ==========================================
                 // LOGIN
                 // ==========================================
@@ -1354,8 +1415,10 @@
                             this.fillProfile(res.data.user);
                             this.isLoggedIn = true;
                             this.currentTab = 'admin_dashboard';
+                            this.addToast('Login Berhasil', `Selamat datang kembali, ${this.profile.nama}.`, 'success');
                             await this.loadFacilitiesFromApi();
-                            this.addToast('Login Berhasil', `Selamat datang, ${this.profile.nama}.`, 'success');
+                            await this.loadBookingsFromApi();
+                            await this.loadGuestsFromApi();
                         } else {
                             this.addToast('Login Gagal', res.message || 'Email atau password salah.', 'error');
                         }
@@ -1799,10 +1862,44 @@
                             return matchesSearch && g.status === 'Member';
                         }
                         if (this.adminGuestFilter === 'menginap') {
-                            return matchesSearch && g.terakhir.includes('Check-in');
+                            return matchesSearch && g.status === 'Reguler';
                         }
                         return matchesSearch;
                     });
+                },
+
+                getMonthlyChart() {
+                    const months = [];
+                    const now = new Date();
+                    for (let i = 2; i >= 0; i--) {
+                        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                        const label = d.toLocaleString('id-ID', { month: 'short' });
+                        const count = this.bookings.filter(b => {
+                            if (!b.check_in) return false;
+                            const bDate = new Date(b.check_in);
+                            return bDate.getMonth() === d.getMonth() && bDate.getFullYear() === d.getFullYear();
+                        }).length;
+                        months.push({ label, count });
+                    }
+                    const maxCount = Math.max(...months.map(m => m.count), 1);
+                    return months.map(m => ({
+                        label: m.label,
+                        percent: Math.floor((m.count / maxCount) * 100)
+                    }));
+                },
+
+                getTypeOccupancy() {
+                    const total = this.bookings.length || 1;
+                    let kamar = 0, rapat = 0;
+                    this.bookings.forEach(b => {
+                        const name = (b.unit_name || '').toLowerCase();
+                        if (name.includes('rapat')) rapat++;
+                        else kamar++;
+                    });
+                    return [
+                        { label: 'Kamar / Bungalow', percent: Math.round((kamar / total) * 100) },
+                        { label: 'Ruang Rapat', percent: Math.round((rapat / total) * 100) }
+                    ];
                 },
 
                 addToast(title, message, type = 'success') {

@@ -352,10 +352,10 @@
                                    class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
                         <div class="flex gap-2 flex-wrap">
-                            <button @click="receptionistFilter = 'semua'" :class="receptionistFilter === 'semua' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Semua</button>
-                            <button @click="receptionistFilter = 'lunas'" :class="receptionistFilter === 'lunas' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Antrean Check-In</button>
-                            <button @click="receptionistFilter = 'check_in'" :class="receptionistFilter === 'check_in' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Sedang Menginap</button>
-                            <button @click="receptionistFilter = 'selesai'" :class="receptionistFilter === 'selesai' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Check-Out Selesai</button>
+                            <button @click="receptionistFilter = 'semua'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="receptionistFilter === 'semua' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Semua</button>
+                            <button @click="receptionistFilter = 'lunas'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="receptionistFilter === 'lunas' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Antrean Check-In</button>
+                            <button @click="receptionistFilter = 'check_in'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="receptionistFilter === 'check_in' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Sedang Menginap</button>
+                            <button @click="receptionistFilter = 'selesai'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="receptionistFilter === 'selesai' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Check-Out Selesai</button>
                         </div>
                     </div>
 
@@ -598,8 +598,8 @@
                 isLoading: false,
                 passwordVisible: false,
                 loginForm: {
-                    email: '',
-                    password: ''
+                    email: 'receptionist@wisma.dpr.go.id',
+                    password: 'password'
                 },
 
                 currentTab: 'receptionist_dashboard',
@@ -771,6 +771,7 @@
                 // CHECK-IN / CHECK-OUT
                 // ==========================================
                 async doCheckIn(booking) {
+                    if (!confirm(`Apakah Anda yakin ingin memproses check-in untuk tamu ${booking.guest_name}?`)) return;
                     try {
                         const res = await this.apiCall('PUT', `/bookings/${booking.id}/checkin`);
                         if (res.success) {
@@ -788,6 +789,7 @@
                 },
 
                 async doCheckOut(booking) {
+                    if (!confirm(`Apakah Anda yakin ingin memproses check-out untuk tamu ${booking.guest_name}?`)) return;
                     try {
                         const res = await this.apiCall('PUT', `/bookings/${booking.id}/checkout`);
                         if (res.success) {
