@@ -244,14 +244,14 @@
                 <form @submit.prevent="login()" class="space-y-5">
                     <!-- Username / DPR ID -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">DPR ID</label>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Email</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="contact" class="w-4.5 h-4.5"></i>
+                                <i data-lucide="mail" class="w-4.5 h-4.5"></i>
                             </span>
-                            <input type="text" 
-                                   x-model="loginForm.dprId"
-                                   placeholder="Contoh: 1989041220" 
+                            <input type="email" 
+                                   x-model="loginForm.email"
+                                   placeholder="Contoh: budi.santoso@dpr.go.id" 
                                    class="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
                     </div>
@@ -1221,7 +1221,7 @@
                 currentTime: new Date(),
                 loginForm: {
                     role: 'guest',
-                    dprId: 'budi.santoso@dpr.go.id',
+                    email: 'budi.santoso@dpr.go.id',
                     password: 'password'
                 },
 
@@ -1443,14 +1443,14 @@
                 // LOGIN
                 // ==========================================
                 async login() {
-                    if (!this.loginForm.dprId || !this.loginForm.password) {
+                    if (!this.loginForm.email || !this.loginForm.password) {
                         this.addToast('Data Tidak Lengkap', 'Email dan Password tidak boleh kosong.', 'error');
                         return;
                     }
                     this.isLoading = true;
                     try {
                         const res = await this.apiCall('POST', '/login', {
-                            email: this.loginForm.dprId,
+                            email: this.loginForm.email,
                             password: this.loginForm.password
                         });
                         if (res.success) {
@@ -1999,43 +1999,43 @@
                     }
                 },
 
-                downloadPDF() {
-                    // FR-07.02: Cetak / Unduh E-Tiket (Boarding Pass) via browser print
-                    const printContents = document.getElementById('ticket-print-area');
-                    if (!printContents) {
-                        this.addToast('Gagal', 'Tidak dapat menemukan area tiket untuk dicetak.', 'error');
-                        return;
+                async downloadPDF() {
+                    try {
+                        this.addToast('Memproses', 'Sedang menyiapkan dokumen PDF...', 'info');
+                        const token = localStorage.getItem('wisma_token');
+                        const response = await fetch(`${API_URL}/bookings/${this.generatedTicket.id}/ticket`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/pdf'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            if (response.status === 422 || response.status === 403) {
+                                const err = await response.json();
+                                this.addToast('Gagal', err.message || 'Tidak dapat mengunduh tiket.', 'error');
+                            } else {
+                                this.addToast('Gagal', 'Terjadi kesalahan pada server.', 'error');
+                            }
+                            return;
+                        }
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `E-Ticket-${this.generatedTicket.booking_code}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        this.addToast('Berhasil', 'Tiket berhasil diunduh.', 'success');
+                    } catch (error) {
+                        this.addToast('Gagal', 'Terjadi kesalahan saat mengunduh tiket.', 'error');
                     }
-                    const html = `<!DOCTYPE html>
-<html>
-<head>
-<title>Boarding Pass - ${this.generatedTicket.booking_code}</title>
-<style>
-  body { font-family: sans-serif; padding: 24px; color: #1e293b; }
-  .header { background: #0B1A30; color: white; padding: 16px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
-  .header .title { font-weight: bold; font-size: 14px; letter-spacing: 1px; }
-  .badge { background: #10b981; color: white; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
-  .body { border: 1px solid #e2e8f0; border-top: none; padding: 20px; border-radius: 0 0 8px 8px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed #cbd5e1; }
-  .label { font-size: 9px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
-  .value { font-size: 13px; font-weight: bold; color: #0f172a; }
-  .total { text-align: center; padding-top: 12px; }
-  .total .label { font-size: 11px; }
-  .total .value { font-size: 20px; color: #0B1A30; }
-  .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #94a3b8; }
-</style>
-</head>
-<body>
-${printContents.innerHTML}
-<div class="footer">Dicetak dari Sistem Informasi Wisma DPR RI Kopo — ${new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
-</body>
-</html>`;
-                    const printWindow = window.open('', '_blank');
-                    printWindow.document.write(html);
-                    printWindow.document.close();
-                    printWindow.focus();
-                    setTimeout(() => { printWindow.print(); }, 300);
-                    this.addToast('Boarding Pass Siap', 'Jendela cetak dibuka. Pilih "Save as PDF" untuk mengunduh.', 'success');
                 },
 
                 copyVA() {
@@ -2356,7 +2356,9 @@ ${printContents.innerHTML}
 
                 formatRupiah(amount) {
                     if (amount === undefined || amount === null) return 'Rp 0';
-                    return 'Rp ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    let num = parseFloat(amount);
+                    if (isNaN(num)) return 'Rp 0';
+                    return 'Rp ' + num.toLocaleString('id-ID');
                 },
 
                 formatIndoDate(dateStr) {

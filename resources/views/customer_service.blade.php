@@ -88,6 +88,11 @@
             }
         }
     </style>
+
+    <!-- Axios -->
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/api';
+    </script>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen flex overflow-hidden">
 
@@ -152,7 +157,44 @@
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Pelapor (Tamu)</label>
-                    <input type="text" x-model="newComplaintForm.guestName" placeholder="Contoh: Bpk. Kurniawan" required class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
+                    <div x-data="{ open: false, search: '' }" class="relative">
+                        <div @click="open = !open" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center cursor-pointer hover:border-wisma-gold transition-all" :class="{'ring-1 ring-wisma-gold bg-white': open}">
+                            <span x-text="newComplaintForm.userId ? (guests.find(g => g.id == newComplaintForm.userId)?.name || 'Pilih Tamu...') : 'Pilih Tamu...'" :class="{'text-slate-400': !newComplaintForm.userId}"></span>
+                            <svg class="w-4 h-4 text-slate-400 transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                        
+                        <div x-show="open" @click.away="open = false" x-transition.opacity.duration.200ms class="absolute z-50 w-full bg-white border border-slate-200 rounded-xl mt-1 shadow-xl max-h-60 overflow-y-auto overflow-x-hidden flex flex-col" style="display: none;">
+                            <div class="p-2 sticky top-0 bg-white border-b border-slate-100 z-10 shadow-sm">
+                                <div class="relative">
+                                    <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    <input type="text" x-model="search" placeholder="Cari nama atau NIP..." class="w-full text-xs pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-wisma-gold focus:ring-1 focus:ring-wisma-gold" @click.stop>
+                                </div>
+                            </div>
+                            
+                            <template x-for="guest in guests.filter(g => g.name.toLowerCase().includes(search.toLowerCase()) || (g.nip && g.nip.toLowerCase().includes(search.toLowerCase())))" :key="guest.id">
+                                <div @click="newComplaintForm.userId = guest.id; open = false; search = ''" 
+                                     class="px-3 py-2.5 text-xs hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                                     :class="{'bg-wisma-gold/5 text-wisma-gold': newComplaintForm.userId == guest.id}">
+                                    <div class="font-bold flex items-center justify-between">
+                                        <span x-text="guest.name"></span>
+                                        <svg x-show="newComplaintForm.userId == guest.id" class="w-3.5 h-3.5 text-wisma-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-0.5 flex gap-2">
+                                        <span x-text="guest.nip ? 'NIP: ' + guest.nip : 'Tidak ada NIP'"></span>
+                                        <span>&bull;</span>
+                                        <span x-text="guest.email || 'Tanpa Email'"></span>
+                                    </div>
+                                </div>
+                            </template>
+                            
+                            <div x-show="guests.length > 0 && guests.filter(g => g.name.toLowerCase().includes(search.toLowerCase()) || (g.nip && g.nip.toLowerCase().includes(search.toLowerCase()))).length === 0" class="p-4 text-center text-xs text-slate-500 flex flex-col items-center justify-center gap-2">
+                                <span>Tidak ada tamu yang cocok dengan pencarian.</span>
+                            </div>
+                            <div x-show="guests.length === 0" class="p-4 text-center text-xs text-slate-500 flex flex-col items-center justify-center gap-2">
+                                <span>Memuat atau tidak ada data tamu...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Deskripsi Keluhan</label>
@@ -240,14 +282,14 @@
                 <form @submit.prevent="login()" class="space-y-5">
                     <!-- Username -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Username Petugas</label>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Email</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="user" class="w-4.5 h-4.5"></i>
+                                <i data-lucide="mail" class="w-4.5 h-4.5"></i>
                             </span>
-                            <input type="text" 
-                                   x-model="loginForm.username"
-                                   placeholder="Contoh: cs" 
+                            <input type="email" 
+                                   x-model="loginForm.email"
+                                   placeholder="Contoh: cs@wisma.dpr.go.id" 
                                    class="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
                     </div>
@@ -717,15 +759,15 @@
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center">
                                 <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block">Rata-rata Rating</span>
                                 <h1 class="text-5xl font-extrabold font-outfit text-slate-900 mt-2" 
-                                    x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) : '0.0'"></h1>
+                                    x-text="feedbacksAgg.avg_overall ? Number(feedbacksAgg.avg_overall).toFixed(1) : '0.0'"></h1>
                                 <div class="flex items-center gap-1 mt-2 text-wisma-gold">
                                     <template x-for="star in [1, 2, 3, 4, 5]">
-                                        <svg class="w-4 h-4 fill-current" :class="star <= Math.round(bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback).length) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
+                                        <svg class="w-4 h-4 fill-current" :class="star <= Math.round(feedbacksAgg.avg_overall) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>
                                     </template>
                                 </div>
-                                <span class="text-[10px] text-slate-400 mt-2" x-text="'Dari ' + bookings.filter(b => b.hasFeedback).length + ' ulasan tamu'"></span>
+                                <span class="text-[10px] text-slate-400 mt-2" x-text="'Dari ' + feedbacksAgg.total + ' ulasan tamu'"></span>
                             </div>
 
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm md:col-span-3 space-y-4">
@@ -735,33 +777,33 @@
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Kebersihan Bungalow & Gedung</span>
-                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="feedbacksAgg.avg_cleanliness ? Number(feedbacksAgg.avg_cleanliness).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback).length) * 20 : 0) + '%'"></div>
+                                                 :style="'width: ' + (feedbacksAgg.avg_cleanliness * 20) + '%'"></div>
                                         </div>
                                     </div>
                                     <!-- Facilities -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Kualitas Fasilitas & Peralatan</span>
-                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="feedbacksAgg.avg_facilities ? Number(feedbacksAgg.avg_facilities).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback).length) * 20 : 0) + '%'"></div>
+                                                 :style="'width: ' + (feedbacksAgg.avg_facilities * 20) + '%'"></div>
                                         </div>
                                     </div>
                                     <!-- Service -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Keramahan & Kecepatan Pelayanan</span>
-                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="feedbacksAgg.avg_service ? Number(feedbacksAgg.avg_service).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback).length ? (bookings.filter(b => b.hasFeedback).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback).length) * 20 : 0) + '%'"></div>
+                                                 :style="'width: ' + (feedbacksAgg.avg_service * 20) + '%'"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -787,26 +829,25 @@
 
                         <!-- Feedback List -->
                         <div class="space-y-4 printable-report">
-                            <template x-for="b in bookings.filter(b => {
-                                if (!b.hasFeedback) return false;
-                                if (reportRatingFilter === '5') return Math.floor(b.rating) === 5;
-                                if (reportRatingFilter === '4') return Math.floor(b.rating) === 4;
-                                if (reportRatingFilter === '3') return b.rating < 4;
+                            <template x-for="f in feedbacks.filter(f => {
+                                if (reportRatingFilter === '5') return Math.floor(f.average_rating) === 5;
+                                if (reportRatingFilter === '4') return Math.floor(f.average_rating) === 4;
+                                if (reportRatingFilter === '3') return f.average_rating < 4;
                                 return true;
-                            })" :key="b.id">
+                            })" :key="f.id">
                                 <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 flex flex-col md:flex-row gap-6 justify-between items-start page-break-inside-avoid">
                                     <div class="flex-1 space-y-3">
                                         <!-- Guest & Unit details -->
                                         <div class="flex justify-between items-start flex-wrap gap-2 border-b border-slate-50 pb-2.5">
                                             <div>
-                                                <h4 class="text-sm font-bold text-slate-900" x-text="b.nama"></h4>
-                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="'NIP: ' + b.nip + ' • Menginap di: ' + b.unit_name"></p>
+                                                <h4 class="text-sm font-bold text-slate-900" x-text="f.user?.name"></h4>
+                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="'NIP: ' + (f.user?.nip || '-') + ' • Menginap di: ' + f.booking?.facility?.name"></p>
                                             </div>
                                             <div class="flex items-center gap-2">
-                                                <span class="text-xs font-bold text-amber-500 font-outfit" x-text="'Score: ' + b.rating + ' / 5.0'"></span>
+                                                <span class="text-xs font-bold text-amber-500 font-outfit" x-text="'Score: ' + f.average_rating + ' / 5.0'"></span>
                                                 <div class="flex text-wisma-gold">
                                                     <template x-for="star in [1, 2, 3, 4, 5]">
-                                                        <svg class="w-3.5 h-3.5 fill-current" :class="star <= Math.round(b.rating) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
+                                                        <svg class="w-3.5 h-3.5 fill-current" :class="star <= Math.round(f.average_rating) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
                                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                         </svg>
                                                     </template>
@@ -817,20 +858,20 @@
                                         <div class="grid grid-cols-3 gap-4 text-[10px] bg-slate-50 p-2.5 rounded-xl text-slate-500">
                                             <div>
                                                 <span class="block text-slate-400 font-bold uppercase tracking-wider">Kebersihan</span>
-                                                <span class="font-extrabold text-slate-800 text-xs" x-text="(b.rating_cleanliness || 0) + ' ★'"></span>
+                                                <span class="font-extrabold text-slate-800 text-xs" x-text="(f.rating_cleanliness || 0) + ' ★'"></span>
                                             </div>
                                             <div>
                                                 <span class="block text-slate-400 font-bold uppercase tracking-wider">Fasilitas</span>
-                                                <span class="font-extrabold text-slate-800 text-xs" x-text="(b.rating_facilities || 0) + ' ★'"></span>
+                                                <span class="font-extrabold text-slate-800 text-xs" x-text="(f.rating_facilities || 0) + ' ★'"></span>
                                             </div>
                                             <div>
                                                 <span class="block text-slate-400 font-bold uppercase tracking-wider">Pelayanan</span>
-                                                <span class="font-extrabold text-slate-800 text-xs" x-text="(b.rating_service || 0) + ' ★'"></span>
+                                                <span class="font-extrabold text-slate-800 text-xs" x-text="(f.rating_service || 0) + ' ★'"></span>
                                             </div>
                                         </div>
                                         <!-- Guest comment -->
                                         <div class="pt-1.5">
-                                            <p class="text-xs text-slate-600 leading-relaxed italic" x-text="'“' + b.comment + '”'"></p>
+                                            <p class="text-xs text-slate-600 leading-relaxed italic" x-text="'“' + f.comment + '”'"></p>
                                         </div>
                                     </div>
                                     <div class="text-[10px] text-slate-400 text-right w-full md:w-auto mt-2 md:mt-0 font-medium whitespace-nowrap">
@@ -841,9 +882,9 @@
 
                             <div x-show="bookings.filter(b => {
                                 if (!b.hasFeedback) return false;
-                                if (reportRatingFilter === '5') return Math.floor(b.rating) === 5;
-                                if (reportRatingFilter === '4') return Math.floor(b.rating) === 4;
-                                if (reportRatingFilter === '3') return b.rating < 4;
+                                if (reportRatingFilter === '5') return Math.floor(f.average_rating) === 5;
+                                if (reportRatingFilter === '4') return Math.floor(f.average_rating) === 4;
+                                if (reportRatingFilter === '3') return f.average_rating < 4;
                                 return true;
                             }).length === 0" class="bg-white border border-slate-100 rounded-3xl p-8 text-center text-slate-400">
                                 <i data-lucide="message-square" class="w-12 h-12 mx-auto mb-2 text-slate-200"></i>
@@ -1043,8 +1084,8 @@
                 isLoggedIn: false,
                 passwordVisible: false,
                 loginForm: {
-                    username: 'cs',
-                    password: 'cs'
+                    email: 'cs@wisma.dpr.go.id',
+                    password: 'password'
                 },
 
                 currentTab: 'cs_dashboard',
@@ -1061,7 +1102,7 @@
                 newComplaintForm: {
                     category: 'facility',
                     location: '',
-                    guestName: '',
+                    userId: '',
                     description: ''
                 },
 
@@ -1095,11 +1136,58 @@
                 },
 
                 // Shared LocalStorage data
-                complaints: [],
-                bookings: [],
+                
+                    complaints: [],
+                    feedbacks: [],
+                    feedbacksAgg: { total: 0, avg_cleanliness: 0, avg_facilities: 0, avg_service: 0, avg_overall: 0 },
+                    guests: [],
 
-                initApp() {
-                    this.loadState();
+
+                
+                                // ==========================================
+                // HELPER: API CALL
+                // ==========================================
+                async apiCall(method, path, body = null, isFormData = false) {
+                    const token = localStorage.getItem('wisma_token');
+                    const headers = {
+                        'Accept': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+                        ...(!isFormData ? { 'Content-Type': 'application/json' } : {})
+                    };
+                    const opts = {
+                        method,
+                        headers,
+                        ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {})
+                    };
+                    const res = await fetch(API_URL + path, opts);
+                    return res.json();
+                },
+
+                async initApp() {
+                    const token = localStorage.getItem('wisma_token');
+                    if (token) {
+                        const me = await this.apiCall('GET', '/me');
+                        if (me.success) {
+                            const userData = me.data;
+                            this.isLoggedIn = true;
+                            this.profile.role = userData.role;
+                            this.profile.nama = userData.name;
+                            this.profile.email = userData.email;
+                            
+                            this.settingsProfile.nama = userData.name;
+                            this.settingsContact.email = userData.email;
+                            this.settingsContact.telepon = userData.phone || '';
+                            this.settingsProfile.nip = userData.nip || '';
+                            this.settingsProfile.instansi = userData.institution || 'Wisma DPR';
+                            
+                            await this.loadData();
+                        } else {
+                            this.isLoggedIn = false;
+                        }
+                    } else {
+                        this.isLoggedIn = false;
+                    }
+                    
                     setTimeout(() => {
                         if (window.lucide) {
                             window.lucide.createIcons();
@@ -1107,158 +1195,110 @@
                     }, 100);
                 },
 
-                login() {
-                    if (this.loginForm.username !== 'cs' || this.loginForm.password !== 'cs') {
-                        this.addToast('Login Gagal', 'Username atau Password Customer Service salah.', 'error');
-                        return;
-                    }
-                    
-                    this.isLoggedIn = true;
-                    this.profile.role = 'customer_service';
-                    this.profile.nama = 'Amira CS';
-                    this.profile.role_label = 'Customer Service & Pelayanan Keluhan';
-                    this.currentTab = 'cs_dashboard';
-                    
-                    this.addToast('Login Berhasil', `Selamat datang kembali, ${this.profile.nama}.`, 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    }, 50);
+                async loadData() {
+                    await this.loadGuestsFromApi();
+                    await this.loadComplaintsFromApi();
+                    await this.loadFeedbacksFromApi();
                 },
 
-                logout() {
-                    this.isLoggedIn = false;
-                    this.loginForm.username = 'cs';
-                    this.loginForm.password = 'cs';
-                    this.addToast('Sesi Berakhir', 'Anda telah logout dari portal customer service.', 'info');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
+                async loadGuestsFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/guests');
+                        if (res.success || Array.isArray(res)) {
+                            this.guests = Array.isArray(res) ? res : res.data;
                         }
-                    }, 50);
+                    } catch (e) {
+                        console.error('Gagal memuat data tamu:', e);
+                    }
                 },
 
-                persistState() {
-                    localStorage.setItem('wisma_complaints', JSON.stringify(this.complaints));
-                    localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
+                async loadComplaintsFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/complaints');
+                        if (res.success) {
+                            this.complaints = res.data.map(c => ({
+                                id: c.complaint_code,
+                                db_id: c.id,
+                                title: c.title,
+                                category: c.category,
+                                category_slug: c.category.toLowerCase().replace(/\s+/g, '-'),
+                                location: c.location,
+                                date: new Date(c.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'}),
+                                status: c.status === 'pending' ? 'Pending' : (c.status === 'processed' ? 'Processed' : 'Resolved'),
+                                description: c.description
+                            }));
+                        }
+                    } catch (e) {
+                        console.error('Gagal memuat keluhan', e);
+                    }
                 },
 
-                loadState() {
-                    const savedComplaints = localStorage.getItem('wisma_complaints');
-                    const savedBookings = localStorage.getItem('wisma_bookings');
-                    
-                    // Force refresh schema if old bookings structure exists
-                    let needForceRefresh = false;
-                    if (savedBookings) {
-                        try {
-                            const bookingsList = JSON.parse(savedBookings);
-                            if (bookingsList.length === 0 || bookingsList.some(b => b.unit_name.includes('Kamar') || b.unit_location.includes('Lantai') || b.total_price === 1500000 || b.unit_photo.includes('unsplash.com') || (b.unit_photo.includes('bungalow.jpg') && !b.unit_photo.includes('_buah') && !b.unit_photo.includes('_bunga')))) {
-                                needForceRefresh = true;
-                            }
-                        } catch (e) {
-                            needForceRefresh = true;
+                async loadFeedbacksFromApi() {
+                    try {
+                        const res = await this.apiCall('GET', '/feedbacks');
+                        if (res.success) {
+                            this.feedbacks = res.data;
+                            this.feedbacksAgg = res.aggregation;
                         }
-                    } else {
-                        needForceRefresh = true;
+                    } catch (e) {
+                        console.error('Gagal memuat feedback', e);
                     }
+                },
 
-                    if (needForceRefresh) {
-                        localStorage.removeItem('wisma_complaints');
-                        localStorage.removeItem('wisma_bookings');
-                    }
-
-                    const freshComplaints = localStorage.getItem('wisma_complaints');
-                    const freshBookings = localStorage.getItem('wisma_bookings');
-
-                    if (freshComplaints) {
-                        this.complaints = JSON.parse(freshComplaints);
-                    } else {
-                        this.complaints = [
-                            {
-                                id: 'COMP-101',
-                                title: 'AC Bungalow Kedondong Kurang Dingin',
-                                category: 'Fasilitas (Bungalow, Gedung)',
-                                category_slug: 'facility',
-                                location: 'Bungalow Kedondong (Dilaporkan oleh: Bpk. Kurniawan)',
-                                date: '25 Jun 2026, 10:15',
-                                status: 'Pending'
-                            },
-                            {
-                                id: 'COMP-102',
-                                title: 'Koneksi Wifi Terputus-putus',
-                                category: 'Internet / Wifi',
-                                category_slug: 'internet',
-                                location: 'Lobby Wisma (Dilaporkan oleh: Ibu Sri Mulyani)',
-                                date: '24 Jun 2026, 14:30',
-                                status: 'Processed'
-                            },
-                            {
-                                id: 'COMP-103',
-                                title: 'Sarapan Pagi Belum Diantar',
-                                category: 'Layanan Makanan',
-                                category_slug: 'food',
-                                location: 'Bungalow Gladiol (Dilaporkan oleh: Bpk. Budi)',
-                                date: '24 Jun 2026, 08:00',
-                                status: 'Resolved'
-                            }
-                        ];
-                        localStorage.setItem('wisma_complaints', JSON.stringify(this.complaints));
-                    }
-
-                    if (freshBookings) {
-                        this.bookings = JSON.parse(freshBookings);
-                        this.bookings.forEach(b => {
-                            if (b.hasFeedback) {
-                                if (b.rating === undefined || b.rating === null) b.rating = 5.0;
-                                if (b.rating_cleanliness === undefined || b.rating_cleanliness === null) b.rating_cleanliness = Math.round(b.rating) || 5;
-                                if (b.rating_facilities === undefined || b.rating_facilities === null) b.rating_facilities = Math.round(b.rating) || 5;
-                                if (b.rating_service === undefined || b.rating_service === null) b.rating_service = Math.round(b.rating) || 5;
-                                  if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
-                            }
+                
+                async login() {
+                    try {
+                        const res = await this.apiCall('POST', '/login', {
+                            email: this.loginForm.email,
+                            password: this.loginForm.password
                         });
-                    } else {
-                        this.bookings = [
-                            {
-                                id: 'WDPR-2026-0082',
-                                unit_name: 'Bungalow Kedondong',
-                                unit_photo: '/images/bungalow_buah.jpg',
-                                unit_location: 'Wisma • Area Bawah',
-                                check_in: '2026-05-10',
-                                check_out: '2026-05-12',
-                                nights: 2,
-                                total_price: 774000,
-                                status: 'Selesai',
-                                nama: 'Budi Santoso',
-                                nip: '198904122015031002',
-                                hasFeedback: true,
-                                rating: 4.7,
-                                rating_cleanliness: 5,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
-                            },
-                            {
-                                id: 'WDPR-2026-0083',
-                                unit_name: 'Bungalow Widelia',
-                                unit_photo: '/images/bungalow_bunga.jpg',
-                                unit_location: 'Wisma • Area Atas',
-                                check_in: '2026-06-20',
-                                check_out: '2026-06-25',
-                                nights: 5,
-                                total_price: 2745000,
-                                status: 'Check In',
-                                nama: 'Ahmad Fauzi',
-                                nip: '199112022018031001',
-                                hasFeedback: false
+                        
+                        if (res.success) {
+                            const userData = res.data.user;
+                            if (userData.role !== 'customer_service') {
+                                await this.apiCall('POST', '/logout');
+                                this.addToast('Akses Ditolak', 'Akun ini bukan Customer Service.', 'error');
+                                return;
                             }
-                        ];
-                        localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
+                            
+                            const token = res.data.token;
+                            localStorage.setItem('wisma_token', token);
+                            
+                            this.isLoggedIn = true;
+                            this.profile.role = userData.role;
+                            this.profile.nama = userData.name;
+                            this.profile.email = userData.email;
+                            this.currentTab = 'cs_dashboard';
+                            
+                            this.addToast('Login Berhasil', `Selamat datang kembali, ${this.profile.nama}.`, 'success');
+                            await this.loadData();
+                            
+                            setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+                        } else {
+                            this.addToast('Login Gagal', res.message || 'Email atau password salah.', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Login Gagal', 'Terjadi kesalahan sistem.', 'error');
                     }
                 },
 
+
+                
+                async logout() {
+                    try {
+                        await this.apiCall('POST', '/logout');
+                        localStorage.removeItem('wisma_token');
+                        this.isLoggedIn = false;
+                        this.loginForm.email = '';
+                        this.loginForm.password = '';
+                        this.addToast('Sesi Berakhir', 'Anda telah logout dari portal customer service.', 'info');
+                    } catch (e) {
+                        this.addToast('Gagal', 'Terjadi kesalahan saat logout.', 'error');
+                    }
+                },
+
+
+                
                 switchTab(tab) {
                     this.currentTab = tab;
                     setTimeout(() => {
@@ -1268,8 +1308,60 @@
                     }, 50);
                 },
 
-                printReport() {
-                    window.print();
+                async printReport() {
+                    const token = localStorage.getItem('wisma_token');
+                    if (!token) return;
+                    
+                    try {
+                        let endpoint = '';
+                        let params = new URLSearchParams();
+                        let filename = '';
+
+                        if (this.csReportSubTab === 'keluhan') {
+                            endpoint = '/complaints/export-pdf';
+                            if (this.reportComplaintFilterCategory && this.reportComplaintFilterCategory !== 'semua') {
+                                params.append('category', this.reportComplaintFilterCategory);
+                            }
+                            if (this.reportComplaintFilterStatus && this.reportComplaintFilterStatus !== 'semua') {
+                                params.append('status', this.reportComplaintFilterStatus);
+                            }
+                            filename = `Laporan-Keluhan-${new Date().toISOString().slice(0, 10)}.pdf`;
+                        } else if (this.csReportSubTab === 'ulasan') {
+                            endpoint = '/feedbacks/export-pdf';
+                            // Note: we might filter rating if backend supports it later
+                            filename = `Laporan-Ulasan-${new Date().toISOString().slice(0, 10)}.pdf`;
+                        }
+
+                        this.addToast('Memproses', 'Sedang menyiapkan laporan PDF...', 'info');
+
+                        const response = await fetch(`${API_URL}${endpoint}?${params.toString()}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/pdf'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            this.addToast('Gagal', 'Gagal mengunduh laporan PDF.', 'error');
+                            return;
+                        }
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                    } catch (error) {
+                        console.error('Print Error:', error);
+                        this.addToast('Error', 'Terjadi kesalahan saat mengunduh laporan.', 'error');
+                    }
                 },
 
                 formatIndoDate(dateStr) {
@@ -1294,75 +1386,70 @@
                     });
                 },
 
-                processComplaint(id) {
-                    const idx = this.complaints.findIndex(c => c.id === id);
-                    if (idx !== -1) {
-                        this.complaints[idx].status = 'Processed';
+                async processComplaint(id) {
+                    try {
+                        const complaint = this.complaints.find(c => c.id === id);
+                        if (!complaint) return;
+                        
+                        const res = await this.apiCall('PUT', `/complaints/${complaint.db_id}/process`);
+                        
+                        if (res.success) {
+                            this.addToast('Keluhan Diproses', 'Tim teknis/layanan telah ditugaskan ke lokasi.', 'success');
+                            this.loadComplaintsFromApi(); // Refresh data
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal', e.response?.data?.message || 'Gagal memproses keluhan', 'error');
                     }
-                    this.persistState();
-                    this.addToast('Keluhan Diproses', 'Tim teknis/layanan telah ditugaskan ke lokasi.', 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 50);
                 },
 
-                resolveComplaint(id) {
-                    const idx = this.complaints.findIndex(c => c.id === id);
-                    if (idx !== -1) {
-                        this.complaints[idx].status = 'Resolved';
+                async resolveComplaint(id) {
+                    try {
+                        const complaint = this.complaints.find(c => c.id === id);
+                        if (!complaint) return;
+                        
+                        const res = await this.apiCall('PUT', `/complaints/${complaint.db_id}/resolve`);
+                        
+                        if (res.success) {
+                            this.addToast('Keluhan Selesai', 'Masalah telah diselesaikan dan ditutup.', 'success');
+                            this.loadComplaintsFromApi(); // Refresh data
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal', e.response?.data?.message || 'Gagal menyelesaikan keluhan', 'error');
                     }
-                    this.persistState();
-                    this.addToast('Keluhan Selesai', 'Masalah telah diselesaikan dan ditutup.', 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 50);
                 },
 
                 openNewComplaintModal() {
                     this.newComplaintForm = {
                         category: 'facility',
                         location: '',
-                        guestName: '',
+                        userId: '',
                         description: ''
                     };
                     this.inputComplaintModalOpen = true;
                 },
 
-                saveNewComplaint() {
-                    const categoryNames = {
-                        facility: 'Fasilitas (Bungalow, Gedung)',
-                        laundry: 'Layanan Laundry',
-                        internet: 'Internet / Wifi',
-                        food: 'Layanan Makanan'
-                    };
-
-                    const now = new Date();
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const mins = String(now.getMinutes()).padStart(2, '0');
-                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                    const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}, ${hours}:${mins}`;
-
-                    const newComplaint = {
-                        id: 'COMP-' + String(Math.floor(104 + Math.random() * 800)),
-                        title: this.newComplaintForm.description.length > 30 ? this.newComplaintForm.description.substring(0, 30) + '...' : this.newComplaintForm.description,
-                        category: categoryNames[this.newComplaintForm.category],
-                        category_slug: this.newComplaintForm.category,
-                        location: `${this.newComplaintForm.location} (Dilaporkan oleh: ${this.newComplaintForm.guestName})`,
-                        date: dateStr,
-                        status: 'Pending'
-                    };
-
-                    this.complaints.unshift(newComplaint);
-                    this.persistState();
-
-                    this.inputComplaintModalOpen = false;
-                    this.addToast('Keluhan Berhasil Dicatat', 'Laporan keluhan lisan tamu telah dimasukkan ke sistem.', 'success');
-                    
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 50);
+                async saveNewComplaint() {
+                    try {
+                        const titleText = this.newComplaintForm.description.length > 30 
+                            ? this.newComplaintForm.description.substring(0, 30) + '...' 
+                            : this.newComplaintForm.description;
+                            
+                        const res = await this.apiCall('POST', '/complaints/manual', {
+                            user_id: this.newComplaintForm.userId,
+                            title: titleText || 'Keluhan Manual',
+                            category: this.newComplaintForm.category,
+                            location: this.newComplaintForm.location,
+                            description: this.newComplaintForm.description
+                        });
+                        
+                        if (res.success) {
+                            this.inputComplaintModalOpen = false;
+                            this.addToast('Keluhan Berhasil Dicatat', 'Laporan keluhan lisan tamu telah dimasukkan ke sistem.', 'success');
+                            this.loadComplaintsFromApi();
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal', e.response?.data?.message || 'Gagal menyimpan keluhan', 'error');
+                    }
                 },
 
                 addToast(title, message, type = 'success') {
@@ -1380,17 +1467,43 @@
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
 
-                saveSettingsProfile() {
-                    this.profile.nama = this.settingsProfile.nama;
-                    this.profile.instansi = this.settingsProfile.instansi;
-                    this.addToast('Profil Diperbarui', 'Data profil berhasil disimpan.', 'success');
+                async saveSettingsProfile() {
+                    try {
+                        const res = await this.apiCall('PUT', '/profile', {
+                            name: this.settingsProfile.nama,
+                            phone: this.settingsContact.telepon,
+                            email: this.settingsContact.email,
+                            nip: this.settingsProfile.nip,
+                            institution: this.settingsProfile.instansi
+                        });
+                        if (res.success) {
+                            this.profile.nama = this.settingsProfile.nama;
+                            this.profile.instansi = this.settingsProfile.instansi;
+                            this.addToast('Profil Diperbarui', 'Data profil berhasil disimpan.', 'success');
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal', e.response?.data?.message || 'Gagal menyimpan profil', 'error');
+                    }
                 },
 
-                saveSettingsContact() {
-                    this.addToast('Kontak Diperbarui', 'Email dan nomor telepon berhasil disimpan.', 'success');
+                async saveSettingsContact() {
+                    try {
+                        const res = await this.apiCall('PUT', '/profile', {
+                            name: this.settingsProfile.nama,
+                            phone: this.settingsContact.telepon,
+                            email: this.settingsContact.email,
+                            nip: this.settingsProfile.nip,
+                            institution: this.settingsProfile.instansi
+                        });
+                        if (res.success) {
+                            this.addToast('Kontak Diperbarui', 'Email dan nomor telepon berhasil disimpan.', 'success');
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal', e.response?.data?.message || 'Gagal menyimpan kontak', 'error');
+                    }
                 },
 
-                saveSettingsPassword() {
+                async saveSettingsPassword() {
                     if (!this.settingsPassword.current) {
                         this.addToast('Gagal', 'Masukkan kata sandi saat ini.', 'error'); return;
                     }
@@ -1400,11 +1513,23 @@
                     if (this.settingsPassword.new !== this.settingsPassword.confirm) {
                         this.addToast('Gagal', 'Konfirmasi kata sandi tidak cocok.', 'error'); return;
                     }
-                    this.settingsPassword = { current: '', new: '', confirm: '' };
-                    this.addToast('Kata Sandi Diperbarui', 'Kata sandi berhasil diubah.', 'success');
+                    try {
+                        const res = await this.apiCall('PUT', '/profile/password', {
+                            current_password: this.settingsPassword.current,
+                            password: this.settingsPassword.new,
+                            password_confirmation: this.settingsPassword.confirm
+                        });
+                        if (res.success) {
+                            this.settingsPassword = { current: '', new: '', confirm: '' };
+                            this.addToast('Kata Sandi Diperbarui', 'Kata sandi berhasil diubah.', 'success');
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal', e.response?.data?.message || 'Gagal mengubah kata sandi', 'error');
+                    }
                 }
             };
         }
     </script>
 </body>
 </html>
+

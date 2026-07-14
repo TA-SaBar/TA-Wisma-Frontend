@@ -166,7 +166,7 @@
                             </span>
                             <input type="email" 
                                    x-model="loginForm.email"
-                                   placeholder="Contoh: receptionist@dpr.go.id" 
+                                   placeholder="Contoh: receptionist@wisma.dpr.go.id" 
                                    class="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
                     </div>

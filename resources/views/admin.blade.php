@@ -305,16 +305,16 @@
                 </div>
 
                 <form @submit.prevent="login()" class="space-y-5">
-                    <!-- DPR ID / Username -->
+                    <!-- Email -->
                     <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Username Koordinator</label>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Email</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="shield" class="w-4.5 h-4.5"></i>
+                                <i data-lucide="mail" class="w-4.5 h-4.5"></i>
                             </span>
-                            <input type="text" 
-                                   x-model="loginForm.dprId"
-                                   placeholder="Contoh: admin" 
+                            <input type="email" 
+                                   x-model="loginForm.email"
+                                   placeholder="Contoh: koordinator@wisma.dpr.go.id" 
                                    class="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
                     </div>
@@ -706,21 +706,46 @@
                     </div>
 
                     <!-- VIEW 2: RESERVATION LOGS -->
-                    <div x-show="adminGuestViewTab === 'reservasi'" class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                    <th class="py-4 px-6">No. | Kode</th>
-                                    <th class="py-4 px-6">Nama Tamu</th>
-                                    <th class="py-4 px-6">Fasilitas / Unit</th>
-                                    <th class="py-4 px-6">Masa Inap</th>
-                                    <th class="py-4 px-6">Total Tagihan</th>
-                                    <th class="py-4 px-6">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-xs text-slate-800">
-                                <template x-for="b in bookings" :key="b.id">
-                                    <tr class="hover:bg-slate-50/50 transition-all">
+                    <div x-show="adminGuestViewTab === 'reservasi'" class="space-y-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="relative w-full md:w-96">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" 
+                                       x-model="adminLogSearch" 
+                                       placeholder="Cari kode booking, nama tamu, atau NIP..." 
+                                       class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button @click="adminLogFilter = 'semua'" :class="adminLogFilter === 'semua' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-wide font-bold transition-all">Semua</button>
+                                <button @click="adminLogFilter = 'pending'" :class="adminLogFilter === 'pending' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-wide font-bold transition-all">Pending</button>
+                                <button @click="adminLogFilter = 'lunas'" :class="adminLogFilter === 'lunas' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-wide font-bold transition-all">Lunas</button>
+                                <button @click="adminLogFilter = 'check in'" :class="adminLogFilter === 'check in' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-wide font-bold transition-all">Check In</button>
+                                <button @click="adminLogFilter = 'selesai'" :class="adminLogFilter === 'selesai' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-wide font-bold transition-all">Selesai</button>
+                                <button @click="adminLogFilter = 'dibatalkan'" :class="adminLogFilter === 'dibatalkan' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-wide font-bold transition-all">Dibatalkan</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                        <th class="py-4 px-6">No. | Kode</th>
+                                        <th class="py-4 px-6">Nama Tamu</th>
+                                        <th class="py-4 px-6">Fasilitas / Unit</th>
+                                        <th class="py-4 px-6">Masa Inap</th>
+                                        <th class="py-4 px-6">Total Tagihan</th>
+                                        <th class="py-4 px-6">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-xs text-slate-800">
+                                    <template x-for="b in bookings.filter(x => {
+                                        const matchesSearch = x.nama.toLowerCase().includes(adminLogSearch.toLowerCase()) || x.nip.toLowerCase().includes(adminLogSearch.toLowerCase()) || x.booking_code.toLowerCase().includes(adminLogSearch.toLowerCase());
+                                        const matchesStatus = adminLogFilter === 'semua' || x.status.toLowerCase() === adminLogFilter.toLowerCase();
+                                        return matchesSearch && matchesStatus;
+                                    })" :key="b.id">
+                                        <tr class="hover:bg-slate-50/50 transition-all">
                                         <td class="py-4 px-6">
                                             <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
                                             <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
@@ -736,13 +761,15 @@
                                         </td>
                                         <td class="py-4 px-6 font-bold" x-text="formatRupiah(b.total_price)"></td>
                                         <td class="py-4 px-6">
-                                            <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide"
-                                                  :class="{
-                                                      'bg-emerald-100 text-emerald-700': b.status === 'Lunas',
-                                                      'bg-blue-100 text-blue-700': b.status === 'Check In',
-                                                      'bg-slate-100 text-slate-600': b.status === 'Selesai'
-                                                  }"
-                                                  x-text="b.status === 'Check In' ? 'Aktif Menginap' : b.status"></span>
+                                                  <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide"
+                                                        :class="{
+                                                            'bg-emerald-100 text-emerald-700': b.status === 'Lunas',
+                                                            'bg-blue-100 text-blue-700': b.status === 'Check In',
+                                                            'bg-slate-100 text-slate-600': b.status === 'Selesai',
+                                                            'bg-amber-100 text-amber-700': b.status === 'Pending',
+                                                            'bg-red-100 text-red-700': b.status === 'Dibatalkan' || b.status === 'Cancelled'
+                                                        }"
+                                                        x-text="b.status === 'Check In' ? 'Aktif Menginap' : b.status"></span>
                                         </td>
                                     </tr>
                                 </template>
@@ -750,8 +777,9 @@
                         </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- 4. REPORTS VIEW -->
+            <!-- 4. REPORTS VIEW -->
                 <div x-show="currentTab === 'admin_reports'" class="space-y-6" x-cloak>
                     <!-- Header -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
@@ -1200,7 +1228,7 @@
                 passwordVisible: false,
                 loginForm: {
                     role: 'admin',
-                    dprId: 'koordinator@wisma.dpr.go.id',
+                    email: 'koordinator@wisma.dpr.go.id',
                     password: 'password'
                 },
 
@@ -1210,6 +1238,8 @@
                 adminManagementSubTab: 'Buah',
                 
                 adminGuestSearch: '',
+                adminLogSearch: '',
+                adminLogFilter: 'semua',
                 adminGuestFilter: 'semua',
                 adminGuestViewTab: 'tamu',
 
@@ -1314,6 +1344,15 @@
                             localStorage.removeItem('wisma_token');
                         }
                     }
+                    
+                    // Re-render icons when filters change
+                    this.$watch('adminManagementSearch', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+                    this.$watch('adminManagementFilter', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+                    this.$watch('adminGuestSearch', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+                    this.$watch('adminLogSearch', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+                    this.$watch('reportGuestSearchKamar', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+                    this.$watch('reportGuestSearchRapat', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+
                     setTimeout(() => {
                         if (window.lucide) window.lucide.createIcons();
                     }, 100);
@@ -1396,14 +1435,14 @@
                 // ==========================================
                 async login() {
                     if (this.isLoading) return;
-                    if (!this.loginForm.dprId || !this.loginForm.password) {
+                    if (!this.loginForm.email || !this.loginForm.password) {
                         this.addToast('Data Tidak Lengkap', 'Email dan Password tidak boleh kosong.', 'error');
                         return;
                     }
                     this.isLoading = true;
                     try {
                         const res = await this.apiCall('POST', '/login', {
-                            email:    this.loginForm.dprId,
+                            email:    this.loginForm.email,
                             password: this.loginForm.password
                         });
                         if (res.success) {
@@ -1442,183 +1481,6 @@
                     setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
                 },
 
-                persistState() {
-                    localStorage.setItem('wisma_facilities', JSON.stringify(this.facilities));
-                    localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
-                    localStorage.setItem('wisma_guests', JSON.stringify(this.guests));
-                    localStorage.setItem('wisma_complaints', JSON.stringify(this.complaints));
-                },
-
-                loadState() {
-                    const savedFacilities = localStorage.getItem('wisma_facilities');
-                    const savedBookings = localStorage.getItem('wisma_bookings');
-                    const savedGuests = localStorage.getItem('wisma_guests');
-                    const savedComplaints = localStorage.getItem('wisma_complaints');
-                    
-                    // Force refresh schema if old structure exists
-                    let needForceRefresh = false;
-                    if (savedFacilities) {
-                        try {
-                            const facilitiesList = JSON.parse(savedFacilities);
-                            if (facilitiesList.length === 0 || !facilitiesList.some(f => f.name === 'Ruang Panja (Rapat)') || facilitiesList.some(f => f.price === 750000 || f.price === 850000 || f.lantai.includes('Lantai') || f.name.includes('Kamar') || f.photo.includes('unsplash.com') || (f.photo.includes('bungalow.jpg') && !f.photo.includes('_buah') && !f.photo.includes('_bunga')))) {
-                                needForceRefresh = true;
-                            }
-                        } catch (e) {
-                            needForceRefresh = true;
-                        }
-                    } else {
-                        needForceRefresh = true;
-                    }
-
-                    if (needForceRefresh) {
-                        localStorage.removeItem('wisma_facilities');
-                        localStorage.removeItem('wisma_bookings');
-                        localStorage.removeItem('wisma_guests');
-                        localStorage.removeItem('wisma_complaints');
-                    }
-
-                    const freshFacilities = localStorage.getItem('wisma_facilities');
-                    const freshBookings = localStorage.getItem('wisma_bookings');
-                    const freshGuests = localStorage.getItem('wisma_guests');
-                    const freshComplaints = localStorage.getItem('wisma_complaints');
-
-                    if (freshFacilities) {
-                        this.facilities = JSON.parse(freshFacilities);
-                    } else {
-                        const fruitNames = [
-                            'Kedondong', 'Kesemek', 'Jamblang', 'Jeruk', 'Jambu', 'Delima', 'Duku', 'Durian',
-                            'Apel', 'Anggur', 'Leci', 'Alpukat', 'Belimbing', 'Buni', 'Cempedal', 'Ceremai',
-                            'Kelengkeng', 'Kecapi', 'Kepel', 'Kelapa', 'Salak', 'Langsat', 'Mundhu', 'Mangga',
-                            'Manggis', 'Markisa', 'Mengkudu', 'Melon', 'Nana', 'Maja', 'Nangka', 'Pepaya'
-                        ];
-                        const flowerNames = [
-                            'Widelia', 'Gladiol', 'Krisan', 'Tanjung', 'Teratai', 'Lotus', 'Seroja', 'Anthurium',
-                            'Aster', 'Kemuning', 'Lili', 'Alamanda', 'Dahlia', 'Gardenia', 'Nusa Indah', 'Kana',
-                            'Asoka', 'Raflesia', 'Lavender', 'Kenanga', 'Anyelir', 'Kamboja', 'Rosalia', 'Bugenvile'
-                        ];
-                        this.facilities = [];
-                        fruitNames.forEach((name, idx) => {
-                            const id = idx + 1;
-                            let status = 'READY';
-                            if (name === 'Durian') status = 'MAINTENANCE';
-                            if (name === 'Alpukat') status = 'CLEANING';
-                            
-                            this.facilities.push({
-                                id: id,
-                                name: 'Bungalow ' + name,
-                                type: 'Buah',
-                                gedung: 'Wisma',
-                                lantai: 'Area Bawah',
-                                capacity: 2,
-                                price: 387000,
-                                unit: 'night',
-                                luas: '24 m²',
-                                bed: 'Queen Size',
-                                status: status,
-                                photo: '/images/bungalow_buah.jpg',
-                                description: 'Bungalow Standard tipe Buah yang nyaman dengan fasilitas tempat tidur Queen Size, AC, TV, kamar mandi dalam, dan perlengkapan mandi lengkap.'
-                            });
-                        });
-                        flowerNames.forEach((name, idx) => {
-                            const id = idx < 12 ? (idx + 39) : (idx - 12 + 55);
-                            let status = 'READY';
-                            if (name === 'Dahlia') status = 'CLEANING';
-                            if (name === 'Kenanga') status = 'MAINTENANCE';
-
-                            this.facilities.push({
-                                id: id,
-                                name: 'Bungalow ' + name,
-                                type: 'Bunga',
-                                gedung: 'Wisma',
-                                lantai: 'Area Atas',
-                                capacity: 2,
-                                price: 549000,
-                                unit: 'night',
-                                luas: '28 m²',
-                                bed: 'Twin Bed',
-                                status: status,
-                                photo: '/images/bungalow_bunga.jpg',
-                                description: 'Bungalow Standard tipe Bunga yang tenang dan bersih di area atas, dilengkapi dengan Twin Bed, AC, TV, Wi-Fi, dan pemandangan luar wisma.'
-                            });
-                        });
-
-                        // Add Ruang Panja (Rapat)
-                        this.facilities.push({
-                            id: 100,
-                            name: 'Ruang Panja (Rapat)',
-                            type: 'Rapat',
-                            gedung: 'Wisma',
-                            lantai: 'Area Bawah',
-                            capacity: 30,
-                            price: 250000,
-                            unit: 'day',
-                            luas: '60 m²',
-                            bed: 'Meja Rapat Oval',
-                            status: 'READY',
-                            photo: '/images/ruang_rapat.jpeg',
-                            description: 'Ruang rapat/sidang Panja Wisma DPR RI yang nyaman, dilengkapi dengan meja oval rapat, kursi ergonomis, sound system, proyektor, AC, dan Wi-Fi cepat.'
-                        });
-
-                        localStorage.setItem('wisma_facilities', JSON.stringify(this.facilities));
-                    }
-
-                    if (freshBookings) {
-                        this.bookings = JSON.parse(freshBookings);
-                        this.bookings.forEach(b => {
-                            if (b.hasFeedback) {
-                                if (b.rating === undefined || b.rating === null) b.rating = 5.0;
-                                if (b.rating_cleanliness === undefined || b.rating_cleanliness === null) b.rating_cleanliness = Math.round(b.rating) || 5;
-                                if (b.rating_facilities === undefined || b.rating_facilities === null) b.rating_facilities = Math.round(b.rating) || 5;
-                                if (b.rating_service === undefined || b.rating_service === null) b.rating_service = Math.round(b.rating) || 5;
-                                if (b.comment === undefined || b.comment === null) b.comment = 'Layanan sangat memuaskan, tempat bersih, aman dan nyaman.';
-                            }
-                        });
-                    } else {
-                        this.bookings = [
-                            {
-                                id: 'WDPR-2026-0082',
-                                unit_name: 'Bungalow Kedondong',
-                                unit_photo: '/images/bungalow_buah.jpg',
-                                unit_location: 'Wisma • Area Bawah',
-                                check_in: '2026-05-10',
-                                check_out: '2026-05-12',
-                                nights: 2,
-                                total_price: 774000,
-                                status: 'Selesai',
-                                nama: 'Budi Santoso',
-                                nip: '198904122015031002',
-                                hasFeedback: true,
-                                rating: 4.7,
-                                rating_cleanliness: 5,
-                                rating_facilities: 4,
-                                rating_service: 5,
-                                comment: 'Pelayanan wisma sangat memuaskan, bungalow bersih dan nyaman.'
-                            },
-                            {
-                                id: 'WDPR-2026-0083',
-                                unit_name: 'Bungalow Widelia',
-                                unit_photo: '/images/bungalow_bunga.jpg',
-                                unit_location: 'Wisma • Area Atas',
-                                check_in: '2026-06-20',
-                                check_out: '2026-06-25',
-                                nights: 5,
-                                total_price: 2745000,
-                                status: 'Check In',
-                                nama: 'Ahmad Fauzi',
-                                nip: '199112022018031001',
-                                hasFeedback: false
-                            }
-                        ];
-                        localStorage.setItem('wisma_bookings', JSON.stringify(this.bookings));
-                    }
-                    if (freshGuests) {
-                        this.guests = JSON.parse(freshGuests);
-                    }
-                    if (freshComplaints) {
-                        this.complaints = JSON.parse(freshComplaints);
-                    }
-                },
-
                 switchTab(tab) {
                     this.currentTab = tab;
                     setTimeout(() => {
@@ -1628,8 +1490,45 @@
                     }, 50);
                 },
 
-                printReport() {
-                    window.print();
+                async printReport() {
+                    try {
+                        this.addToast('Memproses', 'Sedang menyiapkan Laporan PDF...', 'info');
+                        const token = localStorage.getItem('wisma_token');
+                        
+                        const params = new URLSearchParams();
+                        if (this.reportStartDateKamar) params.append('start_date', this.reportStartDateKamar);
+                        if (this.reportEndDateKamar) params.append('end_date', this.reportEndDateKamar);
+                        if (this.reportGuestStatusKamar) params.append('status', this.reportGuestStatusKamar);
+                        if (this.reportGuestSearchKamar) params.append('search', this.reportGuestSearchKamar);
+
+                        const response = await fetch(`${API_URL}/reports/financial/export-pdf?${params.toString()}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/pdf'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            this.addToast('Gagal', 'Gagal mengunduh laporan PDF.', 'error');
+                            return;
+                        }
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Laporan-Keuangan-Wisma-${new Date().toISOString().slice(0, 10)}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        this.addToast('Berhasil', 'Laporan berhasil diunduh.', 'success');
+                    } catch (error) {
+                        this.addToast('Gagal', 'Terjadi kesalahan saat mengunduh laporan.', 'error');
+                    }
                 },
 
                 openAddModal(type) {
@@ -1943,7 +1842,9 @@
 
                 formatRupiah(amount) {
                     if (amount === undefined || amount === null) return 'Rp 0';
-                    return 'Rp ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    let num = parseFloat(amount);
+                    if (isNaN(num)) return 'Rp 0';
+                    return 'Rp ' + num.toLocaleString('id-ID');
                 },
 
                 formatIndoDate(dateStr) {
@@ -1963,5 +1864,6 @@
     </script>
 </body>
 </html>
+
 
 
