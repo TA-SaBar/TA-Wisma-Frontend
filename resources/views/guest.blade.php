@@ -170,6 +170,28 @@
         </div>
     </div>
 
+    <!-- COMPLAINT RESOLVE CONFIRMATION MODAL -->
+    <div x-show="resolveModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
+        <div @click="resolveModalOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full relative z-10 space-y-6 transform scale-100 transition-all fade-in">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2 shadow-inner">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h3 class="text-base font-extrabold text-slate-900 font-outfit">Konfirmasi Selesai</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Apakah Anda yakin keluhan ini sudah benar-benar selesai ditangani?</p>
+            </div>
+            <div class="flex gap-3">
+                <button @click="resolveModalOpen = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
+                    Batal
+                </button>
+                <button @click="confirmResolveComplaint()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all">
+                    Yakin, Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 1. LOGIN SCREEN -->
     <div x-show="!isLoggedIn" class="w-full h-screen flex relative z-30 fade-in">
         <!-- Cover Section Left -->
@@ -207,7 +229,7 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 text-white/50 text-xs">
-                    <i data-lucide="hotel" class="w-4 h-4"></i>
+                    <img src="/images/logo.png" class="w-4 h-4 object-contain rounded" alt="Logo">
                     <span class="uppercase tracking-widest font-semibold text-[10px]">Wisma DPR RI</span>
                 </div>
             </div>
@@ -218,9 +240,7 @@
             <!-- Header Logo & Back to Home -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                        <i data-lucide="landmark" class="w-5 h-5"></i>
-                    </div>
+                    <img src="/images/logo.png" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
                     <div>
                         <h2 class="font-outfit font-bold text-sm text-slate-900 tracking-wider leading-none">Wisma DPR RI</h2>
                         <span class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Government Hospitality</span>
@@ -310,9 +330,7 @@
         <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
             <!-- Logo Area -->
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i data-lucide="hotel" class="w-6 h-6 text-wisma-dark"></i>
-                </div>
+                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
                 <div>
                     <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
                     <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest">Portal Tamu</span>
@@ -1171,15 +1189,23 @@
                                                 <p class="text-[10px] text-slate-400 mt-0.5" x-text="c.category + ' • ' + c.location"></p>
                                             </div>
                                         </div>
-                                        <div class="text-right">
-                                            <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide"
-                                                  :class="{
-                                                      'bg-red-100 text-red-700': c.status === 'Pending',
-                                                      'bg-blue-100 text-blue-700': c.status === 'Processed',
-                                                      'bg-emerald-100 text-emerald-700': c.status === 'Resolved'
-                                                  }"
-                                                  x-text="c.status === 'Pending' ? 'Menunggu' : (c.status === 'Processed' ? 'Diproses' : 'Selesai')"></span>
-                                            <span class="text-[9px] text-slate-400 block mt-1" x-text="c.date"></span>
+                                        <div class="flex items-center gap-3">
+                                            <template x-if="c.status !== 'Resolved'">
+                                                <button @click="openResolveModal(c)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow-sm transition-all flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                    <span>Selesai</span>
+                                                </button>
+                                            </template>
+                                            <div class="text-right">
+                                                <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide block"
+                                                      :class="{
+                                                          'bg-red-100 text-red-700': c.status === 'Pending',
+                                                          'bg-blue-100 text-blue-700': c.status === 'Processed',
+                                                          'bg-emerald-100 text-emerald-700': c.status === 'Resolved'
+                                                      }"
+                                                      x-text="c.status === 'Pending' ? 'Menunggu' : (c.status === 'Processed' ? 'Diproses' : 'Selesai')"></span>
+                                                <span class="text-[9px] text-slate-400 block mt-1" x-text="c.date"></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </template>
@@ -1330,6 +1356,9 @@
                     description: ''
                 },
 
+                resolveModalOpen: false,
+                complaintToResolve: null,
+
                 notificationsOpen: false,
                 notifications: [],
 
@@ -1338,6 +1367,28 @@
                     this.loadNotifications();
                     this.selectedFacility = this.facilities[0] || {};
                     this.buildCalendar();
+
+                    window.addEventListener('storage', (e) => {
+                        if (e.key === 'wisma_complaints') {
+                            this.complaints = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_bookings') {
+                            this.bookings = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_facilities') {
+                            this.facilities = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_guests') {
+                            this.guests = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_notifications') {
+                            this.notifications = JSON.parse(e.newValue || '[]');
+                        }
+                        setTimeout(() => {
+                            if (window.lucide) window.lucide.createIcons();
+                        }, 50);
+                    });
+
                     setTimeout(() => {
                         if (window.lucide) {
                             window.lucide.createIcons();
@@ -1960,6 +2011,40 @@
 
                     this.addToast('Keluhan Terkirim', 'Laporan Anda sudah diterima front office untuk segera ditangani.', 'success');
                     
+                    setTimeout(() => {
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    }, 50);
+                },
+
+                openResolveModal(complaint) {
+                    this.complaintToResolve = complaint;
+                    this.resolveModalOpen = true;
+                    setTimeout(() => {
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    }, 50);
+                },
+
+                confirmResolveComplaint() {
+                    if (!this.complaintToResolve) return;
+                    const idx = this.complaints.findIndex(c => c.id === this.complaintToResolve.id);
+                    if (idx !== -1) {
+                        this.complaints[idx].status = 'Resolved';
+                        this.persistState();
+                        this.addToast('Keluhan Selesai', `Keluhan "${this.complaintToResolve.title}" berhasil diselesaikan.`, 'success');
+                        
+                        this.addNotification(
+                            'Keluhan Selesai',
+                            `Laporan keluhan "${this.complaintToResolve.title}" telah ditandai selesai oleh Anda.`,
+                            'complaint',
+                            this.complaintToResolve.id
+                        );
+                    }
+                    this.resolveModalOpen = false;
+                    this.complaintToResolve = null;
                     setTimeout(() => {
                         if (window.lucide) {
                             window.lucide.createIcons();

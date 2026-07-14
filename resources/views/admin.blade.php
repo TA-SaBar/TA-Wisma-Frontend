@@ -171,17 +171,9 @@
             <form @submit.prevent="saveCrudItem()" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Name -->
-                    <div class="space-y-1">
+                    <div class="space-y-1 md:col-span-2">
                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Unit Fasilitas</label>
                         <input type="text" x-model="crudForm.name" required placeholder="Contoh: Deluxe Room 204" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                    </div>
-
-                    <!-- Gedung -->
-                    <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Gedung</label>
-                        <select x-model="crudForm.gedung" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <option value="Wisma">Wisma</option>
-                        </select>
                     </div>
 
                     <!-- Area -->
@@ -292,7 +284,7 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 text-white/50 text-xs">
-                    <i data-lucide="hotel" class="w-4 h-4"></i>
+                    <img src="/images/logo.png" class="w-4 h-4 object-contain rounded" alt="Logo">
                     <span class="uppercase tracking-widest font-semibold text-[10px]">Wisma DPR RI</span>
                 </div>
             </div>
@@ -302,9 +294,7 @@
         <div class="flex-1 h-full bg-white flex flex-col justify-between p-12">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                        <i data-lucide="landmark" class="w-5 h-5"></i>
-                    </div>
+                    <img src="/images/logo.png" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
                     <div>
                         <h2 class="font-outfit font-bold text-sm text-slate-900 tracking-wider leading-none">Wisma DPR RI</h2>
                         <span class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Government Hospitality</span>
@@ -373,9 +363,7 @@
         <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
             <!-- Logo Area -->
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i data-lucide="shield" class="w-6 h-6 text-wisma-dark"></i>
-                </div>
+                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
                 <div>
                     <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
                     <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest font-outfit">Koordinator Wisma</span>
@@ -502,22 +490,93 @@
                                 <i data-lucide="home" class="w-6 h-6"></i>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
-                            <div>
-                                <span class="text-xs text-slate-500 font-medium">Tamu Terdaftar (Log DIPA)</span>
-                                <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="guests.length + ' Tamu'"></h3>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start w-full">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-medium">Tamu Terdaftar (Log DIPA)</span>
+                                    <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="getFilteredGuestsCount() + ' Tamu'"></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                                </div>
                             </div>
-                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center transition-transform group-hover:scale-110">
-                                <i data-lucide="user-check" class="w-6 h-6"></i>
+                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Filter Bulan:</span>
+                                <select x-model="dashboardGuestMonthFilter" class="text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-1 focus:ring-wisma-gold focus:outline-none font-semibold text-slate-700">
+                                    <option value="all">Semua Bulan</option>
+                                    <option value="01">Januari</option>
+                                    <option value="02">Februari</option>
+                                    <option value="03">Maret</option>
+                                    <option value="04">April</option>
+                                    <option value="05">Mei</option>
+                                    <option value="06">Juni</option>
+                                    <option value="07">Juli</option>
+                                    <option value="08">Agustus</option>
+                                    <option value="09">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
-                            <div>
-                                <span class="text-xs text-slate-500 font-medium">Pendapatan Diterima (Estimasi)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1.5 text-slate-900" x-text="formatRupiah(bookings.reduce((sum, b) => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In' ? sum + b.total_price : sum, 0))"></h3>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start w-full">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-medium">Pendapatan Diterima (Estimasi)</span>
+                                    <h3 class="text-xl font-bold font-outfit mt-1.5 text-slate-900" x-text="formatRupiah(getFilteredIncome())"></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-amber-50 text-wisma-gold flex items-center justify-center">
+                                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                                </div>
                             </div>
-                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-wisma-gold flex items-center justify-center transition-transform group-hover:scale-110">
-                                <i data-lucide="wallet" class="w-6 h-6"></i>
+                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Filter Bulan:</span>
+                                <select x-model="dashboardIncomeMonthFilter" class="text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-1 focus:ring-wisma-gold focus:outline-none font-semibold text-slate-700">
+                                    <option value="all">Semua Bulan</option>
+                                    <option value="01">Januari</option>
+                                    <option value="02">Februari</option>
+                                    <option value="03">Maret</option>
+                                    <option value="04">April</option>
+                                    <option value="05">Mei</option>
+                                    <option value="06">Juni</option>
+                                    <option value="07">Juli</option>
+                                    <option value="08">Agustus</option>
+                                    <option value="09">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Charts Relocated from Reports -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900">Performa Hunian Kamar & Ruang</h3>
+                            <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
+                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-1/2"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Apr</span></div>
+                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-2/3"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Mei</span></div>
+                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-3/4"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Jun</span></div>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Tren hunian kamar (okupansi) mengalami kenaikan sebesar +12% di bulan Juni 2026.</p>
+                        </div>
+
+                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900">Persentase Hunian Berdasarkan Tipe</h3>
+                            <div class="space-y-3 pt-4 text-xs">
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800"><span>Kamar Deluxe/Executive</span><span>72%</span></div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 72%"></div></div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800"><span>Ruang Rapat Nusantara</span><span>48%</span></div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 48%"></div></div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800"><span>Auditorium Sasana Bhakti</span><span>15%</span></div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 15%"></div></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -807,36 +866,7 @@
                         <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                     </div>
 
-                    <!-- Laporan Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
-                            <h3 class="text-sm font-bold text-slate-900">Performa Hunian Kamar & Ruang</h3>
-                            <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-1/2"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Apr</span></div>
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-2/3"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Mei</span></div>
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-3/4"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Jun</span></div>
-                            </div>
-                            <p class="text-[10px] text-slate-500">Tren hunian kamar (okupansi) mengalami kenaikan sebesar +12% di bulan Juni 2026.</p>
-                        </div>
-
-                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
-                            <h3 class="text-sm font-bold text-slate-900">Persentase Hunian Berdasarkan Tipe</h3>
-                            <div class="space-y-3 pt-4 text-xs">
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Kamar Deluxe/Executive</span><span>72%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 72%"></div></div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Ruang Rapat Nusantara</span><span>48%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 48%"></div></div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Auditorium Sasana Bhakti</span><span>15%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 15%"></div></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Laporan Cards (Relocated to Dashboard) -->
 
                     <!-- Rekapitulasi Pernah Menginap (Kamar) -->
                     <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 printable-report">
@@ -1220,6 +1250,9 @@
 
                 currentTab: 'admin_dashboard',
                 
+                dashboardGuestMonthFilter: 'all',
+                dashboardIncomeMonthFilter: 'all',
+                
                 adminManagementSearch: '',
                 adminManagementSubTab: 'Buah',
                 
@@ -1297,6 +1330,25 @@
 
                 initApp() {
                     this.loadState();
+
+                    window.addEventListener('storage', (e) => {
+                        if (e.key === 'wisma_complaints') {
+                            this.complaints = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_bookings') {
+                            this.bookings = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_facilities') {
+                            this.facilities = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_guests') {
+                            this.guests = JSON.parse(e.newValue || '[]');
+                        }
+                        setTimeout(() => {
+                            if (window.lucide) window.lucide.createIcons();
+                        }, 50);
+                    });
+
                     setTimeout(() => {
                         if (window.lucide) {
                             window.lucide.createIcons();
@@ -1754,6 +1806,35 @@
                         }
                         return matchesSearch;
                     });
+                },
+
+                getFilteredGuestsCount() {
+                    if (this.dashboardGuestMonthFilter === 'all') {
+                        return this.guests.length;
+                    }
+                    const targetMonth = this.dashboardGuestMonthFilter;
+                    const activeNips = new Set(
+                        this.bookings
+                            .filter(b => {
+                                if (!b.check_in) return false;
+                                const parts = b.check_in.split('-');
+                                if (parts.length < 2) return false;
+                                return parts[1] === targetMonth;
+                            })
+                            .map(b => b.nip)
+                    );
+                    return this.guests.filter(g => activeNips.has(g.nip)).length;
+                },
+
+                getFilteredIncome() {
+                    const filteredBookings = this.bookings.filter(b => {
+                        if (this.dashboardIncomeMonthFilter === 'all') return true;
+                        if (!b.check_in) return false;
+                        const parts = b.check_in.split('-');
+                        if (parts.length < 2) return false;
+                        return parts[1] === this.dashboardIncomeMonthFilter;
+                    });
+                    return filteredBookings.reduce((sum, b) => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In' ? sum + b.total_price : sum, 0);
                 },
 
                 addToast(title, message, type = 'success') {

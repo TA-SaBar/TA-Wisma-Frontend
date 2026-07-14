@@ -154,7 +154,7 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 text-white/50 text-xs">
-                    <i data-lucide="hotel" class="w-4 h-4"></i>
+                    <img src="/images/logo.png" class="w-4 h-4 object-contain rounded" alt="Logo">
                     <span class="uppercase tracking-widest font-semibold text-[10px]">Wisma DPR RI</span>
                 </div>
             </div>
@@ -164,9 +164,7 @@
         <div class="flex-1 h-full bg-white flex flex-col justify-between p-12">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                        <i data-lucide="landmark" class="w-5 h-5"></i>
-                    </div>
+                    <img src="/images/logo.png" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
                     <div>
                         <h2 class="font-outfit font-bold text-sm text-slate-900 tracking-wider leading-none">Wisma DPR RI</h2>
                         <span class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Government Hospitality</span>
@@ -236,9 +234,7 @@
         <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
             <!-- Logo Area -->
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i data-lucide="concierge-bell" class="w-6 h-6 text-wisma-dark"></i>
-                </div>
+                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
                 <div>
                     <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
                     <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest font-outfit">Portal Resepsionis</span>
@@ -682,6 +678,22 @@
 
                 initApp() {
                     this.loadState();
+
+                    window.addEventListener('storage', (e) => {
+                        if (e.key === 'wisma_bookings') {
+                            this.bookings = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_facilities') {
+                            this.facilities = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_guests') {
+                            this.guests = JSON.parse(e.newValue || '[]');
+                        }
+                        setTimeout(() => {
+                            if (window.lucide) window.lucide.createIcons();
+                        }, 50);
+                    });
+
                     setTimeout(() => {
                         if (window.lucide) {
                             window.lucide.createIcons();
