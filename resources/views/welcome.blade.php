@@ -71,9 +71,7 @@
     <!-- Header Logo & Nav -->
     <header class="relative z-10 w-full px-8 lg:px-16 py-6 flex items-center justify-between border-b border-slate-200 bg-white/60 backdrop-blur-md">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <i data-lucide="hotel" class="w-6 h-6 text-wisma-dark"></i>
-            </div>
+            <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
             <div>
                 <h2 class="font-outfit font-bold text-base tracking-wider leading-none text-slate-900">Wisma DPR RI</h2>
                 <span class="text-[9px] text-slate-500 font-medium uppercase tracking-widest">Government Hospitality</span>

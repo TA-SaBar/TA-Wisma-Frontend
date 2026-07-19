@@ -149,7 +149,12 @@
                         <option value="laundry">Layanan Laundry</option>
                         <option value="internet">Internet / Wifi</option>
                         <option value="food">Layanan Makanan</option>
+                        <option value="lainnya">Lainnya (Other)</option>
                     </select>
+                </div>
+                <div x-show="newComplaintForm.category === 'lainnya'" class="space-y-1 fade-in">
+                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Masukkan Kategori Keluhan Kustom</label>
+                    <input type="text" x-model="newComplaintForm.customCategory" placeholder="Contoh: Masalah Listrik, Air Bersih, dll." :required="newComplaintForm.category === 'lainnya'" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Lokasi (No. Bungalow / Area)</label>
@@ -250,7 +255,7 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 text-white/50 text-xs">
-                    <i data-lucide="hotel" class="w-4 h-4"></i>
+                    <img src="/images/logo.png" class="w-4 h-4 object-contain rounded" alt="Logo">
                     <span class="uppercase tracking-widest font-semibold text-[10px]">Wisma DPR RI</span>
                 </div>
             </div>
@@ -260,9 +265,7 @@
         <div class="flex-1 h-full bg-white flex flex-col justify-between p-12">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                        <i data-lucide="life-buoy" class="w-5 h-5"></i>
-                    </div>
+                    <img src="/images/logo.png" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
                     <div>
                         <h2 class="font-outfit font-bold text-sm text-slate-900 tracking-wider leading-none">Wisma DPR RI</h2>
                         <span class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Government Hospitality</span>
@@ -332,9 +335,7 @@
         <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
             <!-- Logo Area -->
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i data-lucide="life-buoy" class="w-6 h-6 text-wisma-dark"></i>
-                </div>
+                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
                 <div>
                     <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
                     <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest font-outfit">Portal CS</span>
@@ -404,6 +405,94 @@
                 </div>
 
                 <div class="flex items-center gap-4">
+                    <!-- Notifications Dropdown -->
+                    <div class="relative" @click.outside="notificationsOpen = false">
+                        <button @click="notificationsOpen = !notificationsOpen; if(notificationsOpen) setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" 
+                                class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors relative shadow-sm hover:shadow">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <template x-if="unreadNotificationsCount() > 0">
+                                <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+                            </template>
+                        </button>
+
+                        <!-- Dropdown Panel -->
+                        <div x-show="notificationsOpen" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                             class="absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 flex flex-col max-h-[480px] overflow-hidden" 
+                             x-cloak>
+                            
+                            <!-- Header -->
+                            <div class="px-5 py-4 bg-slate-50/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-sm font-bold text-slate-900 font-outfit">Notifikasi</h3>
+                                    <span class="px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-[9px] font-extrabold" x-show="unreadNotificationsCount() > 0" x-text="unreadNotificationsCount() + ' Baru'"></span>
+                                </div>
+                                <button @click="markAllAsRead()" x-show="unreadNotificationsCount() > 0" class="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold hover:underline">
+                                    Tandai semua dibaca
+                                </button>
+                            </div>
+
+                            <!-- List -->
+                            <div class="flex-1 overflow-y-auto divide-y divide-slate-50 scrollbar-hide">
+                                <template x-for="n in notifications.filter(n => n.type === 'complaint')" :key="n.id">
+                                    <div class="px-5 py-4 hover:bg-slate-50/50 transition-colors flex gap-3 relative group"
+                                         :class="!n.read ? 'bg-indigo-50/30' : ''">
+                                        
+                                        <!-- Unread indicator dot -->
+                                        <div x-show="!n.read" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
+                                        
+                                        <!-- Icon -->
+                                        <div class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5"
+                                             :class="{
+                                                 'bg-emerald-50 text-emerald-600': n.type === 'booking',
+                                                 'bg-amber-50 text-amber-500': n.type === 'complaint',
+                                                 'bg-blue-50 text-blue-600': n.type === 'system'
+                                             }">
+                                            <template x-if="n.type === 'booking'">
+                                                <i data-lucide="calendar-check" class="w-4.5 h-4.5"></i>
+                                            </template>
+                                            <template x-if="n.type === 'complaint'">
+                                                <i data-lucide="alert-triangle" class="w-4.5 h-4.5"></i>
+                                            </template>
+                                            <template x-if="n.type === 'system'">
+                                                <i data-lucide="bell" class="w-4.5 h-4.5"></i>
+                                            </template>
+                                        </div>
+
+                                        <!-- Message content -->
+                                        <div class="flex-1 min-w-0 cursor-pointer" @click="handleNotificationClick(n)">
+                                            <h4 class="text-xs font-bold text-slate-800 truncate" x-text="n.title"></h4>
+                                            <p class="text-[11px] text-slate-500 leading-normal mt-0.5 font-light" x-text="n.message"></p>
+                                            <span class="text-[9px] text-slate-400 font-medium block mt-1" x-text="n.time"></span>
+                                        </div>
+
+                                        <!-- Delete action button -->
+                                        <button @click.stop="deleteNotification(n.id)" class="opacity-0 group-hover:opacity-100 absolute right-4 top-4 text-slate-400 hover:text-red-500 p-1 hover:bg-slate-100 rounded transition-all">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <div x-show="notifications.filter(n => n.type === 'complaint').length === 0" class="text-center py-12 text-slate-400">
+                                    <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-slate-200"></i>
+                                    <p class="text-xs">Tidak ada notifikasi keluhan untuk Anda.</p>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="px-5 py-3.5 bg-slate-50/50 border-t border-slate-100 text-center shrink-0">
+                                <button @click="notificationsOpen = false" class="text-xs text-slate-500 hover:text-slate-700 font-bold">
+                                    Tutup Panel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center gap-3">
                         <div class="text-right">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
@@ -633,30 +722,56 @@
                         </button>
                     </div>
 
+                    <!-- Filter Periode Laporan (no-print) -->
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wide">
+                                <i data-lucide="calendar" class="w-4 h-4 text-wisma-gold"></i>
+                                <span>Filter Periode Laporan</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="setQuickPeriod('all')" :class="!reportStartDate && !reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
+                                <button @click="setQuickPeriod('this_month')" :class="reportStartDate && reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
+                                <button @click="setQuickPeriod('last_month')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Bulan Lalu</button>
+                                <button @click="setQuickPeriod('this_year')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Tahun Ini</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Mulai</label>
+                                <input type="date" x-model="reportStartDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Selesai</label>
+                                <input type="date" x-model="reportEndDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- SUBTAB 1: REKAP KELUHAN MASUK -->
                     <div x-show="csReportSubTab === 'keluhan'" class="space-y-6">
                         <!-- Stats Grid -->
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 no-print">
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Keluhan</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-slate-800" x-text="complaints.length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-slate-800" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate)).length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Menunggu (Pending)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-red-500" x-text="complaints.filter(c => c.status === 'Pending').length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-red-500" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Pending').length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Sedang Diproses</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-blue-500" x-text="complaints.filter(c => c.status === 'Processed').length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-blue-500" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Processed').length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Selesai (Resolved)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1 text-emerald-500" x-text="complaints.filter(c => c.status === 'Resolved').length"></h3>
+                                <h3 class="text-xl font-bold font-outfit mt-1 text-emerald-500" x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Resolved').length"></h3>
                             </div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm col-span-2 md:col-span-1">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Tingkat Resolusi</span>
                                 <h3 class="text-xl font-bold font-outfit mt-1 text-amber-600" 
-                                    x-text="complaints.length ? Math.round((complaints.filter(c => c.status === 'Resolved').length / complaints.length) * 100) + '%' : '0%'"></h3>
+                                    x-text="complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate)).length ? Math.round((complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate) && c.status === 'Resolved').length / complaints.filter(c => isDateInPeriod(c.date, reportStartDate, reportEndDate)).length) * 100) + '%' : '0%'"></h3>
                             </div>
                         </div>
 
@@ -664,6 +779,9 @@
                         <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
                             <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN REKAPITULASI KELUHAN TAMU</h2>
                             <p class="text-xs text-slate-600">Sistem Pelayanan Wisma DPR RI Kopo</p>
+                            <p class="text-xs text-slate-800 mt-1 font-semibold">
+                                Periode: <span x-text="reportStartDate ? formatIndoDate(reportStartDate) : 'Awal'"></span> s/d <span x-text="reportEndDate ? formatIndoDate(reportEndDate) : 'Akhir'"></span>
+                            </p>
                             <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                         </div>
 
@@ -705,7 +823,8 @@
                                         <template x-for="c in complaints.filter(c => {
                                             const categoryMatch = reportComplaintFilterCategory === 'semua' || c.category === reportComplaintFilterCategory;
                                             const statusMatch = reportComplaintFilterStatus === 'semua' || c.status === reportComplaintFilterStatus;
-                                            return categoryMatch && statusMatch;
+                                            const periodMatch = isDateInPeriod(c.date, reportStartDate, reportEndDate);
+                                            return categoryMatch && statusMatch && periodMatch;
                                         })" :key="c.id">
                                             <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                                                 <td class="py-3 px-4 font-bold text-slate-900" x-text="c.id"></td>
@@ -727,7 +846,8 @@
                                         <tr x-show="complaints.filter(c => {
                                             const categoryMatch = reportComplaintFilterCategory === 'semua' || c.category === reportComplaintFilterCategory;
                                             const statusMatch = reportComplaintFilterStatus === 'semua' || c.status === reportComplaintFilterStatus;
-                                            return categoryMatch && statusMatch;
+                                            const periodMatch = isDateInPeriod(c.date, reportStartDate, reportEndDate);
+                                            return categoryMatch && statusMatch && periodMatch;
                                         }).length === 0">
                                             <td colspan="6" class="text-center py-8 text-slate-400">Tidak ada rekapitulasi keluhan.</td>
                                         </tr>
@@ -759,15 +879,15 @@
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center">
                                 <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block">Rata-rata Rating</span>
                                 <h1 class="text-5xl font-extrabold font-outfit text-slate-900 mt-2" 
-                                    x-text="feedbacksAgg.avg_overall ? Number(feedbacksAgg.avg_overall).toFixed(1) : '0.0'"></h1>
+                                    x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) : '0.0'"></h1>
                                 <div class="flex items-center gap-1 mt-2 text-wisma-gold">
                                     <template x-for="star in [1, 2, 3, 4, 5]">
-                                        <svg class="w-4 h-4 fill-current" :class="star <= Math.round(feedbacksAgg.avg_overall) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
+                                        <svg class="w-4 h-4 fill-current" :class="star <= Math.round(bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + b.rating, 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) ? 'text-wisma-gold' : 'text-slate-200'" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>
                                     </template>
                                 </div>
-                                <span class="text-[10px] text-slate-400 mt-2" x-text="'Dari ' + feedbacksAgg.total + ' ulasan tamu'"></span>
+                                <span class="text-[10px] text-slate-400 mt-2" x-text="'Dari ' + bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length + ' ulasan tamu'"></span>
                             </div>
 
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm md:col-span-3 space-y-4">
@@ -777,33 +897,33 @@
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Kebersihan Bungalow & Gedung</span>
-                                            <span class="font-bold text-slate-900" x-text="feedbacksAgg.avg_cleanliness ? Number(feedbacksAgg.avg_cleanliness).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (feedbacksAgg.avg_cleanliness * 20) + '%'"></div>
+                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_cleanliness || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) * 20 : 0) + '%'"></div>
                                         </div>
                                     </div>
                                     <!-- Facilities -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Kualitas Fasilitas & Peralatan</span>
-                                            <span class="font-bold text-slate-900" x-text="feedbacksAgg.avg_facilities ? Number(feedbacksAgg.avg_facilities).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (feedbacksAgg.avg_facilities * 20) + '%'"></div>
+                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_facilities || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) * 20 : 0) + '%'"></div>
                                         </div>
                                     </div>
                                     <!-- Service -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between font-semibold text-slate-700">
                                             <span>Keramahan & Kecepatan Pelayanan</span>
-                                            <span class="font-bold text-slate-900" x-text="feedbacksAgg.avg_service ? Number(feedbacksAgg.avg_service).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
+                                            <span class="font-bold text-slate-900" x-text="bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length).toFixed(1) + ' / 5.0' : '0.0 / 5.0'"></span>
                                         </div>
                                         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                                             <div class="bg-amber-500 h-full rounded-full" 
-                                                 :style="'width: ' + (feedbacksAgg.avg_service * 20) + '%'"></div>
+                                                 :style="'width: ' + (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length ? (bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).reduce((acc, b) => acc + (b.rating_service || 0), 0) / bookings.filter(b => b.hasFeedback && isDateInPeriod(b.check_in, reportStartDate, reportEndDate)).length) * 20 : 0) + '%'"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -814,6 +934,9 @@
                         <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
                             <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN ULASAN & PENILAIAN TAMU</h2>
                             <p class="text-xs text-slate-600">Sistem Pelayanan Wisma DPR RI Kopo</p>
+                            <p class="text-xs text-slate-800 mt-1 font-semibold">
+                                Periode: <span x-text="reportStartDate ? formatIndoDate(reportStartDate) : 'Awal'"></span> s/d <span x-text="reportEndDate ? formatIndoDate(reportEndDate) : 'Akhir'"></span>
+                            </p>
                             <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                         </div>
 
@@ -829,10 +952,12 @@
 
                         <!-- Feedback List -->
                         <div class="space-y-4 printable-report">
-                            <template x-for="f in feedbacks.filter(f => {
-                                if (reportRatingFilter === '5') return Math.floor(f.average_rating) === 5;
-                                if (reportRatingFilter === '4') return Math.floor(f.average_rating) === 4;
-                                if (reportRatingFilter === '3') return f.average_rating < 4;
+                            <template x-for="b in bookings.filter(b => {
+                                if (!b.hasFeedback) return false;
+                                if (!isDateInPeriod(b.check_in, reportStartDate, reportEndDate)) return false;
+                                if (reportRatingFilter === '5') return Math.floor(b.rating) === 5;
+                                if (reportRatingFilter === '4') return Math.floor(b.rating) === 4;
+                                if (reportRatingFilter === '3') return b.rating < 4;
                                 return true;
                             })" :key="f.id">
                                 <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 flex flex-col md:flex-row gap-6 justify-between items-start page-break-inside-avoid">
@@ -882,9 +1007,10 @@
 
                             <div x-show="bookings.filter(b => {
                                 if (!b.hasFeedback) return false;
-                                if (reportRatingFilter === '5') return Math.floor(f.average_rating) === 5;
-                                if (reportRatingFilter === '4') return Math.floor(f.average_rating) === 4;
-                                if (reportRatingFilter === '3') return f.average_rating < 4;
+                                if (!isDateInPeriod(b.check_in, reportStartDate, reportEndDate)) return false;
+                                if (reportRatingFilter === '5') return Math.floor(b.rating) === 5;
+                                if (reportRatingFilter === '4') return Math.floor(b.rating) === 4;
+                                if (reportRatingFilter === '3') return b.rating < 4;
                                 return true;
                             }).length === 0" class="bg-white border border-slate-100 rounded-3xl p-8 text-center text-slate-400">
                                 <i data-lucide="message-square" class="w-12 h-12 mx-auto mb-2 text-slate-200"></i>
@@ -1097,6 +1223,8 @@
                 reportComplaintFilterCategory: 'semua',
                 reportComplaintFilterStatus: 'semua',
                 reportRatingFilter: 'semua',
+                reportStartDate: '',
+                reportEndDate: '',
                 
                 inputComplaintModalOpen: false,
                 newComplaintForm: {
@@ -1135,6 +1263,9 @@
                     instansi: 'Layanan Customer Service Wisma'
                 },
 
+                notificationsOpen: false,
+                notifications: [],
+
                 // Shared LocalStorage data
                 
                     complaints: [],
@@ -1144,24 +1275,7 @@
 
 
                 
-                                // ==========================================
-                // HELPER: API CALL
-                // ==========================================
-                async apiCall(method, path, body = null, isFormData = false) {
-                    const token = localStorage.getItem('wisma_token');
-                    const headers = {
-                        'Accept': 'application/json',
-                        ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
-                        ...(!isFormData ? { 'Content-Type': 'application/json' } : {})
-                    };
-                    const opts = {
-                        method,
-                        headers,
-                        ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {})
-                    };
-                    const res = await fetch(API_URL + path, opts);
-                    return res.json();
-                },
+                                // ===================================                },
 
                 async initApp() {
                     const token = localStorage.getItem('wisma_token');
@@ -1257,7 +1371,102 @@
                             const userData = res.data.user;
                             if (userData.role !== 'customer_service') {
                                 await this.apiCall('POST', '/logout');
-                                this.addToast('Akses Ditolak', 'Akun ini bukan Customer Service.', 'error');
+                                this.
+
+                persistNotifications() {
+                    localStorage.setItem('wisma_notifications', JSON.stringify(this.notifications));
+                },
+
+                loadNotifications() {
+                    const savedNotifications = localStorage.getItem('wisma_notifications');
+                    if (savedNotifications) {
+                        this.notifications = JSON.parse(savedNotifications);
+                    } else {
+                        this.notifications = [
+                            {
+                                id: 'NOTIF-001',
+                                title: 'Reservasi Selesai',
+                                message: 'Booking Bungalow Kedondong (WDPR-2026-0082) telah selesai. Terima kasih telah menginap di Wisma DPR RI!',
+                                time: '24 Okt 2023, 11:00',
+                                type: 'booking',
+                                read: false,
+                                refId: 'WDPR-2026-0082'
+                            },
+                            {
+                                id: 'NOTIF-002',
+                                title: 'Keluhan Diterima',
+                                message: 'Keluhan AC Bungalow Kedondong Kurang Dingin (COMP-101) telah diajukan dan sedang diproses.',
+                                time: '24 Okt 2023, 09:15',
+                                type: 'complaint',
+                                read: false,
+                                refId: 'COMP-101'
+                            }
+                        ];
+                        this.persistNotifications();
+                    }
+                },
+
+                unreadNotificationsCount() {
+                    return this.notifications.filter(n => !n.read && n.type === 'complaint').length;
+                },
+
+                markAsRead(id) {
+                    const idx = this.notifications.findIndex(n => n.id === id);
+                    if (idx !== -1) {
+                        this.notifications[idx].read = true;
+                        this.persistNotifications();
+                    }
+                },
+
+                markAllAsRead() {
+                    this.notifications.forEach(n => {
+                        if (n.type === 'complaint') n.read = true;
+                    });
+                    this.persistNotifications();
+                    this.addToast('Notifikasi Dibaca', 'Semua notifikasi keluhan ditandai sebagai dibaca.', 'success');
+                },
+
+                deleteNotification(id) {
+                    this.notifications = this.notifications.filter(n => n.id !== id);
+                    this.persistNotifications();
+                    this.addToast('Notifikasi Dihapus', 'Notifikasi berhasil dihapus.', 'info');
+                },
+
+                addNotification(title, message, type = 'system', refId = null) {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const mins = String(now.getMinutes()).padStart(2, '0');
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const timeStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}, ${hours}:${mins}`;
+
+                    const newNotif = {
+                        id: 'NOTIF-' + String(Math.floor(1000 + Math.random() * 9000)),
+                        title: title,
+                        message: message,
+                        time: timeStr,
+                        type: type,
+                        read: false,
+                        refId: refId
+                    };
+                    this.notifications.unshift(newNotif);
+                    this.persistNotifications();
+
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 50);
+                },
+
+                handleNotificationClick(notif) {
+                    this.markAsRead(notif.id);
+                    if (notif.type === 'complaint') {
+                        this.switchTab('cs_complaints');
+                        this.notificationsOpen = false;
+                    } else {
+                        this.notificationsOpen = false;
+                    }
+                }
+
+                addToast('Akses Ditolak', 'Akun ini bukan Customer Service.', 'error');
                                 return;
                             }
                             
@@ -1361,6 +1570,75 @@
                     } catch (error) {
                         console.error('Print Error:', error);
                         this.addToast('Error', 'Terjadi kesalahan saat mengunduh laporan.', 'error');
+                    }
+                },
+
+                parseIndoDate(dateStr) {
+                    if (!dateStr) return null;
+                    if (dateStr.includes('-')) {
+                        return new Date(dateStr);
+                    }
+                    try {
+                        const cleanStr = dateStr.split(',')[0].trim();
+                        const parts = cleanStr.split(' ');
+                        if (parts.length !== 3) return null;
+                        const day = parseInt(parts[0]);
+                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                        const monthIdx = months.indexOf(parts[1]);
+                        const year = parseInt(parts[2]);
+                        if (monthIdx === -1) return null;
+                        return new Date(year, monthIdx, day);
+                    } catch (e) {
+                        return null;
+                    }
+                },
+
+                isDateInPeriod(dateStr, startStr, endStr) {
+                    const itemDate = this.parseIndoDate(dateStr);
+                    if (!itemDate) return true;
+                    itemDate.setHours(0,0,0,0);
+                    const itemTime = itemDate.getTime();
+                    
+                    if (startStr) {
+                        const startDate = new Date(startStr);
+                        startDate.setHours(0,0,0,0);
+                        if (itemTime < startDate.getTime()) return false;
+                    }
+                    if (endStr) {
+                        const endDate = new Date(endStr);
+                        endDate.setHours(0,0,0,0);
+                        if (itemTime > endDate.getTime()) return false;
+                    }
+                    return true;
+                },
+
+                formatISODate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+
+                setQuickPeriod(period) {
+                    const now = new Date();
+                    if (period === 'this_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'last_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'this_year') {
+                        const firstDay = new Date(now.getFullYear(), 0, 1);
+                        const lastDay = new Date(now.getFullYear(), 11, 31);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'all') {
+                        this.reportStartDate = '';
+                        this.reportEndDate = '';
                     }
                 },
 

@@ -124,6 +124,31 @@
         </template>
     </div>
 
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div x-show="deleteModal.isOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
+        <div @click="deleteModal.isOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10 space-y-6 transform scale-100 transition-all fade-in">
+            <div class="text-center space-y-3">
+                <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-2 shadow-inner">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-base font-extrabold text-slate-900 font-outfit">Konfirmasi Hapus Unit</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Apakah Anda yakin ingin menghapus unit <strong x-text="deleteModal.itemName"></strong>? Tindakan ini tidak dapat dibatalkan.
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button @click="deleteModal.isOpen = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
+                    Batal
+                </button>
+                <button @click="executeDelete()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all">
+                    Hapus Unit
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CRUD CREATION & MODIFICATION MODAL -->
     <div x-show="crudModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
         <div @click="crudModalOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
@@ -146,17 +171,9 @@
             <form @submit.prevent="saveCrudItem()" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Name -->
-                    <div class="space-y-1">
+                    <div class="space-y-1 md:col-span-2">
                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Unit Fasilitas</label>
                         <input type="text" x-model="crudForm.name" required placeholder="Contoh: Deluxe Room 204" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                    </div>
-
-                    <!-- Gedung -->
-                    <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Gedung</label>
-                        <select x-model="crudForm.gedung" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <option value="Wisma">Wisma</option>
-                        </select>
                     </div>
 
                     <!-- Area -->
@@ -183,14 +200,6 @@
                         </select>
                     </div>
 
-                    <!-- Luas -->
-                    <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Luas Area</label>
-                        <div class="relative">
-                            <input type="number" x-model="crudForm.luas" placeholder="Contoh: 32" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 pr-10 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <span class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 text-xs font-semibold">m²</span>
-                        </div>
-                    </div>
 
                     <!-- Bed Configuration -->
                     <div class="space-y-1">
@@ -275,7 +284,7 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 text-white/50 text-xs">
-                    <i data-lucide="hotel" class="w-4 h-4"></i>
+                    <img src="/images/logo.png" class="w-4 h-4 object-contain rounded" alt="Logo">
                     <span class="uppercase tracking-widest font-semibold text-[10px]">Wisma DPR RI</span>
                 </div>
             </div>
@@ -285,9 +294,7 @@
         <div class="flex-1 h-full bg-white flex flex-col justify-between p-12">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                        <i data-lucide="landmark" class="w-5 h-5"></i>
-                    </div>
+                    <img src="/images/logo.png" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
                     <div>
                         <h2 class="font-outfit font-bold text-sm text-slate-900 tracking-wider leading-none">Wisma DPR RI</h2>
                         <span class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Government Hospitality</span>
@@ -356,9 +363,7 @@
         <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
             <!-- Logo Area -->
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i data-lucide="shield" class="w-6 h-6 text-wisma-dark"></i>
-                </div>
+                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
                 <div>
                     <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
                     <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest font-outfit">Koordinator Wisma</span>
@@ -485,22 +490,93 @@
                                 <i data-lucide="home" class="w-6 h-6"></i>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
-                            <div>
-                                <span class="text-xs text-slate-500 font-medium">Tamu Terdaftar (Log DIPA)</span>
-                                <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="guests.length + ' Tamu'"></h3>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start w-full">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-medium">Tamu Terdaftar (Log DIPA)</span>
+                                    <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="getFilteredGuestsCount() + ' Tamu'"></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                                </div>
                             </div>
-                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center transition-transform group-hover:scale-110">
-                                <i data-lucide="user-check" class="w-6 h-6"></i>
+                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Filter Bulan:</span>
+                                <select x-model="dashboardGuestMonthFilter" class="text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-1 focus:ring-wisma-gold focus:outline-none font-semibold text-slate-700">
+                                    <option value="all">Semua Bulan</option>
+                                    <option value="01">Januari</option>
+                                    <option value="02">Februari</option>
+                                    <option value="03">Maret</option>
+                                    <option value="04">April</option>
+                                    <option value="05">Mei</option>
+                                    <option value="06">Juni</option>
+                                    <option value="07">Juli</option>
+                                    <option value="08">Agustus</option>
+                                    <option value="09">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
-                            <div>
-                                <span class="text-xs text-slate-500 font-medium">Pendapatan Diterima (Estimasi)</span>
-                                <h3 class="text-xl font-bold font-outfit mt-1.5 text-slate-900" x-text="formatRupiah(bookings.reduce((sum, b) => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In' ? sum + Number(b.total_price) : sum, 0))"></h3>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start w-full">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-medium">Pendapatan Diterima (Estimasi)</span>
+                                    <h3 class="text-xl font-bold font-outfit mt-1.5 text-slate-900" x-text="formatRupiah(getFilteredIncome())"></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-amber-50 text-wisma-gold flex items-center justify-center">
+                                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                                </div>
                             </div>
-                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-wisma-gold flex items-center justify-center transition-transform group-hover:scale-110">
-                                <i data-lucide="wallet" class="w-6 h-6"></i>
+                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Filter Bulan:</span>
+                                <select x-model="dashboardIncomeMonthFilter" class="text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-1 focus:ring-wisma-gold focus:outline-none font-semibold text-slate-700">
+                                    <option value="all">Semua Bulan</option>
+                                    <option value="01">Januari</option>
+                                    <option value="02">Februari</option>
+                                    <option value="03">Maret</option>
+                                    <option value="04">April</option>
+                                    <option value="05">Mei</option>
+                                    <option value="06">Juni</option>
+                                    <option value="07">Juli</option>
+                                    <option value="08">Agustus</option>
+                                    <option value="09">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Charts Relocated from Reports -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900">Performa Hunian Kamar & Ruang</h3>
+                            <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
+                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-1/2"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Apr</span></div>
+                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-2/3"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Mei</span></div>
+                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-3/4"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Jun</span></div>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Tren hunian kamar (okupansi) mengalami kenaikan sebesar +12% di bulan Juni 2026.</p>
+                        </div>
+
+                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900">Persentase Hunian Berdasarkan Tipe</h3>
+                            <div class="space-y-3 pt-4 text-xs">
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800"><span>Kamar Deluxe/Executive</span><span>72%</span></div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 72%"></div></div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800"><span>Ruang Rapat Nusantara</span><span>48%</span></div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 48%"></div></div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800"><span>Auditorium Sasana Bhakti</span><span>15%</span></div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 15%"></div></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -603,7 +679,7 @@
                                                 <button @click="openEditModal(f)" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors" title="Edit">
                                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                                 </button>
-                                                <button @click="deleteCrudItem(f.id)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors" title="Hapus">
+                                                <button @click="confirmDelete(f.id)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors" title="Hapus">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
                                             </div>
@@ -792,40 +868,43 @@
                         </button>
                     </div>
 
+                    <!-- Filter Periode Laporan (no-print) -->
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wide">
+                                <i data-lucide="calendar" class="w-4 h-4 text-wisma-gold"></i>
+                                <span>Filter Periode Laporan</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="setQuickPeriod('all')" :class="!reportStartDate && !reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
+                                <button @click="setQuickPeriod('this_month')" :class="reportStartDate && reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
+                                <button @click="setQuickPeriod('last_month')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Bulan Lalu</button>
+                                <button @click="setQuickPeriod('this_year')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Tahun Ini</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Mulai</label>
+                                <input type="date" x-model="reportStartDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Selesai</label>
+                                <input type="date" x-model="reportEndDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Print-only Title Header -->
                     <div class="hidden print:block text-center border-b border-slate-800 pb-4 mb-6">
                         <h2 class="text-xl font-bold font-outfit uppercase tracking-wider">LAPORAN OKUPANSI & REKAPITULASI PENGGUNAAN WISMA</h2>
                         <p class="text-xs text-slate-600">Sistem Informasi & Manajemen Wisma DPR RI Kopo</p>
+                        <p class="text-xs text-slate-800 mt-1 font-semibold">
+                            Periode: <span x-text="reportStartDate ? formatIndoDate(reportStartDate) : 'Awal'"></span> s/d <span x-text="reportEndDate ? formatIndoDate(reportEndDate) : 'Akhir'"></span>
+                        </p>
                         <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                     </div>
 
-                    <!-- Laporan Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
-                            <h3 class="text-sm font-bold text-slate-900">Performa Hunian Kamar & Ruang</h3>
-                            <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
-                                <template x-for="(m, idx) in getMonthlyChart()" :key="idx">
-                                    <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group flex flex-col justify-end">
-                                        <div class="w-full bg-[#0B1A30] rounded-t-lg transition-all" :style="'height: ' + m.percent + '%'"></div>
-                                        <span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block" x-text="m.label"></span>
-                                    </div>
-                                </template>
-                            </div>
-                            <p class="text-[10px] text-slate-500 mt-2">Grafik dinamis ini menghitung tren kepadatan pemesanan (okupansi) selama 3 bulan terakhir berdasarkan data di sistem.</p>
-                        </div>
-
-                        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
-                            <h3 class="text-sm font-bold text-slate-900">Persentase Hunian Berdasarkan Tipe</h3>
-                            <div class="space-y-3 pt-4 text-xs">
-                                <template x-for="t in getTypeOccupancy()" :key="t.label">
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between font-bold text-slate-800"><span x-text="t.label"></span><span x-text="t.percent + '%'"></span></div>
-                                        <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full transition-all" :style="'width: ' + t.percent + '%'"></div></div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Laporan Cards (Relocated to Dashboard) -->
 
                     <!-- Rekapitulasi Pernah Menginap (Kamar) -->
                     <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 printable-report">
@@ -839,9 +918,8 @@
                                 const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                 const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                 const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                const matchesStartDate = reportStartDateKamar === '' || new Date(b.check_in) >= new Date(reportStartDateKamar);
-                                const matchesEndDate = reportEndDateKamar === '' || new Date(b.check_in) <= new Date(reportEndDateKamar);
-                                return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
+                                const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
                             }).length + ' Tamu'"></span>
                         </div>
 
@@ -887,9 +965,8 @@
                                         const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
                                         const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
                                         const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        const matchesStartDate = reportStartDateKamar === '' || new Date(b.check_in) >= new Date(reportStartDateKamar);
-                                        const matchesEndDate = reportEndDateKamar === '' || new Date(b.check_in) <= new Date(reportEndDateKamar);
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
+                                        const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
+                                        return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
                                     })" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4">
@@ -1234,6 +1311,9 @@
 
                 currentTab: 'admin_dashboard',
                 
+                dashboardGuestMonthFilter: 'all',
+                dashboardIncomeMonthFilter: 'all',
+                
                 adminManagementSearch: '',
                 adminManagementSubTab: 'Buah',
                 
@@ -1255,6 +1335,13 @@
                 crudModalOpen: false,
                 crudAction: 'create',
                 crudType: 'Buah',
+                // Deletion Confirmation Modal State
+                deleteModal: {
+                    isOpen: false,
+                    itemId: null,
+                    itemName: ''
+                },
+
                 crudForm: {
                     id: null,
                     name: '',
@@ -1308,7 +1395,6 @@
                 guests: [],
                 complaints: [],
 
-                // ==========================================
                 // HELPER: API CALL
                 // ==========================================
                 async apiCall(method, path, body = null, isFormData = false) {
@@ -1325,6 +1411,33 @@
                     };
                     const res = await fetch(API_URL + path, opts);
                     return res.json();
+=======
+                initApp() {
+                    this.loadState();
+
+                    window.addEventListener('storage', (e) => {
+                        if (e.key === 'wisma_complaints') {
+                            this.complaints = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_bookings') {
+                            this.bookings = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_facilities') {
+                            this.facilities = JSON.parse(e.newValue || '[]');
+                        }
+                        if (e.key === 'wisma_guests') {
+                            this.guests = JSON.parse(e.newValue || '[]');
+                        }
+                        setTimeout(() => {
+                            if (window.lucide) window.lucide.createIcons();
+                        }, 50);
+                    });
+
+                    setTimeout(() => {
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    }, 100);
                 },
 
                 // ==========================================
@@ -1531,6 +1644,75 @@
                     }
                 },
 
+                parseIndoDate(dateStr) {
+                    if (!dateStr) return null;
+                    if (dateStr.includes('-')) {
+                        return new Date(dateStr);
+                    }
+                    try {
+                        const cleanStr = dateStr.split(',')[0].trim();
+                        const parts = cleanStr.split(' ');
+                        if (parts.length !== 3) return null;
+                        const day = parseInt(parts[0]);
+                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                        const monthIdx = months.indexOf(parts[1]);
+                        const year = parseInt(parts[2]);
+                        if (monthIdx === -1) return null;
+                        return new Date(year, monthIdx, day);
+                    } catch (e) {
+                        return null;
+                    }
+                },
+
+                isDateInPeriod(dateStr, startStr, endStr) {
+                    const itemDate = this.parseIndoDate(dateStr);
+                    if (!itemDate) return true;
+                    itemDate.setHours(0,0,0,0);
+                    const itemTime = itemDate.getTime();
+                    
+                    if (startStr) {
+                        const startDate = new Date(startStr);
+                        startDate.setHours(0,0,0,0);
+                        if (itemTime < startDate.getTime()) return false;
+                    }
+                    if (endStr) {
+                        const endDate = new Date(endStr);
+                        endDate.setHours(0,0,0,0);
+                        if (itemTime > endDate.getTime()) return false;
+                    }
+                    return true;
+                },
+
+                formatISODate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+
+                setQuickPeriod(period) {
+                    const now = new Date();
+                    if (period === 'this_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'last_month') {
+                        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'this_year') {
+                        const firstDay = new Date(now.getFullYear(), 0, 1);
+                        const lastDay = new Date(now.getFullYear(), 11, 31);
+                        this.reportStartDate = this.formatISODate(firstDay);
+                        this.reportEndDate = this.formatISODate(lastDay);
+                    } else if (period === 'all') {
+                        this.reportStartDate = '';
+                        this.reportEndDate = '';
+                    }
+                },
+
                 openAddModal(type) {
                     this.crudAction = 'create';
                     this.crudType = type;
@@ -1667,27 +1849,31 @@
                     }, 50);
                 },
 
-                async deleteCrudItem(id) {
+                confirmDelete(id) {
                     const item = this.facilities.find(f => f.id === id);
                     if (!item) return;
 
-                    if (confirm(`Apakah Anda yakin ingin menghapus ${item.type} '${item.name}'?`)) {
-                        try {
-                            const res = await this.apiCall('DELETE', `/facilities/${id}`);
-                            if (res.success) {
-                                this.addToast('Berhasil Dihapus', res.message, 'success');
-                                await this.loadFacilitiesFromApi();
-                            } else {
-                                this.addToast('Gagal Menghapus', res.message, 'error');
-                            }
-                        } catch (e) {
-                            this.addToast('Koneksi Gagal', 'Gagal menghapus data dari server.', 'error');
-                        }
+                    this.deleteModal.itemId = id;
+                    this.deleteModal.itemName = item.name;
+                    this.deleteModal.isOpen = true;
+                    setTimeout(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 50);
+                },
+
+                executeDelete() {
+                    const id = this.deleteModal.itemId;
+                    const item = this.facilities.find(f => f.id === id);
+                    if (item) {
+                        this.facilities = this.facilities.filter(f => f.id !== id);
+                        this.persistState();
+                        this.addToast('Berhasil Dihapus', `${item.type} '${item.name}' telah dihapus dari sistem.`, 'success');
                         
                         setTimeout(() => {
                             if (window.lucide) window.lucide.createIcons();
                         }, 50);
                     }
+                    this.deleteModal.isOpen = false;
                 },
                 
                 async saveSettingsProfile() {
