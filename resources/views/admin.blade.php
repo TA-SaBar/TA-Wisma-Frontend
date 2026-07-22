@@ -124,31 +124,6 @@
         </template>
     </div>
 
-    <!-- DELETE CONFIRMATION MODAL -->
-    <div x-show="deleteModal.isOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
-        <div @click="deleteModal.isOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
-        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10 space-y-6 transform scale-100 transition-all fade-in">
-            <div class="text-center space-y-3">
-                <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-2 shadow-inner">
-                    <i data-lucide="trash-2" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-base font-extrabold text-slate-900 font-outfit">Konfirmasi Hapus Unit</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    Apakah Anda yakin ingin menghapus unit <strong x-text="deleteModal.itemName"></strong>? Tindakan ini tidak dapat dibatalkan.
-                </p>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <button @click="deleteModal.isOpen = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors">
-                    Batal
-                </button>
-                <button @click="executeDelete()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all">
-                    Hapus Unit
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- CRUD CREATION & MODIFICATION MODAL -->
     <div x-show="crudModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
         <div @click="crudModalOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
@@ -179,7 +154,7 @@
                     <!-- Area -->
                     <div class="space-y-1">
                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Area</label>
-                        <select x-model="crudForm.lantai" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                        <select x-model="crudForm.area" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                             <option value="Area Bawah">Area Bawah</option>
                             <option value="Area Atas">Area Atas</option>
                         </select>
@@ -343,8 +318,9 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full py-3 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2">
-                        Masuk Portal Koordinator Wisma <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <button type="submit" :disabled="isLoading" class="w-full py-3 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
+                        <span x-show="!isLoading" class="flex items-center justify-center gap-2">Masuk Portal Koordinator Wisma <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                        <span x-show="isLoading" class="flex items-center justify-center gap-2"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memproses...</span>
                     </button>
                 </form>
             </div>
@@ -549,34 +525,31 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- Statistics Charts Relocated from Reports -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                             <h3 class="text-sm font-bold text-slate-900">Performa Hunian Kamar & Ruang</h3>
                             <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-1/2"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Apr</span></div>
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-2/3"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Mei</span></div>
-                                <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group"><div class="absolute bottom-0 w-full bg-[#0B1A30] rounded-t-lg h-3/4"></div><span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block">Jun</span></div>
+                                <template x-for="(m, idx) in getMonthlyChart()" :key="idx">
+                                    <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group flex flex-col justify-end">
+                                        <div class="w-full bg-[#0B1A30] rounded-t-lg transition-all" :style="'height: ' + m.percent + '%'"></div>
+                                        <span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block" x-text="m.label"></span>
+                                    </div>
+                                </template>
                             </div>
-                            <p class="text-[10px] text-slate-500">Tren hunian kamar (okupansi) mengalami kenaikan sebesar +12% di bulan Juni 2026.</p>
+                            <p class="text-[10px] text-slate-500 mt-2">Grafik dinamis ini menghitung tren kepadatan pemesanan (okupansi) selama 3 bulan terakhir berdasarkan data di sistem.</p>
                         </div>
 
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                             <h3 class="text-sm font-bold text-slate-900">Persentase Hunian Berdasarkan Tipe</h3>
                             <div class="space-y-3 pt-4 text-xs">
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Kamar Deluxe/Executive</span><span>72%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 72%"></div></div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Ruang Rapat Nusantara</span><span>48%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 48%"></div></div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between font-bold text-slate-800"><span>Auditorium Sasana Bhakti</span><span>15%</span></div>
-                                    <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full" style="width: 15%"></div></div>
-                                </div>
+                                <template x-for="t in getTypeOccupancy()" :key="t.label">
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between font-bold text-slate-800"><span x-text="t.label"></span><span x-text="t.percent + '%' "></span></div>
+                                        <div class="w-full h-2 bg-slate-100 rounded-full"><div class="bg-wisma-navy h-full rounded-full transition-all" :style="'width: ' + t.percent + '%'"></div></div>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -609,7 +582,7 @@
                                 <i data-lucide="search" class="w-4 h-4"></i>
                             </span>
                             <input type="text" 
-                                   x-model="adminManagementSearch" 
+                                   x-model.debounce.500ms="adminManagementSearch" 
                                    placeholder="Cari nama unit..." 
                                    class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
@@ -641,7 +614,7 @@
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                                     <th class="py-4 px-6">Foto / Nama Unit</th>
-                                    <th class="py-4 px-6">Gedung / Area</th>
+                                    <th class="py-4 px-6">Tipe / Area</th>
                                     <th class="py-4 px-6">Luas Area</th>
                                     <th class="py-4 px-6">Tarif Unit</th>
                                     <th class="py-4 px-6">Status</th>
@@ -659,8 +632,8 @@
                                             </div>
                                         </td>
                                         <td class="py-4 px-6">
-                                            <p class="font-semibold text-slate-800" x-text="f.gedung"></p>
-                                            <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.lantai"></p>
+                                            <p class="font-semibold text-slate-800" x-text="f.type"></p>
+                                            <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.area"></p>
                                         </td>
                                         <td class="py-4 px-6">
                                             <p class="font-medium text-slate-800" x-text="f.luas || '24 m²'"></p>
@@ -727,7 +700,7 @@
                                     <i data-lucide="search" class="w-4 h-4"></i>
                                 </span>
                                 <input type="text" 
-                                       x-model="adminGuestSearch" 
+                                       x-model.debounce.500ms="adminGuestSearch" 
                                        placeholder="Cari nama tamu, email, telepon..." 
                                        class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                             </div>
@@ -789,7 +762,7 @@
                                     <i data-lucide="search" class="w-4 h-4"></i>
                                 </span>
                                 <input type="text" 
-                                       x-model="adminLogSearch" 
+                                       x-model.debounce.500ms="adminLogSearch" 
                                        placeholder="Cari kode booking, nama tamu, atau NIP..." 
                                        class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                             </div>
@@ -817,7 +790,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 text-xs text-slate-800">
                                     <template x-for="b in bookings.filter(x => {
-                                        const matchesSearch = x.nama.toLowerCase().includes(adminLogSearch.toLowerCase()) || x.nip.toLowerCase().includes(adminLogSearch.toLowerCase()) || x.booking_code.toLowerCase().includes(adminLogSearch.toLowerCase());
+                                        const matchesSearch = (x.nama || '').toLowerCase().includes(adminLogSearch.toLowerCase()) || (x.nip || '').toLowerCase().includes(adminLogSearch.toLowerCase()) || (x.booking_code || '').toLowerCase().includes(adminLogSearch.toLowerCase());
                                         const matchesStatus = adminLogFilter === 'semua' || x.status.toLowerCase() === adminLogFilter.toLowerCase();
                                         return matchesSearch && matchesStatus;
                                     })" :key="b.id">
@@ -868,7 +841,7 @@
                         </button>
                     </div>
 
-                    <!-- Filter Periode Laporan (no-print) -->
+                                        <!-- Filter Periode Laporan (no-print) -->
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
                         <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wide">
@@ -876,20 +849,38 @@
                                 <span>Filter Periode Laporan</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <button @click="setQuickPeriod('all')" :class="!reportStartDate && !reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
-                                <button @click="setQuickPeriod('this_month')" :class="reportStartDate && reportEndDate ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
-                                <button @click="setQuickPeriod('last_month')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Bulan Lalu</button>
-                                <button @click="setQuickPeriod('this_year')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-bold transition-all">Tahun Ini</button>
+                                <button @click="setQuickPeriod('all')" :class="activeQuickPeriod === 'all' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
+                                <button @click="setQuickPeriod('this_month')" :class="activeQuickPeriod === 'this_month' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
+                                <button @click="setQuickPeriod('last_month')" :class="activeQuickPeriod === 'last_month' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Lalu</button>
+                                <button @click="setQuickPeriod('this_year')" :class="activeQuickPeriod === 'this_year' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Tahun Ini</button>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="space-y-1">
                                 <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Mulai</label>
-                                <input type="date" x-model="reportStartDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                                <input type="date" x-model="reportStartDate" @change="activeQuickPeriod = 'custom'" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                             </div>
                             <div class="space-y-1">
                                 <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Selesai</label>
-                                <input type="date" x-model="reportEndDate" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                                <input type="date" x-model="reportEndDate" @change="activeQuickPeriod = 'custom'" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Pencarian Tamu</label>
+                                <div class="relative w-full">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    </span>
+                                    <input type="text" x-model.debounce.500ms="reportGuestSearch" placeholder="Nama atau NIP..." class="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Status Unit</label>
+                                <select x-model="reportGuestStatus" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                                    <option value="semua">Semua Status</option>
+                                    <option value="Lunas">Lunas</option>
+                                    <option value="Check In">Menginap (Aktif)</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -904,7 +895,7 @@
                         <p class="text-[10px] text-slate-500 mt-1" x-text="'Dicetak pada: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></p>
                     </div>
 
-                    <!-- Laporan Cards (Relocated to Dashboard) -->
+
 
                     <!-- Rekapitulasi Pernah Menginap (Kamar) -->
                     <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 printable-report">
@@ -913,37 +904,7 @@
                                 <h3 class="text-sm font-bold text-slate-900">Rekapitulasi Tamu Pernah Menginap (Kamar)</h3>
                                 <p class="text-[11px] text-slate-500">Daftar riwayat tamu yang sudah pernah menginap atau sedang aktif menginap.</p>
                             </div>
-                            <span class="px-2.5 py-1 bg-[#0B1A30] text-wisma-gold text-[10px] font-bold rounded-xl shadow-sm no-print" x-text="bookings.filter(b => {
-                                const isKamar = !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'));
-                                const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
-                                const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
-                                const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
-                                return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
-                            }).length + ' Tamu'"></span>
-                        </div>
-
-                        <!-- Filters for Kamar -->
-                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between no-print pt-2 pb-2">
-                            <div class="relative w-full md:w-80">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                    <i data-lucide="search" class="w-4 h-4"></i>
-                                </span>
-                                <input type="text" 
-                                       x-model="reportGuestSearchKamar" 
-                                       placeholder="Cari nama tamu atau NIP..." 
-                                       class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
-                            </div>
-                            <div class="flex gap-2 w-full md:w-auto justify-end">
-                                <input type="date" x-model="reportStartDateKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
-                                <span class="text-[10px] text-slate-400 self-center font-bold">S/D</span>
-                                <input type="date" x-model="reportEndDateKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
-                                <select x-model="reportGuestStatusKamar" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto">
-                                    <option value="semua">Semua Status</option>
-                                    <option value="Check In">Menginap (Check In)</option>
-                                    <option value="Selesai">Selesai</option>
-                                </select>
-                            </div>
+                            <span class="px-2.5 py-1 bg-[#0B1A30] text-wisma-gold text-[10px] font-bold rounded-xl shadow-sm no-print" x-text="(reportFinancialData?.transaksi || []).filter(b => !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'))).length + ' Tamu'"></span>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -960,14 +921,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="b in bookings.filter(b => {
-                                        const isKamar = !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'));
-                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
-                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
-                                        const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        const periodMatch = isDateInPeriod(b.check_in, reportStartDate, reportEndDate);
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus && periodMatch;
-                                    })" :key="b.id">
+                                    <template x-for="b in (reportFinancialData?.transaksi || []).filter(b => !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium')))" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4">
                                                 <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
@@ -986,20 +940,11 @@
                                             <td class="py-3 px-4 font-semibold text-wisma-gold" x-text="formatRupiah(b.total_price)"></td>
                                             <td class="py-3 px-4 text-right">
                                                 <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold"
-                                                      :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'"
-                                                      x-text="b.status === 'Check In' ? 'Menginap' : 'Selesai'"></span>
+                                                      :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : (b.status === 'Lunas' ? 'bg-wisma-gold/20 text-wisma-navy' : 'bg-emerald-100 text-emerald-700')" x-text="b.status === 'Check In' ? 'Aktif Menginap' : (b.status === 'Lunas' ? 'Lunas' : 'Selesai')"></span>
                                             </td>
                                         </tr>
                                     </template>
-                                    <tr x-show="bookings.filter(b => {
-                                        const isKamar = !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'));
-                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
-                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchKamar.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchKamar.toLowerCase());
-                                        const matchesStatus = reportGuestStatusKamar === 'semua' || b.status === reportGuestStatusKamar;
-                                        const matchesStartDate = reportStartDateKamar === '' || new Date(b.check_in) >= new Date(reportStartDateKamar);
-                                        const matchesEndDate = reportEndDateKamar === '' || new Date(b.check_in) <= new Date(reportEndDateKamar);
-                                        return isKamar && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
-                                    }).length === 0">
+                                    <tr x-show="(reportFinancialData?.transaksi || []).filter(b => !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'))).length === 0">
                                         <td colspan="7" class="text-center py-6 text-slate-400">Tidak ada riwayat menginap kamar.</td>
                                     </tr>
                                 </tbody>
@@ -1016,36 +961,11 @@
                             </div>
                             <span class="px-2.5 py-1 bg-[#0B1A30] text-wisma-gold text-[10px] font-bold rounded-xl shadow-sm no-print" x-text="bookings.filter(b => {
                                 const isRapat = b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium');
-                                const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
-                                const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
-                                const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                const matchesStartDate = reportStartDateRapat === '' || new Date(b.check_in) >= new Date(reportStartDateRapat);
-                                const matchesEndDate = reportEndDateRapat === '' || new Date(b.check_in) <= new Date(reportEndDateRapat);
-                                return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
+                                const matchesActive = b.status === 'Selesai' || b.status === 'Check In' || b.status === 'Lunas';
+                                const matchesSearch = (b.nama || '').toLowerCase().includes(reportGuestSearch.toLowerCase()) || (b.nip || '').toLowerCase().includes(reportGuestSearch.toLowerCase());
+                                const matchesStatus = reportGuestStatus === 'semua' || b.status === reportGuestStatus;
+                                                                                                return isRapat && matchesActive && matchesSearch && matchesStatus;
                             }).length + ' Ruangan'"></span>
-                        </div>
-
-                        <!-- Filters for Rapat -->
-                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between no-print pt-2 pb-2">
-                            <div class="relative w-full md:w-80">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                    <i data-lucide="search" class="w-4 h-4"></i>
-                                </span>
-                                <input type="text" 
-                                       x-model="reportGuestSearchRapat" 
-                                       placeholder="Cari nama pemesan atau NIP..." 
-                                       class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
-                            </div>
-                            <div class="flex gap-2 w-full md:w-auto justify-end">
-                                <input type="date" x-model="reportStartDateRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
-                                <span class="text-[10px] text-slate-400 self-center font-bold">S/D</span>
-                                <input type="date" x-model="reportEndDateRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto text-slate-500">
-                                <select x-model="reportGuestStatusRapat" class="text-xs bg-slate-50 border border-slate-200 rounded-xl p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none w-full md:w-auto">
-                                    <option value="semua">Semua Status</option>
-                                    <option value="Check In">Aktif (Check In)</option>
-                                    <option value="Selesai">Selesai</option>
-                                </select>
-                            </div>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -1062,15 +982,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="b in bookings.filter(b => {
-                                        const isRapat = b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium');
-                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
-                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
-                                        const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                        const matchesStartDate = reportStartDateRapat === '' || new Date(b.check_in) >= new Date(reportStartDateRapat);
-                                        const matchesEndDate = reportEndDateRapat === '' || new Date(b.check_in) <= new Date(reportEndDateRapat);
-                                        return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
-                                    })" :key="b.id">
+                                    <template x-for="b in (reportFinancialData?.transaksi || []).filter(b => b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'))" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4">
                                                 <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
@@ -1089,20 +1001,12 @@
                                             <td class="py-3 px-4 font-semibold text-wisma-gold" x-text="formatRupiah(b.total_price)"></td>
                                             <td class="py-3 px-4 text-right">
                                                 <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold"
-                                                      :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'"
-                                                      x-text="b.status === 'Check In' ? 'Aktif' : 'Selesai'"></span>
+                                                      :class="b.status === 'Check In' ? 'bg-blue-100 text-blue-700' : (b.status === 'Lunas' ? 'bg-wisma-gold/20 text-wisma-navy' : 'bg-emerald-100 text-emerald-700')"
+                                                      x-text="b.status === 'Check In' ? 'Aktif Menginap' : (b.status === 'Lunas' ? 'Lunas' : 'Selesai')"></span>
                                             </td>
                                         </tr>
                                     </template>
-                                    <tr x-show="bookings.filter(b => {
-                                        const isRapat = b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium');
-                                        const matchesActive = b.status === 'Selesai' || b.status === 'Check In';
-                                        const matchesSearch = b.nama.toLowerCase().includes(reportGuestSearchRapat.toLowerCase()) || b.nip.toLowerCase().includes(reportGuestSearchRapat.toLowerCase());
-                                        const matchesStatus = reportGuestStatusRapat === 'semua' || b.status === reportGuestStatusRapat;
-                                        const matchesStartDate = reportStartDateRapat === '' || new Date(b.check_in) >= new Date(reportStartDateRapat);
-                                        const matchesEndDate = reportEndDateRapat === '' || new Date(b.check_in) <= new Date(reportEndDateRapat);
-                                        return isRapat && matchesActive && matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
-                                    }).length === 0">
+                                    <tr x-show="(reportFinancialData?.transaksi || []).filter(b => b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium')).length === 0">
                                         <td colspan="7" class="text-center py-6 text-slate-400">Tidak ada riwayat pemesanan ruang rapat.</td>
                                     </tr>
                                 </tbody>
@@ -1294,6 +1198,26 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div x-show="deleteModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden" x-cloak>
+        <div @click="deleteModalOpen = false" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
+        <div x-show="deleteModalOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl relative z-10">
+            <div class="w-16 h-16 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="trash-2" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-bold font-outfit text-slate-900 text-center mb-2">Hapus Unit?</h3>
+            <p class="text-sm text-slate-500 text-center mb-8" x-text="`Anda yakin ingin menghapus unit ${itemToDelete?.name}? Tindakan ini tidak dapat dibatalkan.`"></p>
+            <div class="flex flex-col gap-3">
+                <button @click="executeDelete()" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors">
+                    Ya, Hapus Unit
+                </button>
+                <button @click="deleteModalOpen = false" class="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- APP SCRIPT STATE MANAGEMENT -->
     <script>
         const API_URL = '{{ env('BACKEND_API_URL', 'http://localhost:8000/api') }}';
@@ -1311,9 +1235,6 @@
 
                 currentTab: 'admin_dashboard',
                 
-                dashboardGuestMonthFilter: 'all',
-                dashboardIncomeMonthFilter: 'all',
-                
                 adminManagementSearch: '',
                 adminManagementSubTab: 'Buah',
                 
@@ -1323,35 +1244,29 @@
                 adminGuestFilter: 'semua',
                 adminGuestViewTab: 'tamu',
 
-                reportGuestSearchKamar: '',
-                reportGuestStatusKamar: 'semua',
-                reportStartDateKamar: '',
-                reportEndDateKamar: '',
-                reportGuestSearchRapat: '',
-                reportGuestStatusRapat: 'semua',
-                reportStartDateRapat: '',
-                reportEndDateRapat: '',
+                reportGuestSearch: '',
+                reportGuestStatus: 'semua',
+                reportGuestSearch: '',
+                reportGuestStatus: 'semua',
                 
+                dashboardGuestMonthFilter: new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : '' + (new Date().getMonth() + 1),
+                dashboardIncomeMonthFilter: new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : '' + (new Date().getMonth() + 1),
+                activeQuickPeriod: 'all',
+                reportStartDate: '',
+                reportEndDate: '',
+
+
                 crudModalOpen: false,
                 crudAction: 'create',
                 crudType: 'Buah',
-                // Deletion Confirmation Modal State
-                deleteModal: {
-                    isOpen: false,
-                    itemId: null,
-                    itemName: ''
-                },
-
                 crudForm: {
                     id: null,
                     name: '',
                     type: 'Buah',
-                    gedung: 'Wisma',
-                    lantai: 'Area Bawah',
+                    area: 'Area Bawah',
                     capacity: 2,
                     price: 387000,
                     unit: 'night',
-                    luas: '24',
                     bed: 'Queen Size',
                     status: 'READY',
                     photo: '',
@@ -1395,6 +1310,7 @@
                 guests: [],
                 complaints: [],
 
+                // ==========================================
                 // HELPER: API CALL
                 // ==========================================
                 async apiCall(method, path, body = null, isFormData = false) {
@@ -1411,33 +1327,6 @@
                     };
                     const res = await fetch(API_URL + path, opts);
                     return res.json();
-=======
-                initApp() {
-                    this.loadState();
-
-                    window.addEventListener('storage', (e) => {
-                        if (e.key === 'wisma_complaints') {
-                            this.complaints = JSON.parse(e.newValue || '[]');
-                        }
-                        if (e.key === 'wisma_bookings') {
-                            this.bookings = JSON.parse(e.newValue || '[]');
-                        }
-                        if (e.key === 'wisma_facilities') {
-                            this.facilities = JSON.parse(e.newValue || '[]');
-                        }
-                        if (e.key === 'wisma_guests') {
-                            this.guests = JSON.parse(e.newValue || '[]');
-                        }
-                        setTimeout(() => {
-                            if (window.lucide) window.lucide.createIcons();
-                        }, 50);
-                    });
-
-                    setTimeout(() => {
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    }, 100);
                 },
 
                 // ==========================================
@@ -1453,6 +1342,7 @@
                             await this.loadFacilitiesFromApi();
                             await this.loadBookingsFromApi();
                             await this.loadGuestsFromApi();
+                            await this.fetchFinancialReport();
                         } else {
                             localStorage.removeItem('wisma_token');
                         }
@@ -1463,8 +1353,10 @@
                     this.$watch('adminManagementFilter', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
                     this.$watch('adminGuestSearch', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
                     this.$watch('adminLogSearch', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
-                    this.$watch('reportGuestSearchKamar', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
-                    this.$watch('reportGuestSearchRapat', () => setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50));
+                    this.$watch('reportGuestSearch', () => this.fetchFinancialReport());
+                    this.$watch('reportGuestStatus', () => this.fetchFinancialReport());
+                    this.$watch('reportStartDate', () => this.fetchFinancialReport());
+                    this.$watch('reportEndDate', () => this.fetchFinancialReport());
 
                     setTimeout(() => {
                         if (window.lucide) window.lucide.createIcons();
@@ -1497,6 +1389,49 @@
                     }
                 },
 
+                                // State for Financial Report API
+                reportFinancialData: null,
+                isFetchingFinancial: false,
+                
+                async fetchFinancialReport() {
+                    this.isFetchingFinancial = true;
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.reportGuestStatus && this.reportGuestStatus !== 'semua') {
+                            params.append('status', this.reportGuestStatus);
+                        }
+                        if (this.reportGuestSearch) {
+                            params.append('search', this.reportGuestSearch);
+                        }
+                        if (this.reportStartDate) {
+                            params.append('start_date', this.reportStartDate);
+                        }
+                        if (this.reportEndDate) {
+                            params.append('end_date', this.reportEndDate);
+                        }
+                        
+                        const res = await this.apiCall('GET', `/reports/financial?${params.toString()}`);
+                        if (res.success) {
+                            // Map the status back for UI (just in case they need to be displayed correctly)
+                            res.data.transaksi = res.data.transaksi.map(b => ({
+                                ...b,
+                                nama: b.guest_name || (b.user ? b.user.name : '-'),
+                                nip: b.guest_nip || (b.user ? b.user.nip : '-'),
+                                unit_name: b.facility ? b.facility.name : (b.unit_name || '-'),
+                                status: ((b.status || '').toLowerCase() === 'pending' ? 'Pending' : 
+                                        ((b.status || '').toLowerCase() === 'lunas' ? 'Lunas' : 
+                                        ((b.status || '').toLowerCase() === 'check_in' ? 'Check In' : 
+                                        ((b.status || '').toLowerCase() === 'cancelled' || (b.status || '').toLowerCase() === 'batal' || (b.status || '').toLowerCase() === 'dibatalkan' ? 'Dibatalkan' : 'Selesai'))))
+                            }));
+                            this.reportFinancialData = res.data;
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch financial report', error);
+                    } finally {
+                        this.isFetchingFinancial = false;
+                    }
+                },
+
                 async loadBookingsFromApi() {
                     try {
                         const res = await this.apiCall('GET', '/bookings');
@@ -1505,14 +1440,15 @@
                                 id: b.id,
                                 booking_code: b.booking_code,
                                 unit_name: b.facility.name,
+                                unit_type: b.facility.type,
                                 check_in: b.check_in.substring(0,10),
                                 check_out: b.check_out.substring(0,10),
                                 nights: b.nights,
                                 total_price: b.total_price,
-                                status: (b.status === 'pending' ? 'Pending' : 
-                                        (b.status === 'lunas' ? 'Lunas' : 
-                                        (b.status === 'check_in' ? 'Check In' : 
-                                        (b.status === 'cancelled' ? 'Dibatalkan' : 'Selesai')))),
+                                status: ((b.status || '').toLowerCase() === 'pending' ? 'Pending' : 
+                                        ((b.status || '').toLowerCase() === 'lunas' ? 'Lunas' : 
+                                        ((b.status || '').toLowerCase() === 'check_in' ? 'Check In' : 
+                                        ((b.status || '').toLowerCase() === 'cancelled' || (b.status || '').toLowerCase() === 'batal' || (b.status || '').toLowerCase() === 'dibatalkan' ? 'Dibatalkan' : 'Selesai')))),
                                 nama: b.guest_name,
                                 nip: b.guest_nip,
                             }));
@@ -1609,10 +1545,10 @@
                         const token = localStorage.getItem('wisma_token');
                         
                         const params = new URLSearchParams();
-                        if (this.reportStartDateKamar) params.append('start_date', this.reportStartDateKamar);
-                        if (this.reportEndDateKamar) params.append('end_date', this.reportEndDateKamar);
-                        if (this.reportGuestStatusKamar) params.append('status', this.reportGuestStatusKamar);
-                        if (this.reportGuestSearchKamar) params.append('search', this.reportGuestSearchKamar);
+                        if (this.reportGuestStatus) params.append('status', this.reportGuestStatus);
+                        if (this.reportGuestSearch) params.append('search', this.reportGuestSearch);
+                        if (this.reportStartDate) params.append('start_date', this.reportStartDate);
+                        if (this.reportEndDate) params.append('end_date', this.reportEndDate);
 
                         const response = await fetch(`${API_URL}/reports/financial/export-pdf?${params.toString()}`, {
                             method: 'GET',
@@ -1644,75 +1580,6 @@
                     }
                 },
 
-                parseIndoDate(dateStr) {
-                    if (!dateStr) return null;
-                    if (dateStr.includes('-')) {
-                        return new Date(dateStr);
-                    }
-                    try {
-                        const cleanStr = dateStr.split(',')[0].trim();
-                        const parts = cleanStr.split(' ');
-                        if (parts.length !== 3) return null;
-                        const day = parseInt(parts[0]);
-                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                        const monthIdx = months.indexOf(parts[1]);
-                        const year = parseInt(parts[2]);
-                        if (monthIdx === -1) return null;
-                        return new Date(year, monthIdx, day);
-                    } catch (e) {
-                        return null;
-                    }
-                },
-
-                isDateInPeriod(dateStr, startStr, endStr) {
-                    const itemDate = this.parseIndoDate(dateStr);
-                    if (!itemDate) return true;
-                    itemDate.setHours(0,0,0,0);
-                    const itemTime = itemDate.getTime();
-                    
-                    if (startStr) {
-                        const startDate = new Date(startStr);
-                        startDate.setHours(0,0,0,0);
-                        if (itemTime < startDate.getTime()) return false;
-                    }
-                    if (endStr) {
-                        const endDate = new Date(endStr);
-                        endDate.setHours(0,0,0,0);
-                        if (itemTime > endDate.getTime()) return false;
-                    }
-                    return true;
-                },
-
-                formatISODate(date) {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                },
-
-                setQuickPeriod(period) {
-                    const now = new Date();
-                    if (period === 'this_month') {
-                        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-                        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                        this.reportStartDate = this.formatISODate(firstDay);
-                        this.reportEndDate = this.formatISODate(lastDay);
-                    } else if (period === 'last_month') {
-                        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
-                        this.reportStartDate = this.formatISODate(firstDay);
-                        this.reportEndDate = this.formatISODate(lastDay);
-                    } else if (period === 'this_year') {
-                        const firstDay = new Date(now.getFullYear(), 0, 1);
-                        const lastDay = new Date(now.getFullYear(), 11, 31);
-                        this.reportStartDate = this.formatISODate(firstDay);
-                        this.reportEndDate = this.formatISODate(lastDay);
-                    } else if (period === 'all') {
-                        this.reportStartDate = '';
-                        this.reportEndDate = '';
-                    }
-                },
-
                 openAddModal(type) {
                     this.crudAction = 'create';
                     this.crudType = type;
@@ -1720,8 +1587,7 @@
                         id: null,
                         name: '',
                         type: type,
-                        gedung: 'Wisma',
-                        lantai: type === 'Buah' ? 'Area Bawah' : (type === 'Bunga' ? 'Area Atas' : 'Area Bawah'),
+                        area: type === 'Buah' ? 'Area Bawah' : (type === 'Bunga' ? 'Area Atas' : 'Area Bawah'),
                         capacity: type === 'Rapat' ? 30 : 2,
                         price: type === 'Buah' ? 387000 : (type === 'Bunga' ? 549000 : 250000),
                         unit: type === 'Rapat' ? 'day' : 'night',
@@ -1799,17 +1665,11 @@
                     const formData = new FormData();
                     formData.append('name', this.crudForm.name);
                     formData.append('type', this.crudForm.type);
-                    formData.append('gedung', this.crudForm.gedung);
-                    formData.append('lantai', this.crudForm.lantai);
+                    formData.append('area', this.crudForm.area);
                     formData.append('capacity', this.crudForm.capacity || 2);
                     formData.append('price', parseInt(this.crudForm.price));
                     formData.append('unit', this.crudForm.unit);
                     
-                    let finalLuas = this.crudForm.luas ? this.crudForm.luas.toString().trim() : '';
-                    if (finalLuas && !finalLuas.includes('m²') && !finalLuas.includes('m2')) {
-                        finalLuas += ' m²';
-                    }
-                    formData.append('luas', finalLuas);
                     
                     formData.append('bed', this.crudForm.bed || '');
                     formData.append('status', this.crudForm.status);
@@ -1852,30 +1712,70 @@
                 confirmDelete(id) {
                     const item = this.facilities.find(f => f.id === id);
                     if (!item) return;
-
-                    this.deleteModal.itemId = id;
-                    this.deleteModal.itemName = item.name;
-                    this.deleteModal.isOpen = true;
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 50);
+                    this.deleteModalOpen = true;
+                    this.itemToDelete = item;
                 },
 
-                executeDelete() {
-                    const id = this.deleteModal.itemId;
-                    const item = this.facilities.find(f => f.id === id);
-                    if (item) {
-                        this.facilities = this.facilities.filter(f => f.id !== id);
-                        this.persistState();
-                        this.addToast('Berhasil Dihapus', `${item.type} '${item.name}' telah dihapus dari sistem.`, 'success');
-                        
-                        setTimeout(() => {
-                            if (window.lucide) window.lucide.createIcons();
-                        }, 50);
+                async executeDelete() {
+                    if (!this.itemToDelete) return;
+                    try {
+                        const res = await this.apiCall('DELETE', `/facilities/${this.itemToDelete.id}`);
+                        if (res.success) {
+                            this.addToast('Dihapus', res.message, 'success');
+                            await this.loadFacilitiesFromApi();
+                            this.deleteModalOpen = false;
+                            this.itemToDelete = null;
+                        } else {
+                            this.addToast('Gagal', res.message || 'Gagal menghapus data.', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Error', 'Gagal menghubungi server.', 'error');
                     }
-                    this.deleteModal.isOpen = false;
                 },
                 
+                getFilteredIncome() {
+                    let total = 0;
+                    this.bookings.forEach(b => {
+                        if (b.status === 'Lunas' || b.status === 'Check In' || b.status === 'Selesai') {
+                            total += (b.total_price || 0);
+                        }
+                    });
+                    return total;
+                },
+
+                getFilteredGuestsCount() {
+                    let total = 0;
+                    const seenNips = new Set();
+                    this.bookings.forEach(b => {
+                        if (b.status === 'Lunas' || b.status === 'Check In' || b.status === 'Selesai') {
+                            if (b.nip && !seenNips.has(b.nip)) {
+                                seenNips.add(b.nip);
+                                total++;
+                            }
+                        }
+                    });
+                    return total;
+                },
+
+                
+                setQuickPeriod(period) {
+                    this.activeQuickPeriod = period;
+                    const today = new Date();
+                    if (period === 'all') {
+                        this.reportStartDate = '';
+                        this.reportEndDate = '';
+                    } else if (period === 'this_month') {
+                        this.reportStartDate = new Date(today.getFullYear(), today.getMonth(), 1).toLocaleDateString('en-CA');
+                        this.reportEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toLocaleDateString('en-CA');
+                    } else if (period === 'last_month') {
+                        this.reportStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 1).toLocaleDateString('en-CA');
+                        this.reportEndDate = new Date(today.getFullYear(), today.getMonth(), 0).toLocaleDateString('en-CA');
+                    } else if (period === 'this_year') {
+                        this.reportStartDate = new Date(today.getFullYear(), 0, 1).toLocaleDateString('en-CA');
+                        this.reportEndDate = new Date(today.getFullYear(), 11, 31).toLocaleDateString('en-CA');
+                    }
+                },
+
                 async saveSettingsProfile() {
                     try {
                         const res = await this.apiCall('PUT', '/profile', {
@@ -1933,7 +1833,8 @@
                     return this.facilities.filter(f => {
                         const matchesTab = f.type === this.adminManagementSubTab;
                         const matchesSearch = f.name.toLowerCase().includes(this.adminManagementSearch.toLowerCase()) || 
-                                              f.gedung.toLowerCase().includes(this.adminManagementSearch.toLowerCase());
+                                              (f.type || '').toLowerCase().includes(this.adminManagementSearch.toLowerCase()) ||
+                                              (f.area || '').toLowerCase().includes(this.adminManagementSearch.toLowerCase());
                         return matchesTab && matchesSearch;
                     });
                 },
@@ -1961,6 +1862,8 @@
                         const label = d.toLocaleString('id-ID', { month: 'short' });
                         const count = this.bookings.filter(b => {
                             if (!b.check_in) return false;
+                            const isSuccessful = b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In';
+                            if (!isSuccessful) return false;
                             const bDate = new Date(b.check_in);
                             return bDate.getMonth() === d.getMonth() && bDate.getFullYear() === d.getFullYear();
                         }).length;
@@ -1974,11 +1877,12 @@
                 },
 
                 getTypeOccupancy() {
-                    const total = this.bookings.length || 1;
+                    const activeBookings = this.bookings.filter(b => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In');
+                    const total = activeBookings.length || 1;
                     let kamar = 0, rapat = 0;
-                    this.bookings.forEach(b => {
-                        const name = (b.unit_name || '').toLowerCase();
-                        if (name.includes('rapat')) rapat++;
+                    activeBookings.forEach(b => {
+                        const type = (b.unit_type || '').toLowerCase();
+                        if (type.includes('rapat')) rapat++;
                         else kamar++;
                     });
                     return [
@@ -2050,6 +1954,5 @@
     </script>
 </body>
 </html>
-
 
 
