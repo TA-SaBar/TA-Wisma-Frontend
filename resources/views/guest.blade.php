@@ -64,7 +64,7 @@
         }
     </style>
 </head>
-<body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen flex overflow-hidden">
+<body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-[100dvh] flex overflow-hidden">
 
     <!-- Global Toast Notification -->
     <div class="fixed top-5 right-5 z-[100] space-y-2 pointer-events-none">
@@ -174,7 +174,7 @@
     </div>
 
     <!-- 1. LOGIN SCREEN -->
-    <div x-show="!isLoggedIn" class="w-full h-screen flex relative z-30 fade-in">
+    <div x-show="!isLoggedIn" class="w-full h-[100dvh] flex relative z-30 fade-in">
         <!-- Cover Section Left -->
         <div class="w-[55%] h-full bg-slate-900 relative overflow-hidden hidden md:block">
             <img class="absolute inset-0 w-full h-full object-cover opacity-60" 
@@ -306,17 +306,26 @@
     </div>
 
     <!-- MAIN PORTAL DASHBOARD (Visible if isLoggedIn) -->
-    <div x-show="isLoggedIn" class="flex-1 flex h-screen overflow-hidden" x-cloak>
+    <div x-show="isLoggedIn" class="flex-1 flex h-[100dvh] overflow-hidden" x-cloak>
         
         <!-- SIDEBAR -->
-        <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
+        <!-- Mobile Sidebar Backdrop -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-40 md:hidden" x-transition.opacity x-cloak></div>
+
+        <!-- SIDEBAR -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-[100dvh] shadow-2xl fixed inset-y-0 left-0 z-50 md:relative md:translate-x-0 transform transition-transform duration-300">
             <!-- Logo Area -->
-            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
-                <div>
-                    <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
-                    <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest">Portal Tamu</span>
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
+                    <div>
+                        <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
+                        <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest">Portal Tamu</span>
+                    </div>
                 </div>
+                <button @click="sidebarOpen = false" class="md:hidden text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
 
             <!-- Sidebar Navigation Menu -->
@@ -379,19 +388,24 @@
         </aside>
 
         <!-- CONTENT WRAPPER -->
-        <div class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
+        <div class="flex-1 flex flex-col h-[100dvh] overflow-hidden bg-slate-50">
             
             <!-- HEADER -->
-            <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-8 relative z-10 shrink-0">
-                <div class="relative w-96">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4.5 h-4.5"></i>
-                    </span>
-                    <input type="text" 
-                           x-model="searchQuery" 
-                           @input="if(currentTab !== 'facilities') currentTab = 'facilities'"
-                           placeholder="Cari fasilitas kamar atau ruang rapat..." 
-                           class="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 border-none rounded-xl focus:bg-white focus:ring-2 focus:ring-wisma-gold/30 focus:outline-none transition-all">
+            <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-4 md:px-8 relative z-10 shrink-0 gap-3 md:gap-4">
+                <div class="flex items-center gap-3 flex-1 md:flex-none">
+                    <button @click="sidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div class="relative w-full md:w-96 hidden sm:block">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4.5 h-4.5"></i>
+                        </span>
+                        <input type="text" 
+                               x-model="searchQuery" 
+                               @input="if(currentTab !== 'facilities') currentTab = 'facilities'"
+                               placeholder="Cari fasilitas kamar atau ruang rapat..." 
+                               class="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 border-none rounded-xl focus:bg-white focus:ring-2 focus:ring-wisma-gold/30 focus:outline-none transition-all">
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-4">
@@ -413,7 +427,7 @@
                              x-transition:leave="transition ease-in duration-150"
                              x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                              x-transition:leave-end="opacity-0 translate-y-1 scale-95"
-                             class="absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 flex flex-col max-h-[480px] overflow-hidden" 
+                             class="fixed inset-x-4 top-20 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-3 w-auto sm:w-[360px] bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 flex flex-col max-h-[calc(100dvh-6rem)] sm:max-h-[480px] overflow-hidden" 
                              x-cloak>
                             
                             <!-- Header -->
@@ -490,7 +504,7 @@
                     <div class="w-px h-6 bg-slate-200 mx-2"></div>
                     
                     <div class="flex items-center gap-3">
-                        <div class="text-right">
+                        <div class="text-right hidden sm:block">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
                             <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
                         </div>
@@ -1265,6 +1279,7 @@
 
         function wismaApp() {
             return {
+                sidebarOpen: false,
                 isLoggedIn: false,
                 isLoading: false,
                 passwordVisible: false,
