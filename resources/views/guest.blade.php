@@ -309,17 +309,25 @@
     <!-- MAIN PORTAL DASHBOARD (Visible if isLoggedIn) -->
     <div x-show="isLoggedIn" class="flex-1 flex h-screen overflow-hidden" x-cloak>
         
+        <!-- Mobile Sidebar Backdrop -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-40 md:hidden" x-transition.opacity x-cloak></div>
+
         <!-- SIDEBAR -->
-        <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl relative z-20">
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-screen shadow-2xl fixed inset-y-0 left-0 z-50 md:relative md:translate-x-0 transform transition-transform duration-300">
             <!-- Logo Area -->
-            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i data-lucide="hotel" class="w-6 h-6 text-wisma-dark"></i>
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-wisma-gold to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                        <i data-lucide="hotel" class="w-6 h-6 text-wisma-dark"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
+                        <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest">Portal Tamu</span>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
-                    <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest">Portal Tamu</span>
-                </div>
+                <button @click="sidebarOpen = false" class="md:hidden text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
 
             <!-- Sidebar Navigation Menu -->
@@ -385,16 +393,21 @@
         <div class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
             
             <!-- HEADER -->
-            <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-8 relative z-10 shrink-0">
-                <div class="relative w-96">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4.5 h-4.5"></i>
-                    </span>
-                    <input type="text" 
-                           x-model="searchQuery" 
-                           @input="if(currentTab !== 'facilities') currentTab = 'facilities'"
-                           placeholder="Cari fasilitas kamar atau ruang rapat..." 
-                           class="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 border-none rounded-xl focus:bg-white focus:ring-2 focus:ring-wisma-gold/30 focus:outline-none transition-all">
+            <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-4 md:px-8 relative z-10 shrink-0 gap-3 md:gap-4">
+                <div class="flex items-center gap-3 flex-1 md:flex-none">
+                    <button @click="sidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div class="relative w-full md:w-96 hidden sm:block">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4.5 h-4.5"></i>
+                        </span>
+                        <input type="text" 
+                               x-model="searchQuery" 
+                               @input="if(currentTab !== 'facilities') currentTab = 'facilities'"
+                               placeholder="Cari fasilitas kamar atau ruang rapat..." 
+                               class="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 border-none rounded-xl focus:bg-white focus:ring-2 focus:ring-wisma-gold/30 focus:outline-none transition-all">
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-4">
@@ -439,7 +452,7 @@
                     <div class="w-px h-6 bg-slate-200 mx-2"></div>
                     
                     <div class="flex items-center gap-3">
-                        <div class="text-right">
+                        <div class="text-right hidden sm:block">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
                             <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
                         </div>
@@ -1215,6 +1228,7 @@
 
         function wismaApp() {
             return {
+                sidebarOpen: false,
                 isLoggedIn: false,
                 isLoading: false,
                 passwordVisible: false,
