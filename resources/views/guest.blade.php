@@ -409,7 +409,7 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <!-- Notifications Dropdown -->
+                                        <!-- Notifications -->
                     <div class="relative" @click.outside="notificationsOpen = false">
                         <button @click="notificationsOpen = !notificationsOpen; if(notificationsOpen) setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" 
                                 class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors relative shadow-sm hover:shadow">
@@ -444,11 +444,11 @@
                             <!-- List -->
                             <div class="flex-1 overflow-y-auto divide-y divide-slate-50 scrollbar-hide">
                                 <template x-for="n in notifications" :key="n.id">
-                                    <div class="px-5 py-4 hover:bg-slate-50/50 transition-colors flex gap-3 relative group"
-                                         :class="!n.read ? 'bg-indigo-50/30' : ''">
+                                    <div @click="handleNotificationClick(n)" class="cursor-pointer px-5 py-4 hover:bg-slate-50/50 transition-colors flex gap-3 relative group"
+                                         :class="!(n.read || n.is_read) ? 'bg-indigo-50/30' : ''">
                                         
                                         <!-- Unread indicator dot -->
-                                        <div x-show="!n.read" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
+                                        <div x-show="!(n.read || n.is_read)" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
                                         
                                         <!-- Icon -->
                                         <div class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5"
@@ -474,12 +474,12 @@
 
                                         <!-- Message content -->
                                         <div class="flex-1 min-w-0 pr-10">
-                                            <div @click="handleNotificationClick(n)" class="cursor-pointer">
+                                            <div>
                                                 <h4 class="text-xs font-bold text-slate-800 truncate" x-text="n.title"></h4>
                                                 <p class="text-[11px] text-slate-500 leading-normal mt-0.5 font-light" x-text="n.message"></p>
-                                                <span class="text-[9px] text-slate-400 font-medium block mt-1" x-text="n.time ? n.time : ''"></span>
+                                                <span class="text-[9px] text-slate-400 font-medium block mt-1" x-text="formatTime(n.created_at)"></span>
                                             </div>
-                                            <button @click.stop="deleteNotification(n.id)" class="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all z-10" title="Hapus Notifikasi">
+                                            <button @click.stop="deleteNotification(n.id)" class="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all z-10 opacity-0 group-hover:opacity-100" title="Hapus Notifikasi">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                             </button>
                                         </div>
@@ -501,8 +501,7 @@
                         </div>
                     </div>
                     
-                    <div class="w-px h-6 bg-slate-200 mx-2"></div>
-                    
+                    <div class="w-px h-6 bg-slate-200 mx-2 hidden sm:block"></div>
                     <div class="flex items-center gap-3">
                         <div class="text-right hidden sm:block">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
@@ -678,7 +677,7 @@
                                 </div>
                                 <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
                                     <div>
-                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block" x-text="f.gedung + ' • ' + f.area"></span>
+                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block" x-text="f.area"></span>
                                         <h3 class="text-sm font-bold text-slate-900 mt-1 font-outfit truncate" x-text="f.name"></h3>
                                         <p class="text-xs text-slate-500 font-light mt-1.5 line-clamp-2" x-text="f.description"></p>
                                     </div>
@@ -775,7 +774,7 @@
                                 <img :src="selectedFacility.photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
                                 <div>
                                     <h4 class="text-xs font-bold text-slate-900" x-text="selectedFacility.name"></h4>
-                                    <p class="text-[10px] text-slate-400 mt-1" x-text="selectedFacility.gedung + ' • ' + selectedFacility.area"></p>
+                                    <p class="text-[10px] text-slate-400 mt-1" x-text="selectedFacility.area"></p>
                                 </div>
                             </div>
                             <div class="space-y-2.5 pt-2 text-xs">
@@ -824,10 +823,10 @@
                                         <input type="email" x-model="bookingForm.email" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:outline-none focus:bg-white transition-all">
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 pt-2">
+                                <!-- <div class="flex items-center gap-2 pt-2">
                                     <input type="checkbox" x-model="bookingForm.untukOrangLain" id="untukOrangLain" class="accent-wisma-gold">
                                     <label for="untukOrangLain" class="text-xs text-slate-600 select-none cursor-pointer">Pemesanan diwakilkan untuk orang lain (Delegasi)</label>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
 
@@ -897,7 +896,7 @@
                             </div>
                             <div class="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 font-bold text-xs justify-center mt-4">
                                 <i data-lucide="clock" class="w-4 h-4"></i>
-                                <span>Selesaikan pembayaran dalam <span x-text="paymentTimer"></span></span>
+                                <span>Pilih metode pembayaran dalam <span x-text="paymentTimer"></span></span>
                             </div>
                             <div class="flex flex-col gap-3 pt-4 border-t border-slate-100 mt-2">
                                 <button @click="payWithMidtrans()" class="w-full py-3.5 bg-[#0091FF] hover:bg-[#007CE6] text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
@@ -1189,8 +1188,11 @@
                                                 <i data-lucide="alert-circle" class="w-5 h-5"></i>
                                             </div>
                                             <div>
-                                                <h4 class="text-xs font-bold text-slate-900" x-text="c.title"></h4>
-                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="c.category + ' • ' + c.location"></p>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] uppercase font-bold tracking-wide" x-text="c.id"></span>
+                                                    <h4 class="text-xs font-bold text-slate-900" x-text="c.title"></h4>
+                                                </div>
+                                                <p class="text-[10px] text-slate-400 mt-1" x-text="c.category + ' • ' + c.location"></p>
                                             </div>
                                         </div>
                                         <div class="text-right">
@@ -1240,15 +1242,15 @@
                     <div>
                         <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[9px] uppercase font-bold tracking-wide" x-text="drawerFacility.type"></span>
                         <h2 class="text-xl font-bold font-outfit text-slate-950 mt-2" x-text="drawerFacility.name"></h2>
-                        <p class="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span x-text="drawerFacility.gedung + ' • ' + drawerFacility.area"></span></p>
+                        <p class="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span x-text="drawerFacility.area"></span></p>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4">
                         <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center gap-3">
                             <i data-lucide="maximize" class="w-5 h-5 text-slate-500"></i>
                             <div>
-                                <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Luas Area</span>
-                                <p class="text-xs font-bold text-slate-800" x-text="drawerFacility.luas || '30 m²'"></p>
+                                <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Tipe Bed / Meja</span>
+                                <p class="text-xs font-bold text-slate-800" x-text="drawerFacility.bed || 'Standar'"></p>
                             </div>
                         </div>
                     </div>
@@ -1266,9 +1268,16 @@
                     <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Tarif Unit</span>
                     <p class="text-base font-extrabold text-slate-900" x-text="formatRupiah(drawerFacility.price)"></p>
                 </div>
-                <button @click="startBookingFlow(drawerFacility)" class="px-6 py-3 bg-wisma-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center gap-1.5">
-                    <i data-lucide="calendar" class="w-4 h-4"></i> Booking Sekarang
-                </button>
+                <template x-if="drawerFacility.status !== 'MAINTENANCE'">
+                    <button @click="startBookingFlow(drawerFacility)" class="px-6 py-3 bg-wisma-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-4 h-4"></i> Booking Sekarang
+                    </button>
+                </template>
+                <template x-if="drawerFacility.status === 'MAINTENANCE'">
+                    <button disabled class="px-6 py-3 bg-slate-200 text-slate-400 font-bold text-xs rounded-xl cursor-not-allowed flex items-center gap-1.5">
+                        <i data-lucide="lock" class="w-4 h-4"></i> Tidak Dapat Dipesan
+                    </button>
+                </template>
             </div>
         </div>
     </div>
@@ -1343,7 +1352,7 @@
                 guests: [],
                 complaints: [],
                 notifications: [],
-                unreadNotificationCount: 0,
+                get unreadNotificationCount() { return this.notifications.filter(x => !x.is_read && !x.read).length; },
                 notificationsOpen: false,
 
                 ratingModalOpen: false,
@@ -1469,7 +1478,7 @@
                     this.guests     = [];
                     this.complaints = [];
                     this.notifications = [];
-                    this.unreadNotificationCount = 0;
+                    
                 },
 
                 async loadBookingsFromApi() {
@@ -1481,7 +1490,7 @@
                                 booking_code: b.booking_code,
                                 unit_name: b.facility.name,
                                 unit_photo: b.facility.photo ? (b.facility.photo.startsWith('http') ? b.facility.photo : 'http://localhost:8000' + b.facility.photo) : '/images/bungalow_buah.jpg',
-                                unit_location: b.facility.gedung + ' • ' + b.facility.area,
+                                unit_location: b.facility.area,
                                 check_in: b.check_in.substring(0,10),
                                 check_out: b.check_out.substring(0,10),
                                 nights: b.nights,
@@ -1547,7 +1556,7 @@
                         const res = await this.apiCall('GET', '/notifications');
                         if (res.success) {
                             this.notifications = res.data;
-                            this.unreadNotificationCount = res.unread_count;
+                            
                         }
                     } catch (e) {
                         console.error('Gagal memuat notifikasi', e);
@@ -1559,7 +1568,7 @@
                         const res = await this.apiCall('DELETE', `/notifications/${id}`);
                         if (res.success) {
                             this.notifications = this.notifications.filter(n => n.id !== id);
-                            this.unreadNotificationCount = this.notifications.filter(n => !n.read).length;
+                            
                             this.addToast('Dihapus', 'Notifikasi berhasil dihapus.', 'success');
                         }
                     } catch (e) {
@@ -1568,11 +1577,22 @@
                     }
                 },
 
+                formatTime(dateString) {
+                    if (!dateString) return '';
+                    const d = new Date(dateString);
+                    const now = new Date();
+                    const diff = Math.floor((now - d) / 1000);
+                    if (diff < 60) return 'Baru saja';
+                    if (diff < 3600) return Math.floor(diff / 60) + 'm lalu';
+                    if (diff < 86400) return Math.floor(diff / 3600) + 'j lalu';
+                    if (diff < 604800) return Math.floor(diff / 86400) + 'h lalu';
+                    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                },
                 async markNotificationsRead() {
                     try {
                         const res = await this.apiCall('PUT', '/notifications/read-all');
                         if (res.success) {
-                            this.unreadNotificationCount = 0;
+                            
                             this.notifications = this.notifications.map(n => ({...n, read: true}));
                         }
                     } catch (e) {
@@ -1748,7 +1768,7 @@
                                         id: createdBooking.id,
                                         booking_code: createdBooking.booking_code,
                                         unit_name: this.selectedFacility.name,
-                                        unit_location: `${this.selectedFacility.gedung} • ${this.selectedFacility.area}`,
+                                        unit_location: `${this.selectedFacility.area}`,
                                         check_in: this.checkInDate,
                                         check_out: this.checkOutDate,
                                         nights: this.calculateNights(),

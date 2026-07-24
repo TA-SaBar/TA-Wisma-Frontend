@@ -674,7 +674,7 @@
                                                   'bg-amber-100 text-amber-700': c.status === 'NeedConfirmation',
                                                               'bg-emerald-100 text-emerald-700': c.status === 'Resolved'
                                               }"
-                                              x-text="c.status === 'Pending' ? 'Pending' : (c.status === 'Processed' ? 'Diproses' : 'Selesai')"></span>
+                                              x-text="c.status === 'Pending' ? 'Menunggu' : (c.status === 'Processed' ? 'Diproses' : (c.status === 'NeedConfirmation' ? 'Menunggu Konf.' : 'Selesai'))"></span>
                                     </div>
                                     <div>
                                         <h4 class="text-sm font-bold text-slate-900 font-outfit" x-text="c.title"></h4>
