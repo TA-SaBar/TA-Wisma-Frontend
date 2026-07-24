@@ -104,7 +104,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto w-full pt-4">
             
             <!-- PORTAL TAMU -->
-            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between gap-4 h-full group">
                 <div class="space-y-4">
                     <div class="w-12 h-12 bg-amber-500/10 text-wisma-gold rounded-2xl flex items-center justify-center border border-wisma-gold/20">
                         <i data-lucide="user" class="w-6 h-6"></i>
@@ -125,7 +125,7 @@
             </div>
 
             <!-- PORTAL RESEPSIONIS -->
-            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between gap-4 h-full group">
                 <div class="space-y-4">
                     <div class="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center border border-emerald-500/20">
                         <i data-lucide="concierge-bell" class="w-6 h-6"></i>
@@ -146,7 +146,7 @@
             </div>
 
             <!-- PORTAL CUSTOMER SERVICE -->
-            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between gap-4 h-full group">
                 <div class="space-y-4">
                     <div class="w-12 h-12 bg-rose-500/10 text-rose-600 rounded-2xl flex items-center justify-center border border-rose-500/20">
                         <i data-lucide="life-buoy" class="w-6 h-6"></i>
@@ -167,7 +167,7 @@
             </div>
 
             <!-- PORTAL KOORDINATOR WISMA -->
-            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between h-96 group">
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between gap-4 h-full group">
                 <div class="space-y-4">
                     <div class="w-12 h-12 bg-indigo-500/10 text-indigo-600 rounded-2xl flex items-center justify-center border border-indigo-500/20">
                         <i data-lucide="shield" class="w-6 h-6"></i>

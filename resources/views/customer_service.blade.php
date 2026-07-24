@@ -586,7 +586,7 @@
                         </div>
 
                         <div class="divide-y divide-slate-100">
-                            <template x-for="c in complaints.slice(0, 5)" :key="c.id">
+                            <template x-for="c in complaints.filter(comp => comp.status !== 'Resolved' && comp.status !== 'NeedConfirmation').slice(0, 5)" :key="c.id">
                                 <div class="py-4 flex items-center justify-between">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
@@ -609,13 +609,13 @@
                                     </div>
                                     <div>
                                         <template x-if="c.status === 'Pending'">
-                                            <button @click="processComplaint(c.id)" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-lg shadow transition-colors">
-                                                Tugaskan Tim
+                                            <button @click="processComplaint(c.id)" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-lg shadow transition-colors flex items-center gap-1">
+                                                <i data-lucide="wrench" class="w-3.5 h-3.5"></i> Tugaskan Tim
                                             </button>
                                         </template>
                                         <template x-if="c.status === 'Processed'">
-                                            <button @click="resolveComplaint(c.id)" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow transition-colors">
-                                                Selesaikan
+                                            <button @click="resolveComplaint(c.id)" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow transition-colors flex items-center gap-1">
+                                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Selesaikan
                                             </button>
                                         </template>
                                     </div>
@@ -649,14 +649,16 @@
                             </span>
                             <input type="text" 
                                    x-model.debounce.500ms="complaintSearch" 
+                                   @input="setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 600)"
                                    placeholder="Cari keluhan atau lokasi..." 
                                    class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
                         </div>
-                        <div class="flex gap-2">
-                            <button @click="complaintFilterTab = 'semua'" :class="complaintFilterTab === 'semua' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Semua</button>
-                            <button @click="complaintFilterTab = 'Pending'" :class="complaintFilterTab === 'Pending' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Menunggu (Pending)</button>
-                            <button @click="complaintFilterTab = 'Processed'" :class="complaintFilterTab === 'Processed' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Diproses</button>
-                            <button @click="complaintFilterTab = 'Resolved'" :class="complaintFilterTab === 'Resolved' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Selesai</button>
+                        <div class="flex gap-2 flex-wrap">
+                            <button @click="complaintFilterTab = 'semua'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="complaintFilterTab === 'semua' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Semua</button>
+                            <button @click="complaintFilterTab = 'Pending'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="complaintFilterTab === 'Pending' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Menunggu (Pending)</button>
+                            <button @click="complaintFilterTab = 'Processed'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="complaintFilterTab === 'Processed' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Diproses</button>
+                            <button @click="complaintFilterTab = 'NeedConfirmation'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="complaintFilterTab === 'NeedConfirmation' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Menunggu Konfirmasi</button>
+                            <button @click="complaintFilterTab = 'Resolved'; setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);" :class="complaintFilterTab === 'Resolved' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Selesai</button>
                         </div>
                     </div>
 

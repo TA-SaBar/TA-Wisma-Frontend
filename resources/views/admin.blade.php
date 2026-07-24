@@ -166,15 +166,6 @@
                         <input type="number" x-model="crudForm.price" required class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                     </div>
 
-                    <!-- Unit -->
-                    <div class="space-y-1">
-                        <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Satuan Tarif</label>
-                        <select x-model="crudForm.unit" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
-                            <option value="night">Per Malam (Bungalow)</option>
-                            <option value="day">Per Hari (Ruang Rapat)</option>
-                        </select>
-                    </div>
-
 
                     <!-- Bed Configuration -->
                     <div class="space-y-1">
@@ -547,6 +538,32 @@
                         </div>
                     </div>
 
+                    <!-- Dashboard Filter -->
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 mb-8">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wide">
+                                <i data-lucide="calendar" class="w-4 h-4 text-wisma-gold"></i>
+                                <span>Filter Dashboard</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="setQuickPeriodDashboard('all')" :class="activeQuickPeriodDashboard === 'all' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Semua Waktu</button>
+                                <button @click="setQuickPeriodDashboard('this_month')" :class="activeQuickPeriodDashboard === 'this_month' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Ini</button>
+                                <button @click="setQuickPeriodDashboard('last_month')" :class="activeQuickPeriodDashboard === 'last_month' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Bulan Lalu</button>
+                                <button @click="setQuickPeriodDashboard('this_year')" :class="activeQuickPeriodDashboard === 'this_year' ? 'bg-wisma-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all">Tahun Ini</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Mulai</label>
+                                <input type="date" x-model="dashboardStartDate" @change="activeQuickPeriodDashboard = 'custom'" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase">Tanggal Selesai</label>
+                                <input type="date" x-model="dashboardEndDate" @change="activeQuickPeriodDashboard = 'custom'" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:ring-1 focus:ring-wisma-gold focus:outline-none transition-all">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Stats Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
@@ -561,7 +578,7 @@
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
                             <div class="flex justify-between items-start w-full">
                                 <div>
-                                    <span class="text-xs text-slate-500 font-medium">Tamu Terdaftar (Log DIPA)</span>
+                                    <span class="text-xs text-slate-500 font-medium">Tamu Terdaftar</span>
                                     <h3 class="text-2xl font-bold font-outfit mt-1 text-slate-900" x-text="getFilteredGuestsCount() + ' Tamu'"></h3>
                                 </div>
                                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
@@ -569,22 +586,7 @@
                                 </div>
                             </div>
                             <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
-                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Filter Bulan:</span>
-                                <select x-model="dashboardGuestMonthFilter" class="text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-1 focus:ring-wisma-gold focus:outline-none font-semibold text-slate-700">
-                                    <option value="all">Semua Bulan</option>
-                                    <option value="01">Januari</option>
-                                    <option value="02">Februari</option>
-                                    <option value="03">Maret</option>
-                                    <option value="04">April</option>
-                                    <option value="05">Mei</option>
-                                    <option value="06">Juni</option>
-                                    <option value="07">Juli</option>
-                                    <option value="08">Agustus</option>
-                                    <option value="09">September</option>
-                                    <option value="10">Oktober</option>
-                                    <option value="11">November</option>
-                                    <option value="12">Desember</option>
-                                </select>
+                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Berdasarkan Periode</span>
                             </div>
                         </div>
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
@@ -598,22 +600,7 @@
                                 </div>
                             </div>
                             <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
-                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Filter Bulan:</span>
-                                <select x-model="dashboardIncomeMonthFilter" class="text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-1 focus:ring-wisma-gold focus:outline-none font-semibold text-slate-700">
-                                    <option value="all">Semua Bulan</option>
-                                    <option value="01">Januari</option>
-                                    <option value="02">Februari</option>
-                                    <option value="03">Maret</option>
-                                    <option value="04">April</option>
-                                    <option value="05">Mei</option>
-                                    <option value="06">Juni</option>
-                                    <option value="07">Juli</option>
-                                    <option value="08">Agustus</option>
-                                    <option value="09">September</option>
-                                    <option value="10">Oktober</option>
-                                    <option value="11">November</option>
-                                    <option value="12">Desember</option>
-                                </select>
+                                <span class="text-[10px] text-slate-400 font-semibold uppercase">Berdasarkan Periode</span>
                             </div>
                         </div>
                     </div>
@@ -625,6 +612,14 @@
                             <div class="h-48 flex items-end justify-between gap-4 pt-6 border-b border-slate-100 pb-4">
                                 <template x-for="(m, idx) in getMonthlyChart()" :key="idx">
                                     <div class="w-full bg-slate-100 rounded-t-lg h-32 relative group flex flex-col justify-end">
+                                        <div class="absolute -top-16 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[9px] p-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-10 shadow-lg pointer-events-none flex flex-col gap-1 items-center">
+                                            <span class="font-bold text-wisma-gold" x-text="m.count + ' Transaksi'"></span>
+                                            <div class="flex gap-2 text-slate-300">
+                                                <span x-text="'Kamar: ' + m.kamar"></span>
+                                                <span x-text="'Rapat: ' + m.rapat"></span>
+                                            </div>
+                                            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                                        </div>
                                         <div class="w-full bg-[#0B1A30] rounded-t-lg transition-all" :style="'height: ' + m.percent + '%'"></div>
                                         <span class="text-[8px] text-slate-400 absolute -bottom-5 w-full text-center block" x-text="m.label"></span>
                                     </div>
@@ -707,7 +702,6 @@
                                 <tr class="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                                     <th class="py-4 px-6">Foto / Nama Unit</th>
                                     <th class="py-4 px-6">Tipe / Area</th>
-                                    <th class="py-4 px-6">Luas Area</th>
                                     <th class="py-4 px-6">Tarif Unit</th>
                                     <th class="py-4 px-6">Status</th>
                                     <th class="py-4 px-6 text-right">Aksi Manajemen</th>
@@ -720,7 +714,9 @@
                                             <img :src="f.photo" class="w-12 h-12 rounded-lg object-cover border border-slate-200">
                                             <div>
                                                 <p class="font-bold text-slate-900" x-text="f.name"></p>
-                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.bed || 'Tipe Standar'"></p>
+                                                <template x-if="f.bed">
+                                                    <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.bed || 'Tipe Standar'"></p>
+                                                </template>
                                             </div>
                                         </td>
                                         <td class="py-4 px-6">
@@ -728,11 +724,8 @@
                                             <p class="text-[10px] text-slate-400 mt-0.5" x-text="f.area"></p>
                                         </td>
                                         <td class="py-4 px-6">
-                                            <p class="font-medium text-slate-800" x-text="f.luas || '24 m²'"></p>
-                                        </td>
-                                        <td class="py-4 px-6">
                                             <p class="font-bold text-slate-900" x-text="formatRupiah(f.price)"></p>
-                                            <p class="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wide" x-text="'per ' + (f.unit === 'night' ? 'Malam' : f.unit)"></p>
+                                            <p class="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wide" x-text="'per ' + (f.unit === 'night' ? 'Malam' : 'Hari')"></p>
                                         </td>
                                         <td class="py-4 px-6">
                                             <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide"
@@ -807,7 +800,7 @@
                             <div class="mb-4 bg-blue-50/50 p-3 rounded-xl border border-blue-100/50">
                                 <p class="text-xs text-slate-600 leading-relaxed">
                                     <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5 text-blue-500"></i>
-                                    <strong>Status Registrasi:</strong> Label <span class="text-indigo-600 font-bold">Member</span> menandakan bahwa akun tersebut sudah memiliki riwayat reservasi (pernah menginap). Sedangkan label <span class="text-slate-500 font-bold">Reguler</span> berarti pengguna baru mendaftar atau belum memiliki transaksi.
+                                    <strong>Status Registrasi:</strong> Label <span class="text-indigo-600 font-bold">Member</span> menandakan bahwa akun tersebut sudah memiliki riwayat reservasi (pernah menginap). Sedangkan label <span class="text-slate-500 font-bold">Reguler</span> berarti pengguna belum memiliki transaksi.
                                 </p>
                             </div>
 
@@ -881,14 +874,14 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 text-xs text-slate-800">
-                                    <template x-for="b in bookings.filter(x => {
+                                    <template x-for="(b, idx) in bookings.filter(x => {
                                         const matchesSearch = (x.nama || '').toLowerCase().includes(adminLogSearch.toLowerCase()) || (x.nip || '').toLowerCase().includes(adminLogSearch.toLowerCase()) || (x.booking_code || '').toLowerCase().includes(adminLogSearch.toLowerCase());
                                         const matchesStatus = adminLogFilter === 'semua' || x.status.toLowerCase() === adminLogFilter.toLowerCase();
                                         return matchesSearch && matchesStatus;
                                     })" :key="b.id">
                                         <tr class="hover:bg-slate-50/50 transition-all">
                                         <td class="py-4 px-6">
-                                            <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
+                                            <p class="font-bold text-slate-900" x-text="idx + 1"></p>
                                             <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
                                         </td>
                                         <td class="py-4 px-6">
@@ -1013,10 +1006,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="b in (reportFinancialData?.transaksi || []).filter(b => !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium')))" :key="b.id">
+                                    <template x-for="(b, idx) in (reportFinancialData?.transaksi || []).filter(b => !(b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium')))" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4">
-                                                <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
+                                                <p class="font-bold text-slate-900" x-text="idx + 1"></p>
                                                 <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
                                             </td>
                                             <td class="py-3 px-4">
@@ -1074,10 +1067,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="b in (reportFinancialData?.transaksi || []).filter(b => b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'))" :key="b.id">
+                                    <template x-for="(b, idx) in (reportFinancialData?.transaksi || []).filter(b => b.unit_name.toLowerCase().includes('rapat') || b.unit_name.toLowerCase().includes('hall') || b.unit_name.toLowerCase().includes('auditorium'))" :key="b.id">
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4">
-                                                <p class="font-bold text-slate-900" x-text="'#' + b.id"></p>
+                                                <p class="font-bold text-slate-900" x-text="idx + 1"></p>
                                                 <p class="text-[9px] text-slate-400 mt-0.5" x-text="b.booking_code"></p>
                                             </td>
                                             <td class="py-3 px-4">
@@ -1344,8 +1337,9 @@
                 reportGuestSearch: '',
                 reportGuestStatus: 'semua',
                 
-                dashboardGuestMonthFilter: new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : '' + (new Date().getMonth() + 1),
-                dashboardIncomeMonthFilter: new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : '' + (new Date().getMonth() + 1),
+                dashboardStartDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toLocaleDateString('en-CA'),
+                dashboardEndDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-CA'),
+                activeQuickPeriodDashboard: 'this_month',
                 activeQuickPeriod: 'all',
                 reportStartDate: '',
                 reportEndDate: '',
@@ -1823,7 +1817,8 @@
                     formData.append('area', this.crudForm.area);
                     formData.append('capacity', this.crudForm.capacity || 2);
                     formData.append('price', parseInt(this.crudForm.price));
-                    formData.append('unit', this.crudForm.unit);
+                    const unitValue = (this.crudForm.type || '').toLowerCase().includes('rapat') ? 'day' : 'night';
+                    formData.append('unit', unitValue);
                     
                     
                     formData.append('bed', this.crudForm.bed || '');
@@ -1888,11 +1883,31 @@
                     }
                 },
                 
+                isDateInPeriod(dateStr, startStr, endStr) {
+                    if (!dateStr) return false;
+                    const d = new Date(dateStr);
+                    d.setHours(0,0,0,0);
+                    
+                    if (startStr) {
+                        const s = new Date(startStr);
+                        s.setHours(0,0,0,0);
+                        if (d < s) return false;
+                    }
+                    if (endStr) {
+                        const e = new Date(endStr);
+                        e.setHours(0,0,0,0);
+                        if (d > e) return false;
+                    }
+                    return true;
+                },
+
                 getFilteredIncome() {
                     let total = 0;
                     this.bookings.forEach(b => {
-                        if (b.status === 'Lunas' || b.status === 'Check In' || b.status === 'Selesai') {
-                            total += (b.total_price || 0);
+                        if (this.isDateInPeriod(b.check_in, this.dashboardStartDate, this.dashboardEndDate)) {
+                            if (b.status === 'Lunas' || b.status === 'Check In' || b.status === 'Selesai') {
+                                                total += (parseFloat(b.total_price) || 0);
+                                            }
                         }
                     });
                     return total;
@@ -1902,16 +1917,36 @@
                     let total = 0;
                     const seenNips = new Set();
                     this.bookings.forEach(b => {
-                        if (b.status === 'Lunas' || b.status === 'Check In' || b.status === 'Selesai') {
-                            if (b.nip && !seenNips.has(b.nip)) {
-                                seenNips.add(b.nip);
-                                total++;
+                        if (this.isDateInPeriod(b.check_in, this.dashboardStartDate, this.dashboardEndDate)) {
+                            if (b.status === 'Lunas' || b.status === 'Check In' || b.status === 'Selesai') {
+                                if (b.nip && !seenNips.has(b.nip)) {
+                                    seenNips.add(b.nip);
+                                    total++;
+                                }
                             }
                         }
                     });
                     return total;
                 },
 
+                
+                setQuickPeriodDashboard(period) {
+                    this.activeQuickPeriodDashboard = period;
+                    const today = new Date();
+                    if (period === 'all') {
+                        this.dashboardStartDate = '';
+                        this.dashboardEndDate = '';
+                    } else if (period === 'this_month') {
+                        this.dashboardStartDate = new Date(today.getFullYear(), today.getMonth(), 1).toLocaleDateString('en-CA');
+                        this.dashboardEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toLocaleDateString('en-CA');
+                    } else if (period === 'last_month') {
+                        this.dashboardStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 1).toLocaleDateString('en-CA');
+                        this.dashboardEndDate = new Date(today.getFullYear(), today.getMonth(), 0).toLocaleDateString('en-CA');
+                    } else if (period === 'this_year') {
+                        this.dashboardStartDate = new Date(today.getFullYear(), 0, 1).toLocaleDateString('en-CA');
+                        this.dashboardEndDate = new Date(today.getFullYear(), 11, 31).toLocaleDateString('en-CA');
+                    }
+                },
                 
                 setQuickPeriod(period) {
                     this.activeQuickPeriod = period;
@@ -2015,24 +2050,38 @@
                     for (let i = 2; i >= 0; i--) {
                         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                         const label = d.toLocaleString('id-ID', { month: 'short' });
+                        let kamar = 0;
+                        let rapat = 0;
                         const count = this.bookings.filter(b => {
                             if (!b.check_in) return false;
                             const isSuccessful = b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In';
                             if (!isSuccessful) return false;
                             const bDate = new Date(b.check_in);
-                            return bDate.getMonth() === d.getMonth() && bDate.getFullYear() === d.getFullYear();
+                            if (bDate.getMonth() === d.getMonth() && bDate.getFullYear() === d.getFullYear()) {
+                                const type = (b.unit_type || '').toLowerCase();
+                                if (type.includes('rapat')) rapat++;
+                                else kamar++;
+                                return true;
+                            }
+                            return false;
                         }).length;
-                        months.push({ label, count });
+                        months.push({ label, count, kamar, rapat });
                     }
                     const maxCount = Math.max(...months.map(m => m.count), 1);
                     return months.map(m => ({
                         label: m.label,
+                        count: m.count,
+                        kamar: m.kamar,
+                        rapat: m.rapat,
                         percent: Math.floor((m.count / maxCount) * 100)
                     }));
                 },
 
                 getTypeOccupancy() {
-                    const activeBookings = this.bookings.filter(b => b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In');
+                    const activeBookings = this.bookings.filter(b => {
+                        if (!this.isDateInPeriod(b.check_in, this.dashboardStartDate, this.dashboardEndDate)) return false;
+                        return b.status === 'Lunas' || b.status === 'Selesai' || b.status === 'Check In';
+                    });
                     const total = activeBookings.length || 1;
                     let kamar = 0, rapat = 0;
                     activeBookings.forEach(b => {

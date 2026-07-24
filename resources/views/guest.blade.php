@@ -527,10 +527,12 @@
                                 Portal Layanan Wisma DPR RI. Lakukan pemesanan unit kamar penginapan atau ruang rapat secara dinamis. Pantau status check-in Anda hari ini.
                             </p>
                             <div class="mt-6 flex gap-3">
-                                <button @click="switchTab('facilities')" class="px-5 py-2.5 bg-wisma-gold hover:bg-wisma-goldHover text-wisma-dark font-semibold text-xs rounded-xl shadow-lg shadow-wisma-gold/20 transition-all">
+                                <button @click="switchTab('facilities')" class="px-5 py-2.5 bg-wisma-gold hover:bg-wisma-goldHover text-wisma-dark font-semibold text-xs rounded-xl shadow-lg shadow-wisma-gold/20 transition-all flex items-center gap-2">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
                                     Cari Fasilitas & Booking
                                 </button>
-                                <button @click="switchTab('history')" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/10 font-semibold text-xs rounded-xl transition-all">
+                                <button @click="switchTab('history')" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/10 font-semibold text-xs rounded-xl transition-all flex items-center gap-2">
+                                    <i data-lucide="ticket" class="w-4 h-4"></i>
                                     Lihat Tiket Reservasi
                                 </button>
                             </div>
@@ -760,8 +762,9 @@
                                                 'hover:bg-slate-100 text-slate-700': !day.isPast && !day.isBooked && !isDateSelected(day.dateStr) && !isDateInRange(day.dateStr)
                                             }">
                                         <span x-text="day.dayNum"></span>
-                                        <span x-show="day.dateStr === checkInDate" class="text-[7px] text-wisma-gold absolute bottom-0.5 uppercase tracking-tighter">IN</span>
-                                        <span x-show="day.dateStr === checkOutDate" class="text-[7px] text-wisma-gold absolute bottom-0.5 uppercase tracking-tighter">OUT</span>
+                                        <span x-show="day.dateStr === checkInDate && checkInDate !== checkOutDate" class="text-[7px] text-wisma-gold absolute bottom-0.5 uppercase tracking-tighter">IN</span>
+                                        <span x-show="day.dateStr === checkOutDate && checkInDate !== checkOutDate" class="text-[7px] text-wisma-gold absolute bottom-0.5 uppercase tracking-tighter">OUT</span>
+                                        <span x-show="day.dateStr === checkInDate && checkInDate === checkOutDate" class="text-[7px] text-wisma-gold absolute bottom-0.5 uppercase tracking-tighter">IN/OUT</span>
                                     </button>
                                 </template>
                             </div>
@@ -934,7 +937,7 @@
                             <div class="p-6 space-y-4 text-xs">
                                 <div class="grid grid-cols-2 gap-4 border-b border-dashed border-slate-200 pb-4">
                                     <div>
-                                        <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">No. Booking</span>
+                                        <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Kode Booking</span>
                                         <p class="font-bold text-slate-800" x-text="generatedTicket.booking_code"></p>
                                     </div>
                                     <div>
@@ -956,7 +959,7 @@
 
                                 <div class="grid grid-cols-2 gap-4 pb-2">
                                     <div>
-                                        <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Unit Kamar / Ruang</span>
+                                        <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Unit Fasilitas</span>
                                         <p class="font-bold text-slate-800" x-text="generatedTicket.unit_name"></p>
                                         <p class="text-[9px] text-slate-400 block mt-0.5" x-text="generatedTicket.unit_location"></p>
                                     </div>
@@ -1249,7 +1252,7 @@
                         <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center gap-3">
                             <i data-lucide="maximize" class="w-5 h-5 text-slate-500"></i>
                             <div>
-                                <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide">Tipe Bed / Meja</span>
+                                <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wide" x-text="drawerFacility.unit === 'day' ? 'Tipe Meja' : 'Tipe Bed'"></span>
                                 <p class="text-xs font-bold text-slate-800" x-text="drawerFacility.bed || 'Standar'"></p>
                             </div>
                         </div>
@@ -2091,8 +2094,14 @@
                     const checkIn = new Date(this.checkInDate);
                     const checkOut = new Date(this.checkOutDate);
                     const diffTime = Math.abs(checkOut - checkIn);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return isNaN(diffDays) ? 1 : (diffDays === 0 ? 1 : diffDays);
+                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (isNaN(diffDays)) diffDays = 0;
+                    
+                    if (this.selectedFacility && this.selectedFacility.unit === 'day') {
+                        return diffDays + 1;
+                    }
+                    
+                    return diffDays === 0 ? 1 : diffDays;
                 },
 
                 calculateTax() {
@@ -2184,9 +2193,17 @@
                                 const bOut = new Date(b.check_out);
                                 bOut.setHours(0,0,0,0);
                                 
-                                if (curDate >= bIn && curDate < bOut) {
-                                    isBooked = true;
-                                    break;
+                                const isDayUnit = this.selectedFacility && this.selectedFacility.unit === 'day';
+                                if (isDayUnit) {
+                                    if (curDate >= bIn && curDate <= bOut) {
+                                        isBooked = true;
+                                        break;
+                                    }
+                                } else {
+                                    if (curDate >= bIn && curDate < bOut) {
+                                        isBooked = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -2235,7 +2252,10 @@
                         const checkInVal = new Date(this.checkInDate);
                         const checkOutVal = new Date(dateStr);
                         
-                        if (checkOutVal > checkInVal) {
+                        const isSameDayAllowed = this.selectedFacility && this.selectedFacility.unit === 'day';
+                        const isValidRange = isSameDayAllowed ? checkOutVal >= checkInVal : checkOutVal > checkInVal;
+                        
+                        if (isValidRange) {
                             // Cek tabrakan dengan rentang booking yang sudah ada
                             let overlap = false;
                             if (this.bookedDatesArr && this.bookedDatesArr.length > 0) {
@@ -2245,10 +2265,20 @@
                                     const bOut = new Date(b.check_out);
                                     bOut.setHours(0,0,0,0);
                                     
-                                    // Overlap terjadi jika checkIn kita < checkOut dia DAN checkOut kita > checkIn dia
-                                    if (checkInVal < bOut && checkOutVal > bIn) {
-                                        overlap = true;
-                                        break;
+                                    // Logika tabrakan disesuaikan dengan tipe fasilitas
+                                    const isDayUnit = this.selectedFacility && this.selectedFacility.unit === 'day';
+                                    if (isDayUnit) {
+                                        // Rapat (Hari): overlap jika saling menyentuh
+                                        if (checkInVal <= bOut && checkOutVal >= bIn) {
+                                            overlap = true;
+                                            break;
+                                        }
+                                    } else {
+                                        // Kamar (Malam): overlap jika checkIn kita < checkOut dia DAN checkOut kita > checkIn dia
+                                        if (checkInVal < bOut && checkOutVal > bIn) {
+                                            overlap = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
