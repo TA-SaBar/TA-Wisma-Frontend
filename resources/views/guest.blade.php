@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portal Tamu Wisma DPR RI - Reservasi & Keluhan</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('images/favicon/site.webmanifest') }}">
 
     <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -601,7 +605,7 @@
                                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                                                 <span x-text="formatIndoDate(b.check_in) + ' - ' + formatIndoDate(b.check_out)"></span>
                                                 <span class="text-slate-300">|</span>
-                                                <span x-text="b.nights + (b.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></span>
+                                                <span x-text="b.nights + ((b.unit_name || '').includes('Rapat') ? ' Hari' : ' Malam')"></span>
                                             </p>
                                         </div>
                                     </div>
@@ -965,7 +969,7 @@
                                     </div>
                                     <div>
                                         <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Masa Inap</span>
-                                        <p class="font-bold text-slate-800" x-text="generatedTicket.nights + (generatedTicket.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></p>
+                                        <p class="font-bold text-slate-800" x-text="generatedTicket.nights + ((generatedTicket.unit_name || '').includes('Rapat') ? ' Hari' : ' Malam')"></p>
                                     </div>
                                 </div>
                             </div>
@@ -1018,7 +1022,7 @@
                                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                                                 <span x-text="formatIndoDate(b.check_in) + ' - ' + formatIndoDate(b.check_out)"></span>
                                                 <span class="text-slate-300">•</span>
-                                                <span x-text="b.nights + (b.unit_name.includes('Rapat') ? ' Hari' : ' Malam')"></span>
+                                                <span x-text="b.nights + ((b.unit_name || '').includes('Rapat') ? ' Hari' : ' Malam')"></span>
                                             </p>
                                         </div>
                                     </div>
@@ -1433,6 +1437,8 @@
                     
                     this.selectedFacility = this.facilities[0] || {};
                     this.buildCalendar();
+                    
+
                     setTimeout(() => {
                         if (window.lucide) window.lucide.createIcons();
                     }, 100);

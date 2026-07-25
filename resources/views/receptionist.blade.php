@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portal Resepsionis Wisma DPR RI - Pelayanan Tamu</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('images/favicon/site.webmanifest') }}">
 
     <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1041,6 +1045,12 @@
                     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
                     const d = new Date(dateStr);
                     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                },
+
+                formatTime(dateStr) {
+                    if (!dateStr) return '-';
+                    const d = new Date(dateStr);
+                    return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 },
 
                 switchTab(tab) {

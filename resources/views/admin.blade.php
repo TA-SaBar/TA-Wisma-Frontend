@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portal Koordinator Wisma DPR RI - Manajemen Sistem</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('images/favicon/site.webmanifest') }}">
 
     <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1310,6 +1314,9 @@
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                adminManagementFilter: '',
+                deleteModalOpen: false,
+                itemToDelete: null,
                 notificationsOpen: false,
                 notifications: [],
                 get unreadNotificationCount() { return this.notifications.filter(x => !x.is_read && !x.read).length; },
@@ -1428,6 +1435,7 @@
                         if (me.success) {
                             this.fillProfile(me.data);
                             this.isLoggedIn = true;
+                            this.setQuickPeriod('this_month');
                             await this.loadFacilitiesFromApi();
                             await this.loadBookingsFromApi();
                             await this.loadGuestsFromApi();
@@ -1594,11 +1602,13 @@
                             this.fillProfile(res.data.user);
                             this.isLoggedIn = true;
                             this.currentTab = 'admin_dashboard';
+                            this.setQuickPeriod('this_month');
                             this.addToast('Login Berhasil', `Selamat datang kembali, ${this.profile.nama}.`, 'success');
                             await this.loadFacilitiesFromApi();
                             await this.loadBookingsFromApi();
                             await this.loadGuestsFromApi();
                             await this.loadNotifications();
+                            await this.fetchFinancialReport();
                         } else {
                             this.addToast('Login Gagal', res.message || 'Email atau password salah.', 'error');
                         }
