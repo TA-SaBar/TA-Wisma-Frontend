@@ -1480,7 +1480,7 @@
                         if (res.success) {
                             this.facilities = res.data.map(f => ({
                                 ...f,
-                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : API_URL.replace('/api', '') + f.photo) : '/images/bungalow_buah.jpg'
+                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : (f.photo.startsWith('/storage') ? API_URL.replace(/\/api$/, '') + f.photo : f.photo)) : '/images/bungalow_buah.jpg'
                             }));
                         }
                     } catch (e) {
@@ -1750,7 +1750,6 @@
                         capacity: type === 'Rapat' ? 30 : 2,
                         price: type === 'Buah' ? 387000 : (type === 'Bunga' ? 549000 : 250000),
                         unit: type === 'Rapat' ? 'day' : 'night',
-                        luas: type === 'Buah' ? '24' : (type === 'Bunga' ? '28' : '60'),
                         bed: type === 'Buah' ? 'Queen Size' : (type === 'Bunga' ? 'Twin Bed' : 'Meja Rapat Oval'),
                         status: 'READY',
                         photo: type === 'Buah' ? '/images/bungalow_buah.jpg' : (type === 'Bunga' ? '/images/bungalow_bunga.jpg' : '/images/ruang_rapat.jpeg'),
@@ -1766,9 +1765,7 @@
                     this.crudAction = 'edit';
                     this.crudType = item.type;
                     this.crudForm = { ...item };
-                    if (this.crudForm.luas && typeof this.crudForm.luas === 'string') {
-                        this.crudForm.luas = this.crudForm.luas.replace(/m²|m2|\s/gi, '');
-                    }
+                    this.crudForm.capacity = parseInt(this.crudForm.capacity, 10);
                     this.crudModalOpen = true;
                     setTimeout(() => {
                          if (window.lucide) window.lucide.createIcons();

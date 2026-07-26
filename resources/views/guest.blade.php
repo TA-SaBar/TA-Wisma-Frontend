@@ -1472,7 +1472,7 @@
                         if (res.success) {
                             this.facilities = res.data.map(f => ({
                                 ...f,
-                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : API_URL.replace('/api', '') + f.photo) : '/images/bungalow_buah.jpg'
+                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : (f.photo.startsWith('/storage') ? API_URL.replace(/\/api$/, '') + f.photo : f.photo)) : '/images/bungalow_buah.jpg'
                             }));
                         }
                     } catch (e) {
@@ -1498,7 +1498,7 @@
                                 id: b.id,
                                 booking_code: b.booking_code,
                                 unit_name: b.facility.name,
-                                unit_photo: b.facility.photo ? (b.facility.photo.startsWith('http') ? b.facility.photo : API_URL.replace('/api', '') + b.facility.photo) : '/images/bungalow_buah.jpg',
+                                unit_photo: b.facility.photo ? (b.facility.photo.startsWith('http') ? b.facility.photo : (b.facility.photo.startsWith('/storage') ? API_URL.replace(/\/api$/, '') + b.facility.photo : b.facility.photo)) : '/images/bungalow_buah.jpg',
                                 unit_location: b.facility.area,
                                 check_in: b.check_in.substring(0,10),
                                 check_out: b.check_out.substring(0,10),
