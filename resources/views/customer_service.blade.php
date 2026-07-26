@@ -95,7 +95,7 @@
 
     <!-- Axios -->
     <script>
-        const API_URL = 'http://127.0.0.1:8000/api';
+        const API_URL = '{{ env('BACKEND_API_URL', 'http://localhost:8000/api') }}';
     </script>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen flex overflow-hidden">

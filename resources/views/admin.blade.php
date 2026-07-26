@@ -1480,7 +1480,7 @@
                         if (res.success) {
                             this.facilities = res.data.map(f => ({
                                 ...f,
-                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : 'http://localhost:8000' + f.photo) : '/images/bungalow_buah.jpg'
+                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : API_URL.replace('/api', '') + f.photo) : '/images/bungalow_buah.jpg'
                             }));
                         }
                     } catch (e) {

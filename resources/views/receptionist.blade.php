@@ -705,7 +705,7 @@
 
     <!-- APP SCRIPT STATE MANAGEMENT -->
     <script>
-        const API_URL = 'http://localhost:8000/api';
+        const API_URL = '{{ env('BACKEND_API_URL', 'http://localhost:8000/api') }}';
 
         function wismaApp() {
             return {
