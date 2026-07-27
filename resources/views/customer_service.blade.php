@@ -500,11 +500,11 @@
                     <div class="w-px h-6 bg-slate-200 mx-2"></div>
 
                     <div class="flex items-center gap-3">
-                        <div class="text-right">
+                        <div class="text-right hidden sm:block">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
-                            <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
+                            <p class="text-[10px] text-slate-500">Customer Service</p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm">CS</div>
+                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm" x-text="getInitials(profile.nama)"></div>
                     </div>
                 </div>
             </header>
@@ -1270,6 +1270,14 @@
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                getInitials(name) {
+                    if (!name) return '?';
+                    const parts = name.trim().split(' ');
+                    if (parts.length > 1) {
+                        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                    }
+                    return (parts[0][0] || '?').toUpperCase();
+                },
                 adminManagementFilter: '',
                 deleteModalOpen: false,
                 itemToDelete: null,
@@ -1645,6 +1653,10 @@
                     if (token) {
                         const me = await this.apiCall('GET', '/me');
                         if (me.success) {
+                            if (me.data.role !== 'customer_service') {
+                                window.location.href = '/' + (me.data.role === 'koordinator_wisma' ? 'admin' : me.data.role);
+                                return;
+                            }
                             const userData = me.data;
                             this.isLoggedIn = true;
                             this.profile.role = userData.role;
@@ -1667,12 +1679,7 @@
                     }
                     
                     if (this.isLoggedIn) {
-                        if (!window._csPollingInterval) {
-                            window._csPollingInterval = setInterval(() => {
-                                if (typeof this.loadNotifications === 'function') this.loadNotifications();
-                                if (typeof this.loadComplaintsFromApi === 'function') this.loadComplaintsFromApi();
-                            }, 5000);
-                        }
+                        this.startPolling();
                     }
                     
                     setTimeout(() => {
@@ -1762,6 +1769,7 @@
                             this.addToast('Login Berhasil', `Selamat datang kembali, ${this.profile.nama}.`, 'success');
                             await this.loadData();
                             await this.loadNotifications();
+                            this.startPolling();
                             
                             setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
                         } else {
@@ -1781,11 +1789,30 @@
                         await this.apiCall('POST', '/logout');
                         localStorage.removeItem('wisma_token');
                         this.isLoggedIn = false;
+                        this.stopPolling();
                         this.loginForm.email = '';
                         this.loginForm.password = '';
                         this.addToast('Sesi Berakhir', 'Anda telah logout dari portal customer service.', 'info');
                     } catch (e) {
                         this.addToast('Gagal', 'Terjadi kesalahan saat logout.', 'error');
+                    }
+                },
+                
+                startPolling() {
+                    let self = this;
+                    if (!window._csPollingInterval) {
+                        window._csPollingInterval = setInterval(() => {
+                            if (typeof self.loadNotifications === 'function') self.loadNotifications();
+                            if (typeof self.loadComplaintsFromApi === 'function') self.loadComplaintsFromApi();
+                            if (typeof self.loadFeedbacksFromApi === 'function') self.loadFeedbacksFromApi();
+                        }, 5000);
+                    }
+                },
+                
+                stopPolling() {
+                    if (window._csPollingInterval) {
+                        clearInterval(window._csPollingInterval);
+                        window._csPollingInterval = null;
                     }
                 },
 

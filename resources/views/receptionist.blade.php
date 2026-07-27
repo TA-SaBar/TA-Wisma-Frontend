@@ -391,11 +391,11 @@
                     </div>
                     <div class="w-px h-6 bg-slate-200 mx-2 hidden sm:block"></div>
                     <div class="flex items-center gap-3">
-                        <div class="text-right">
+                        <div class="text-right hidden sm:block">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
-                            <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
+                            <p class="text-[10px] text-slate-500">Resepsionis</p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm" x-text="profile.nama ? profile.nama.charAt(0).toUpperCase() : 'R'"></div>
+                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm" x-text="getInitials(profile.nama)"></div>
                     </div>
                 </div>
             </header>
@@ -710,6 +710,14 @@
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                getInitials(name) {
+                    if (!name) return '?';
+                    const parts = name.trim().split(' ');
+                    if (parts.length > 1) {
+                        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                    }
+                    return (parts[0][0] || '?').toUpperCase();
+                },
                 isLoading: false,
                 passwordVisible: false,
                 loginForm: {
@@ -800,7 +808,11 @@
                     const token = localStorage.getItem('wisma_token');
                     if (token) {
                         const me = await this.apiCall('GET', '/me');
-                        if (me.success && (me.data.role === 'receptionist' || me.data.role === 'koordinator_wisma')) {
+                        if (me.success) {
+                            if (me.data.role !== 'receptionist') {
+                                window.location.href = '/' + (me.data.role === 'koordinator_wisma' ? 'admin' : me.data.role);
+                                return;
+                            }
                             this.fillProfile(me.data);
                             this.isLoggedIn = true;
                             await this.loadBookings();

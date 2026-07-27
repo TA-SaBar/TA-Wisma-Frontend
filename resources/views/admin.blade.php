@@ -152,7 +152,7 @@
                     <!-- Name -->
                     <div class="space-y-1 md:col-span-2">
                         <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Nama Unit Fasilitas</label>
-                        <input type="text" x-model="crudForm.name" required placeholder="Contoh: Deluxe Room 204" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
+                        <input type="text" x-model="crudForm.name" required placeholder="Contoh: Bungalow Semangka / Ruang Panja" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-wisma-gold focus:bg-white focus:outline-none transition-all">
                     </div>
 
                     <!-- Area -->
@@ -505,11 +505,11 @@
                     </div>
                     <div class="w-px h-6 bg-slate-200 mx-2 hidden sm:block"></div>
                     <div class="flex items-center gap-3">
-                        <div class="text-right">
+                        <div class="text-right hidden sm:block">
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
-                            <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
+                            <p class="text-[10px] text-slate-500" x-text="profile.role === 'admin' ? 'Administrator' : 'Koordinator'"></p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm">AD</div>
+                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm" x-text="getInitials(profile.nama)"></div>
                     </div>
                 </div>
             </header>
@@ -1314,6 +1314,14 @@
         function wismaApp() {
             return {
                 isLoggedIn: false,
+                getInitials(name) {
+                    if (!name) return '?';
+                    const parts = name.trim().split(' ');
+                    if (parts.length > 1) {
+                        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                    }
+                    return (parts[0][0] || '?').toUpperCase();
+                },
                 adminManagementFilter: '',
                 deleteModalOpen: false,
                 itemToDelete: null,
@@ -1433,6 +1441,10 @@
                     if (token) {
                         const me = await this.apiCall('GET', '/me');
                         if (me.success) {
+                            if (me.data.role !== 'admin' && me.data.role !== 'koordinator_wisma') {
+                                window.location.href = '/' + (me.data.role === 'koordinator_wisma' ? 'admin' : me.data.role);
+                                return;
+                            }
                             this.fillProfile(me.data);
                             this.isLoggedIn = true;
                             this.setQuickPeriod('this_month');

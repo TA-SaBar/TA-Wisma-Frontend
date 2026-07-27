@@ -511,7 +511,7 @@
                             <p class="text-xs font-semibold text-slate-800" x-text="profile.nama"></p>
                             <p class="text-[10px] text-slate-500" x-text="profile.instansi"></p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm">BS</div>
+                        <div class="w-10 h-10 rounded-xl bg-wisma-navy text-wisma-gold flex items-center justify-center font-bold text-sm border border-wisma-gold/20 shadow-sm" x-text="getInitials(profile.nama)"></div>
                     </div>
                 </div>
             </header>
@@ -1298,6 +1298,14 @@
                 sidebarOpen: false,
                 isLoggedIn: false,
                 isLoading: false,
+                getInitials(name) {
+                    if (!name) return '?';
+                    const parts = name.trim().split(' ');
+                    if (parts.length > 1) {
+                        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                    }
+                    return (parts[0][0] || '?').toUpperCase();
+                },
                 passwordVisible: false,
                 currentTime: new Date(),
                 loginForm: {
@@ -1411,6 +1419,10 @@
                         // Try restore session
                         const me = await this.apiCall('GET', '/me');
                         if (me.success) {
+                            if (me.data.role !== 'guest') {
+                                window.location.href = '/' + (me.data.role === 'koordinator_wisma' ? 'admin' : me.data.role);
+                                return;
+                            }
                             this.fillProfile(me.data);
                             this.isLoggedIn = true;
                             await this.loadFacilitiesFromApi();
@@ -1661,8 +1673,8 @@
 
                 filteredFacilities() {
                     return this.facilities.filter(f => {
-                        const matchesSearch = f.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                                              f.description.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        const matchesSearch = (f.name || '').toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                              (f.description || '').toLowerCase().includes(this.searchQuery.toLowerCase());
                         const matchesLantai = this.filterLantai === '' || f.area === this.filterLantai;
                         const matchesTipe = this.filterTipe === '' || f.type === this.filterTipe;
                         const matchesStatus = this.filterStatus === 'semua' || f.status === 'READY';
