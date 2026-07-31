@@ -923,7 +923,7 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
                         <div>
                             <h1 class="text-2xl font-outfit font-extrabold text-slate-900">Laporan Keuangan & Okupansi Wisma</h1>
-                            <p class="text-xs text-slate-500">Statistik performa tingkat hunian dan audit penerimaan dana DIPA.</p>
+                            <p class="text-xs text-slate-500">Statistik performa tingkat hunian dan audit penerimaan dana.</p>
                         </div>
                         <button @click="printReport()" class="px-5 py-2.5 bg-[#0B1A30] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5">
                             <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan

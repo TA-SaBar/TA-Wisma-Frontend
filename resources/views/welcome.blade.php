@@ -81,11 +81,11 @@
                 <span class="text-[9px] text-slate-500 font-medium uppercase tracking-widest">Government Hospitality</span>
             </div>
         </div>
-        <div class="flex items-center gap-6 text-xs text-slate-600 font-semibold">
+        <!-- <div class="flex items-center gap-6 text-xs text-slate-600 font-semibold">
             <span class="px-3 py-1 bg-amber-500/10 text-amber-700 font-bold uppercase tracking-wider rounded-full border border-wisma-gold/20 flex items-center gap-1.5">
-                <i data-lucide="shield-check" class="w-3 h-3"></i> Prototype v2.2
+                <i data-lucide="shield-check" class="w-3 h-3"></i> Prototype v3
             </span>
-        </div>
+        </div> -->
     </header>
 
     <!-- Main Content Hero & Cards -->
@@ -100,7 +100,7 @@
                 Portal Pelayanan Digital Wisma DPR RI
             </h1>
             <p class="text-xs lg:text-sm text-slate-900 font-semibold leading-relaxed max-w-xl mx-auto" style="text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff, 0 0 6px #fff;">
-                Integrasi penuh hospitality kenegaraan. Temukan reservasi yang nyaman untuk tamu delegasi, layanan front-desk responsif, serta kontrol manajemen backend yang transparan.
+                Integrasi penuh hospitality kenegaraan. Temukan reservasi yang nyaman untuk tamu delegasi, layanan front-desk responsif, serta kontrol manajemen yang transparan.
             </p>
         </div>
 
@@ -178,11 +178,11 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 font-outfit min-h-[3rem] flex items-end">Portal Koordinator Wisma</h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-light">
-                        Pusat kendali inventaris & manajemen. Lakukan input data CRUD bungalow wisma, audit daftar tamu terdaftar, riwayat log transaksi, serta monitoring occupancy.
+                        Pusat kendali inventaris & manajemen. Lakukan input data kelola fasilitas, audit daftar tamu terdaftar, riwayat log transaksi, serta monitoring okupansi.
                     </p>
                     <ul class="text-[10px] text-slate-500 space-y-1.5 pt-2">
-                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> CRUD Bungalow Wisma</li>
-                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> Audit Log Pemesanan DIPA</li>
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> Kelola Fasilitas</li>
+                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> Audit Log Pemesanan</li>
                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i> Laporan Hunian & Okupansi</li>
                     </ul>
                 </div>
