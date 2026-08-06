@@ -7,18 +7,17 @@ Route::get('/', function () {
 });
 
 Route::get('/guest', function () {
-    return view('guest');
+    return view('guest.index');
 });
 
 Route::get('/receptionist', function () {
-    return view('receptionist');
+    return view('receptionist.index');
 });
 
 Route::get('/customer-service', function () {
-    return view('customer_service');
+    return view('customer_service.index');
 });
 
 Route::get('/admin', function () {
-    return view('admin');
+    return view('admin.index');
 });
-
