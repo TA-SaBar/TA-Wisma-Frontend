@@ -183,7 +183,7 @@
                         if (res.success) {
                             this.facilities = res.data.map(f => ({
                                 ...f,
-                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : (f.photo.startsWith('/storage') ? API_URL.replace(/\/api$/, '') + f.photo : f.photo)) : '/images/bungalow_buah.jpg'
+                                photo: f.photo ? (f.photo.startsWith('http') ? f.photo : (f.photo.startsWith('/storage') ? API_URL.replace(/\/api$/, '') + f.photo : f.photo)) : '/images/webp/bungalow_buah.webp'
                             }));
                         }
                     } catch (e) {
@@ -455,7 +455,7 @@
                         unit: type === 'Rapat' ? 'day' : 'night',
                         bed: type === 'Buah' ? 'Queen Size' : (type === 'Bunga' ? 'Twin Bed' : 'Meja Rapat Oval'),
                         status: 'READY',
-                        photo: type === 'Buah' ? '/images/bungalow_buah.jpg' : (type === 'Bunga' ? '/images/bungalow_bunga.jpg' : '/images/ruang_rapat.jpeg'),
+                        photo: type === 'Buah' ? '/images/webp/bungalow_buah.webp' : (type === 'Bunga' ? '/images/webp/bungalow_bunga.webp' : '/images/webp/ruang_rapat.webp'),
                         description: ''
                     };
                     this.crudModalOpen = true;

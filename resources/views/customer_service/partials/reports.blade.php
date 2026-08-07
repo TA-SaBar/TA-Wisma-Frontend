@@ -97,10 +97,10 @@
                                 <div class="text-xs text-slate-500 flex items-center pr-2 font-bold uppercase tracking-wide">Filter:</div>
                                 <select x-model="reportComplaintFilterCategory" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none">
                                     <option value="semua">Semua Kategori</option>
-                                    <option value="Fasilitas (Bungalow, Gedung)">Fasilitas (Bungalow, Gedung)</option>
-                                    <option value="Layanan Laundry">Layanan Laundry</option>
-                                    <option value="Internet / Wifi">Internet / Wifi</option>
-                                    <option value="Layanan Makanan">Layanan Makanan</option>
+                                    <option value="facility">Fasilitas (Bungalow, Gedung)</option>
+                                    <option value="laundry">Layanan Laundry</option>
+                                    <option value="internet">Internet / Wifi</option>
+                                    <option value="food">Layanan Makanan</option>
                                 </select>
                                 <select x-model="reportComplaintFilterStatus" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-wisma-gold focus:outline-none">
                                     <option value="semua">Semua Status</option>
@@ -135,7 +135,7 @@
                                         })" :key="c.id">
                                             <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                                                 <td class="py-3 px-4 font-bold text-slate-900" x-text="c.id"></td>
-                                                <td class="py-3 px-4" x-text="c.category"></td>
+                                                <td class="py-3 px-4" x-text="c.category_label"></td>
                                                 <td class="py-3 px-4" x-text="c.location"></td>
                                                 <td class="py-3 px-4 text-slate-600" x-text="c.title"></td>
                                                 <td class="py-3 px-4 text-slate-500" x-text="c.date"></td>

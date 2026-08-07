@@ -7,7 +7,7 @@
                     <div class="max-w-2xl bg-white border border-slate-100 rounded-3xl p-8 shadow-sm space-y-6">
                         <div class="flex items-center gap-5 pb-6 border-b border-slate-100">
                             <img class="w-20 h-20 rounded-2xl border-2 border-wisma-gold object-cover shadow-md" 
-                                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80">
+                                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80" alt="Foto Profil">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-900 font-outfit" x-text="profile.nama"></h3>
                                 <p class="text-xs text-slate-400" x-text="profile.role_label + ' • ' + profile.instansi"></p>

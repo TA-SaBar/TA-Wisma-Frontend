@@ -71,7 +71,7 @@
                             <template x-for="b in bookings.filter(x => x.status === 'Lunas' || x.status === 'Check In')" :key="b.id">
                                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/70 border border-slate-100 rounded-2xl transition-colors">
                                     <div class="flex items-center gap-4">
-                                        <img :src="b.unit_photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200">
+                                        <img :src="b.unit_photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200" alt="Foto Kamar">
                                         <div>
                                             <div class="flex items-center gap-2">
                                                 <h4 class="text-sm font-bold text-slate-900" x-text="b.unit_name"></h4>

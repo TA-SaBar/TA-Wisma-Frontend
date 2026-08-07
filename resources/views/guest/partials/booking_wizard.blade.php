@@ -72,7 +72,7 @@
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                             <h3 class="text-sm font-bold text-slate-900">Rangkuman Booking</h3>
                             <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <img :src="selectedFacility.photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
+                                <img :src="selectedFacility.photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0" alt="Foto Fasilitas Terpilih">
                                 <div>
                                     <h4 class="text-xs font-bold text-slate-900" x-text="selectedFacility.name"></h4>
                                     <p class="text-[10px] text-slate-400 mt-1" x-text="selectedFacility.area"></p>

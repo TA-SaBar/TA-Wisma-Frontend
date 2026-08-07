@@ -12,7 +12,7 @@
                             <template x-for="b in bookings" :key="b.id">
                                 <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
                                     <div class="flex items-center gap-4">
-                                        <img :src="b.unit_photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
+                                        <img :src="b.unit_photo" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0" alt="Foto Fasilitas Terpilih">
                                         <div>
                                             <div class="flex items-center gap-2">
                                                 <h4 class="text-sm font-bold text-slate-900" x-text="b.unit_name"></h4>

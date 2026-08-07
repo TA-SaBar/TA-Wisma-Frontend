@@ -69,13 +69,13 @@
     <!-- Background Wallpaper -->
     <div class="absolute inset-0 z-0">
         <img class="w-full h-full object-cover" 
-             src="/images/wisma_dpr.jpg">
+             src="/images/webp/wisma_dpr.webp" alt="Background Wisma DPR RI">
     </div>
 
     <!-- Header Logo & Nav -->
     <header class="relative z-10 w-full px-8 lg:px-16 py-6 flex items-center justify-between border-b border-slate-200 bg-white/60 backdrop-blur-md">
         <div class="flex items-center gap-3">
-            <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
+            <img src="/images/webp/logo.webp" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
             <div>
                 <h2 class="font-outfit font-bold text-base tracking-wider leading-none text-slate-900">Wisma DPR RI</h2>
                 <span class="text-[9px] text-slate-500 font-medium uppercase tracking-widest">Government Hospitality</span>

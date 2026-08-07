@@ -78,7 +78,7 @@
         <div class="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col justify-between h-full slide-in-right">
             <div class="overflow-y-auto flex-1">
                 <div class="relative h-64 bg-slate-200">
-                    <img :src="drawerFacility.photo" class="w-full h-full object-cover">
+                    <img :src="drawerFacility.photo" class="w-full h-full object-cover" alt="Foto Fasilitas">
                     <button @click="closeDrawer()" class="absolute top-4 right-4 w-9 h-9 bg-white/80 hover:bg-white text-slate-800 rounded-full flex items-center justify-center backdrop-blur-md shadow-md">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>

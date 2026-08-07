@@ -66,7 +66,7 @@
                                 <template x-for="f in filteredAdminFacilities()" :key="f.id">
                                     <tr class="hover:bg-slate-50/50 transition-all">
                                         <td class="py-4 px-6 flex items-center gap-3">
-                                            <img :src="f.photo" class="w-12 h-12 rounded-lg object-cover border border-slate-200">
+                                            <img :src="f.photo" class="w-12 h-12 rounded-lg object-cover border border-slate-200" alt="Foto Fasilitas">
                                             <div>
                                                 <p class="font-bold text-slate-900" x-text="f.name"></p>
                                                 <template x-if="f.bed">

@@ -42,7 +42,7 @@
                         <template x-for="f in filteredFacilities()" :key="f.id">
                             <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
                                 <div class="relative overflow-hidden h-48 bg-slate-200 shrink-0">
-                                    <img :src="f.photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                    <img :src="f.photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Foto Fasilitas">
                                     <div class="absolute top-4 left-4 flex gap-1.5 flex-wrap">
                                         <span class="px-2 py-0.5 bg-slate-900/70 text-white backdrop-blur-md rounded text-[9px] uppercase font-bold tracking-wide" x-text="f.type"></span>
                                         <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide text-white"

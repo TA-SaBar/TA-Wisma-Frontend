@@ -2,7 +2,7 @@
         <aside class="w-72 bg-wisma-navy text-white flex flex-col shrink-0 h-[100dvh] shadow-2xl relative z-20">
             <!-- Logo Area -->
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <img src="/images/logo.png" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
+                <img src="/images/webp/logo.webp" class="h-10 w-auto object-contain rounded-xl" alt="Logo Wisma DPR RI">
                 <div>
                     <h2 class="font-outfit font-bold text-base tracking-wider leading-none">Wisma DPR RI</h2>
                     <span class="text-[10px] text-wisma-textMuted font-medium uppercase tracking-widest font-outfit">Portal Resepsionis</span>

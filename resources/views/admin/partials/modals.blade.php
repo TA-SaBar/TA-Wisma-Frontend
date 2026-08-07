@@ -63,7 +63,7 @@
                         <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
                             <input type="file" accept="image/*" @change="handlePhotoUpload($event)" class="text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#0B1A30] file:text-white hover:file:bg-slate-800 cursor-pointer flex-1">
                             <template x-if="crudForm.photo">
-                                <img :src="crudForm.photo" class="w-12 h-12 rounded-lg object-cover border border-slate-200 flex-shrink-0">
+                                <img :src="crudForm.photo" class="w-12 h-12 rounded-lg object-cover border border-slate-200 flex-shrink-0" alt="Foto Fasilitas">
                             </template>
                         </div>
                     </div>

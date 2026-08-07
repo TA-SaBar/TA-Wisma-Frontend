@@ -3,7 +3,7 @@
         <!-- Cover Section Left -->
         <div class="w-[55%] h-full bg-slate-900 relative overflow-hidden hidden md:block">
             <img class="absolute inset-0 w-full h-full object-cover opacity-60" 
-                 src="/images/wisma_dpr.jpg">
+                 src="/images/webp/wisma_dpr.webp" alt="Background Login">
             <div class="absolute inset-0 bg-gradient-to-t from-wisma-dark via-wisma-dark/45 to-transparent"></div>
             
             <div class="absolute inset-x-12 bottom-16 space-y-8 z-10">
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 text-white/50 text-xs">
-                    <img src="/images/logo.png" class="w-4 h-4 object-contain rounded" alt="Logo">
+                    <img src="/images/webp/logo.webp" class="w-4 h-4 object-contain rounded" alt="Logo">
                     <span class="uppercase tracking-widest font-semibold text-[10px]">Wisma DPR RI</span>
                 </div>
             </div>
@@ -45,7 +45,7 @@
         <div class="flex-1 h-full bg-white flex flex-col justify-between p-12">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <img src="/images/logo.png" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
+                    <img src="/images/webp/logo.webp" class="h-9 w-auto object-contain rounded-lg" alt="Logo Wisma DPR RI">
                     <div>
                         <h2 class="font-outfit font-bold text-sm text-slate-900 tracking-wider leading-none">Wisma DPR RI</h2>
                         <span class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Government Hospitality</span>

@@ -450,6 +450,7 @@
                                 db_id: c.id,
                                 title: c.title,
                                 category: c.category,
+                                category_label: c.category === 'facility' ? 'Fasilitas (Bungalow, Gedung)' : (c.category === 'laundry' ? 'Layanan Laundry' : (c.category === 'internet' ? 'Internet / Wifi' : 'Layanan Makanan')),
                                 category_slug: c.category.toLowerCase().replace(/\s+/g, '-'),
                                 location: c.location,
                                 date: new Date(c.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'}),
@@ -579,9 +580,13 @@
                             if (this.reportComplaintFilterStatus && this.reportComplaintFilterStatus !== 'semua') {
                                 params.append('status', this.reportComplaintFilterStatus);
                             }
+                            if (this.reportStartDate) params.append('start_date', this.reportStartDate);
+                            if (this.reportEndDate) params.append('end_date', this.reportEndDate);
                             filename = `Laporan-Keluhan-${new Date().toISOString().slice(0, 10)}.pdf`;
                         } else if (this.csReportSubTab === 'ulasan') {
                             endpoint = '/feedbacks/export-pdf';
+                            if (this.reportStartDate) params.append('start_date', this.reportStartDate);
+                            if (this.reportEndDate) params.append('end_date', this.reportEndDate);
                             // Note: we might filter rating if backend supports it later
                             filename = `Laporan-Ulasan-${new Date().toISOString().slice(0, 10)}.pdf`;
                         }
